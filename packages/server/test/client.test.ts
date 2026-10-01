@@ -3,6 +3,7 @@ import { Client, StreamableHTTPClientTransport } from '@modelcontextprotocol/cli
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { createApp, type App } from '../src/app.js';
 import { loadConfig } from '../src/config.js';
+import { makeDeps } from './helpers.js';
 
 const TOKEN = 'test-token';
 
@@ -10,7 +11,7 @@ let app: App;
 let url: URL;
 
 beforeAll(async () => {
-  app = createApp(loadConfig({ MCP_BEARER_TOKEN: TOKEN, PORT: '0' }));
+  app = createApp(loadConfig({ MCP_BEARER_TOKEN: TOKEN, PORT: '0' }), await makeDeps());
   await new Promise<void>((resolve) => app.server.listen(0, '127.0.0.1', resolve));
   url = new URL(`http://127.0.0.1:${(app.server.address() as AddressInfo).port}/mcp`);
 });

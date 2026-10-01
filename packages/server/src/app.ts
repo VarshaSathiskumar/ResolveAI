@@ -15,6 +15,7 @@ import {
 } from '@modelcontextprotocol/node';
 import { isAuthorized } from './auth.js';
 import type { Config } from './config.js';
+import type { ServerDeps } from './deps.js';
 import { HttpError, readJsonBody, sendError } from './http.js';
 import { createMcpServer } from './mcpServer.js';
 
@@ -32,8 +33,8 @@ export interface App {
  * - 2026-07-28 traffic (per-request envelope) goes to the SDK's stateless handler.
  * - 2025-era traffic (initialize handshake, Mcp-Session-Id) goes to a per-session transport.
  */
-export function createApp(config: Config): App {
-  const modern = createMcpHandler(createMcpServer, {
+export function createApp(config: Config, deps: ServerDeps): App {
+  const modern = createMcpHandler(() => createMcpServer(deps), {
     legacy: 'reject',
     onerror: (error) => console.error('mcp handler error:', error.message),
   });
@@ -72,7 +73,7 @@ export function createApp(config: Config): App {
       transport.onclose = () => {
         if (transport.sessionId) sessions.delete(transport.sessionId);
       };
-      await createMcpServer().connect(transport);
+      await createMcpServer(deps).connect(transport);
       await transport.handleRequest(req, res, body);
       return;
     }

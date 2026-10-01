@@ -2,6 +2,7 @@ import type { AddressInfo } from 'node:net';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { createApp, type App } from '../src/app.js';
 import { loadConfig } from '../src/config.js';
+import { makeDeps } from './helpers.js';
 
 const TOKEN = 'test-token';
 const PROTOCOL = '2025-11-25';
@@ -10,7 +11,7 @@ let app: App;
 let url: string;
 
 beforeAll(async () => {
-  app = createApp(loadConfig({ MCP_BEARER_TOKEN: TOKEN, PORT: '0' }));
+  app = createApp(loadConfig({ MCP_BEARER_TOKEN: TOKEN, PORT: '0' }), await makeDeps());
   await new Promise<void>((resolve) => app.server.listen(0, '127.0.0.1', resolve));
   url = `http://127.0.0.1:${(app.server.address() as AddressInfo).port}/mcp`;
 });
