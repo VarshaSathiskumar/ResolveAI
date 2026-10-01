@@ -13,7 +13,7 @@ import {
   toNodeHandler,
   toWebRequest,
 } from '@modelcontextprotocol/node';
-import { isAuthorized } from './auth.js';
+import { authenticate, principalFromAuthInfo, toAuthInfo, type Principal } from './auth.js';
 import type { Config } from './config.js';
 import type { ServerDeps } from './deps.js';
 import { HttpError, readJsonBody, sendError } from './http.js';
@@ -34,29 +34,36 @@ export interface App {
  * - 2025-era traffic (initialize handshake, Mcp-Session-Id) goes to a per-session transport.
  */
 export function createApp(config: Config, deps: ServerDeps): App {
-  const modern = createMcpHandler(() => createMcpServer(deps), {
+  const modern = createMcpHandler((ctx) => createMcpServer(deps, principalFromAuthInfo(ctx.authInfo)), {
     legacy: 'reject',
     onerror: (error) => console.error('mcp handler error:', error.message),
   });
   const serveModern = toNodeHandler(modern, {
     onerror: (error) => console.error('mcp adapter error:', error.message),
   });
-  const sessions = new Map<string, NodeStreamableHTTPServerTransport>();
+  /** Each session belongs to the user whose token opened it. */
+  const sessions = new Map<string, { transport: NodeStreamableHTTPServerTransport; userId?: string }>();
 
   const validateHost = hostHeaderValidation(config.allowedHosts);
   const validateOrigin = originValidation(config.allowedOrigins);
 
-  async function serveLegacy(req: IncomingMessage, res: ServerResponse, body: unknown): Promise<void> {
+  async function serveLegacy(
+    req: IncomingMessage,
+    res: ServerResponse,
+    body: unknown,
+    principal: Principal,
+  ): Promise<void> {
     const header = req.headers['mcp-session-id'];
     const sessionId = typeof header === 'string' ? header : undefined;
 
     if (sessionId) {
-      const transport = sessions.get(sessionId);
-      if (!transport) {
+      const session = sessions.get(sessionId);
+      // Another user's session looks exactly like one that does not exist.
+      if (!session || session.userId !== principal.userId) {
         sendError(res, 404, 'Unknown or expired session', -32001);
         return;
       }
-      await transport.handleRequest(req, res, body);
+      await session.transport.handleRequest(req, res, body);
       return;
     }
 
@@ -64,7 +71,7 @@ export function createApp(config: Config, deps: ServerDeps): App {
       const transport = new NodeStreamableHTTPServerTransport({
         sessionIdGenerator: randomUUID,
         onsessioninitialized: (id) => {
-          sessions.set(id, transport);
+          sessions.set(id, { transport, userId: principal.userId });
         },
         onsessionclosed: (id) => {
           sessions.delete(id);
@@ -73,7 +80,7 @@ export function createApp(config: Config, deps: ServerDeps): App {
       transport.onclose = () => {
         if (transport.sessionId) sessions.delete(transport.sessionId);
       };
-      await createMcpServer(deps).connect(transport);
+      await createMcpServer(deps, principal).connect(transport);
       await transport.handleRequest(req, res, body);
       return;
     }
@@ -84,10 +91,13 @@ export function createApp(config: Config, deps: ServerDeps): App {
   async function handle(req: IncomingMessage, res: ServerResponse): Promise<void> {
     if (!validateHost(req, res) || !validateOrigin(req, res)) return;
 
-    if (!isAuthorized(req.headers.authorization, config.bearerToken)) {
+    const principal = authenticate(req.headers.authorization, config);
+    if (!principal) {
       sendError(res, 401, 'Unauthorized', -32001, { 'WWW-Authenticate': 'Bearer' });
       return;
     }
+    // The node adapter hands req.auth to the stateless handler as authInfo.
+    (req as IncomingMessage & { auth?: ReturnType<typeof toAuthInfo> }).auth = toAuthInfo(principal);
 
     const { pathname } = new URL(req.url ?? '/', 'http://localhost');
     if (pathname !== MCP_PATH) {
@@ -110,7 +120,7 @@ export function createApp(config: Config, deps: ServerDeps): App {
 
     const probe = await toWebRequest(req, body);
     if (await isLegacyRequest(probe, body)) {
-      await serveLegacy(req, res, body);
+      await serveLegacy(req, res, body, principal);
     } else {
       await serveModern(req, res, body);
     }
@@ -135,7 +145,7 @@ export function createApp(config: Config, deps: ServerDeps): App {
     server,
     async close() {
       await modern.close();
-      await Promise.all([...sessions.values()].map((transport) => transport.close()));
+      await Promise.all([...sessions.values()].map((session) => session.transport.close()));
       sessions.clear();
       await new Promise<void>((resolve) => {
         server.close(() => resolve());

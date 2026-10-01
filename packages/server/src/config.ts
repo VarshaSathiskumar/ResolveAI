@@ -7,7 +7,10 @@ const LOCAL_HOSTNAMES = ['localhost', '127.0.0.1', '[::1]'];
 export interface Config {
   host: string;
   port: number;
-  bearerToken: string;
+  /** Token with no user behind it. Optional when user tokens are set. */
+  bearerToken?: string;
+  /** Token to user id, from MCP_USER_TOKENS="token-a:demo-alex,token-b:demo-sam". */
+  userTokens: Record<string, string>;
   /** SQLite file built by `npm run ingest`. */
   dbPath: string;
   /** Must match the embedder used at ingestion. */
@@ -25,15 +28,30 @@ function list(value: string | undefined): string[] {
     .filter(Boolean);
 }
 
+function parseUserTokens(value: string | undefined): Record<string, string> {
+  const tokens: Record<string, string> = {};
+  for (const entry of list(value)) {
+    const split = entry.indexOf(':');
+    const token = entry.slice(0, split).trim();
+    const userId = entry.slice(split + 1).trim();
+    if (split < 1 || !userId) throw new Error(`MCP_USER_TOKENS entry "${entry}" must look like token:user-id`);
+    if (token in tokens) throw new Error('MCP_USER_TOKENS contains the same token twice');
+    tokens[token] = userId;
+  }
+  return tokens;
+}
+
 export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
-  const bearerToken = env.MCP_BEARER_TOKEN;
-  if (!bearerToken) {
-    throw new Error('MCP_BEARER_TOKEN must be set');
+  const bearerToken = env.MCP_BEARER_TOKEN || undefined;
+  const userTokens = parseUserTokens(env.MCP_USER_TOKENS);
+  if (!bearerToken && Object.keys(userTokens).length === 0) {
+    throw new Error('Set MCP_USER_TOKENS (token:user-id pairs) or MCP_BEARER_TOKEN');
   }
   return {
     host: env.HOST ?? '127.0.0.1',
     port: Number(env.PORT ?? 3000),
     bearerToken,
+    userTokens,
     dbPath: env.RESOLVEAI_DB ?? resolve(REPO_ROOT, 'data/resolveai.db'),
     embedder: env.RESOLVEAI_EMBEDDER === 'hash' ? 'hash' : 'transformers',
     allowedHosts: [...LOCAL_HOSTNAMES, ...list(env.ALLOWED_HOSTS)],
