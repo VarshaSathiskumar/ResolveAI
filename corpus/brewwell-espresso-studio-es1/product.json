@@ -1,0 +1,14 @@
+{
+  "id": "brewwell-espresso-studio-es1",
+  "brand": "Brewwell",
+  "model": "Espresso Studio ES-1",
+  "aliases": ["Espresso Studio", "ES1", "ES-1", "espresso machine", "semi-automatic espresso machine"],
+  "category": "coffee machine",
+  "specs": { "type": "semi-automatic espresso", "tank_litres": 1.8, "pressure_bar": 15, "display": "pressure gauge" },
+  "known_issues": ["pump airlock", "low pressure from too fine a grind"],
+  "warranty": {
+    "term_months": 24,
+    "coverage": ["pump", "boiler", "control board", "pressure gauge"],
+    "exclusions": ["portafilter and basket wear", "damage from limescale", "cosmetic damage", "commercial use"]
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "id": "brewwell-dripmate-12",
+  "brand": "Brewwell",
+  "model": "DripMate 12",
+  "aliases": ["DripMate", "DM12", "DM-12", "drip coffee maker", "filter coffee machine", "12 cup coffee maker"],
+  "category": "coffee machine",
+  "specs": { "type": "12 cup drip", "carafe": "glass 1.8 litre", "keep_warm_minutes": 120, "display": "digital clock" },
+  "known_issues": ["slow drip from limescale", "blocked showerhead", "thermal fuse trip"],
+  "warranty": {
+    "term_months": 12,
+    "coverage": ["heating plate", "control board", "thermal fuse"],
+    "exclusions": ["glass carafe breakage", "damage from limescale", "cosmetic damage", "commercial use"]
+  }
+}

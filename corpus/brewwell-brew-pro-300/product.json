@@ -1,0 +1,14 @@
+{
+  "id": "brewwell-brew-pro-300",
+  "brand": "Brewwell",
+  "model": "Brew Pro 300",
+  "aliases": ["Brew Pro", "BP300", "BP-300", "Brewwell pod machine with milk frother", "pod coffee machine"],
+  "category": "coffee machine",
+  "specs": { "type": "single-serve pod with milk frother", "tank_litres": 1.4, "pressure_bar": 19, "display": "colour LCD" },
+  "known_issues": ["missing or misseated water tank seal", "descale required"],
+  "warranty": {
+    "term_months": 24,
+    "coverage": ["pump", "heating element", "control board", "milk frother motor", "display"],
+    "exclusions": ["damage from limescale when descaling was not performed", "lost or damaged tank seal ring", "cosmetic damage", "commercial use"]
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "id": "brewwell-brew-pro-200",
+  "brand": "Brewwell",
+  "model": "Brew Pro 200",
+  "aliases": ["Brew Pro", "BP200", "BP-200", "Brewwell pod machine", "pod coffee machine"],
+  "category": "coffee machine",
+  "specs": { "type": "single-serve pod", "tank_litres": 1.0, "pressure_bar": 15, "display": "3 indicator lights" },
+  "known_issues": ["clogged piercing needle", "descale required"],
+  "warranty": {
+    "term_months": 24,
+    "coverage": ["pump", "heating element", "control board", "piercing needle assembly"],
+    "exclusions": ["damage from limescale when descaling was not performed", "cosmetic damage", "commercial use", "drops and spills"]
+  }
+}
