@@ -17,6 +17,7 @@
     "@modelcontextprotocol/server": "^2.2.0",
     "better-sqlite3": "^13.0.3",
     "sqlite-vec": "^0.1.9",
+    "stemmer": "^2.0.1",
     "zod": "^4.6.5"
   },
   "devDependencies": {

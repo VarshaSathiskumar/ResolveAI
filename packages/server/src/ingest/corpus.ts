@@ -1,6 +1,7 @@
 import { readdirSync, readFileSync, existsSync } from 'node:fs';
 import { join } from 'node:path';
 import { z } from 'zod';
+import { stem, words } from '../retrieval/text.js';
 import { documentTitle } from './chunk.js';
 
 export const DOC_TYPES = ['manual', 'troubleshooting', 'warranty'] as const;
@@ -34,6 +35,8 @@ const demoFile = z.object({
   ),
 });
 
+const synonymsFile = z.object({ groups: z.array(z.array(z.string())) });
+
 export type ProductFile = z.infer<typeof productFile>;
 export type DemoFile = z.infer<typeof demoFile>;
 
@@ -47,6 +50,41 @@ export interface CorpusDocument {
 export interface Corpus {
   products: { product: ProductFile; documents: CorpusDocument[] }[];
   demo: DemoFile;
+  /** Groups of equivalent words, lower-case. Empty when the corpus has no synonyms.json. */
+  synonyms: string[][];
+}
+
+/**
+ * Checks synonym groups before they are stored. A bad entry fails the ingest rather than
+ * quietly weakening retrieval:
+ * - a group needs at least two words,
+ * - a word may belong to only one group (otherwise its meaning is ambiguous),
+ * - at least one word of each group must occur in the corpus, or the group can never help.
+ */
+export function validateSynonyms(groups: string[][], corpusStems: Set<string>): string[][] {
+  const seen = new Map<string, { index: number; label: string }>();
+  return groups.map((group, index) => {
+    // One form per stem: FTS5 stems on its own, so "leak" and "leaking" would only repeat each other.
+    const byStem = new Map<string, string>();
+    for (const word of group.map((entry) => entry.trim().toLowerCase()).filter(Boolean)) {
+      if (!byStem.has(stem(word))) byStem.set(stem(word), word);
+    }
+    const normalised = [...byStem.values()];
+    const label = `[${normalised.join(', ')}]`;
+    if (normalised.length < 2) throw new Error(`synonyms.json: group ${label} needs at least two words`);
+    for (const word of normalised) {
+      const key = stem(word);
+      const other = seen.get(key);
+      if (other && other.index !== index) {
+        throw new Error(`synonyms.json: "${word}" is in both ${other.label} and ${label}`);
+      }
+      seen.set(key, { index, label });
+    }
+    if (!normalised.some((word) => corpusStems.has(stem(word)))) {
+      throw new Error(`synonyms.json: no word in ${label} appears in the corpus, so it can never match`);
+    }
+    return normalised;
+  });
 }
 
 /** Reads and validates a corpus directory: one folder per product plus demo.json. */
@@ -76,5 +114,13 @@ export function loadCorpus(dir: string): Corpus {
   for (const owned of demo.owned_products) {
     if (!ids.has(owned.product_id)) throw new Error(`demo.json references unknown product "${owned.product_id}"`);
   }
-  return { products, demo };
+
+  const synonymsPath = join(dir, 'synonyms.json');
+  const corpusStems = new Set(
+    products.flatMap(({ documents }) => documents.flatMap((document) => words(document.markdown).map(stem))),
+  );
+  const synonyms = existsSync(synonymsPath)
+    ? validateSynonyms(synonymsFile.parse(JSON.parse(readFileSync(synonymsPath, 'utf8'))).groups, corpusStems)
+    : [];
+  return { products, demo, synonyms };
 }

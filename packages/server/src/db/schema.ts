@@ -17,6 +17,7 @@ const CATALOG_TABLES = [
   'chunks_fts',
   'chunks',
   'documents',
+  'synonyms',
   'warranties',
   'owned_products',
   'products',
@@ -59,6 +60,12 @@ export function applySchema(db: Db, embeddingDims: number): void {
       term_months INTEGER NOT NULL,
       coverage_json TEXT NOT NULL,
       exclusions TEXT NOT NULL
+    );
+
+    CREATE TABLE IF NOT EXISTS synonyms (
+      stem TEXT PRIMARY KEY,
+      group_id INTEGER NOT NULL,
+      word TEXT NOT NULL
     );
 
     CREATE TABLE IF NOT EXISTS documents (

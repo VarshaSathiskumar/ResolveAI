@@ -51,6 +51,16 @@ describe('search_troubleshooting tool', () => {
     expect(output.results.every((hit) => hit.product_id === 'brewwell-brew-pro-300')).toBe(true);
   });
 
+  it('reports synonym matches in the structured output', async () => {
+    const result = await search({ query: 'I think the needle is jammed', product_id: 'brewwell-brew-pro-200' });
+    const output = result.structuredContent as {
+      unknown_terms: string[];
+      synonym_matches: { term: string; matched: string }[];
+    };
+    expect(output.unknown_terms).not.toContain('jammed');
+    expect(output.synonym_matches.map((entry) => entry.term)).toContain('jammed');
+  });
+
   it('puts the citation and the text in the human-readable content too', async () => {
     const result = await search({ query: 'needle clogged', product_id: 'brewwell-brew-pro-200' });
     const text = (result.content[0] as { text: string }).text;

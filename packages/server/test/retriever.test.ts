@@ -102,6 +102,37 @@ describe('sufficiency signals', () => {
   });
 });
 
+describe('synonyms', () => {
+  it('does not treat a synonym of a documented word as unknown', async () => {
+    const result = await deps.retriever.search({ query: 'I think the needle is jammed', productId: PRO200 });
+    expect(result.unknownTerms).not.toContain('jammed');
+    expect(result.gaps).not.toContain('jammed');
+    expect(result.hits.slice(0, 3).some((hit) => /needle/i.test(hit.section))).toBe(true);
+  });
+
+  it('reports which synonym matched', async () => {
+    const result = await deps.retriever.search({ query: 'I think the needle is jammed', productId: PRO200 });
+    const match = result.synonymMatches.find((entry) => entry.term === 'jammed');
+    expect(['clogged', 'blocked']).toContain(match?.matched);
+  });
+
+  it('finds the clogged needle section from the synonym alone', async () => {
+    const result = await deps.retriever.search({ query: 'jammed', productId: PRO200 });
+    expect(result.hits.slice(0, 3).some((hit) => /clogged needle/i.test(hit.section))).toBe(true);
+  });
+
+  it('does not report a synonym match when the user word itself is in the results', async () => {
+    const result = await deps.retriever.search({ query: 'needle clogged', productId: PRO200 });
+    expect(result.synonymMatches).toEqual([]);
+  });
+
+  it('does not rescue a query about something the product does not have', async () => {
+    const result = await deps.retriever.search({ query: 'the grinder is jamming', productId: ES1 });
+    expect(result.unknownTerms).toContain('grinder');
+    expect(result.confidence).toBe('low');
+  });
+});
+
 describe('startup checks', () => {
   it('refuses an index built with a different embedding model', () => {
     expect(() => createRetriever({ db: deps.db, embedder: createHashEmbedder(64) })).toThrow(/Re-run ingestion/);

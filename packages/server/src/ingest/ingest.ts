@@ -1,5 +1,6 @@
 import { applySchema, resetCatalog, type Db } from '../db/schema.js';
 import { chunkMarkdown } from './chunk.js';
+import { stem } from '../retrieval/text.js';
 import { loadCorpus } from './corpus.js';
 import type { Embedder } from './embed.js';
 
@@ -96,6 +97,11 @@ export async function ingestCorpus(options: {
       insertFts.run(lastInsertRowid, chunk.section, chunk.text);
       const vector = vectors[index]!;
       insertVec.run(BigInt(lastInsertRowid), Buffer.from(vector.buffer, vector.byteOffset, vector.byteLength));
+    });
+
+    const insertSynonym = db.prepare('INSERT INTO synonyms (stem, group_id, word) VALUES (?, ?, ?)');
+    corpus.synonyms.forEach((group, groupId) => {
+      for (const word of group) insertSynonym.run(stem(word), groupId, word);
     });
 
     const insertOwned = db.prepare(

@@ -1,3 +1,5 @@
+import { stemmer } from 'stemmer';
+
 const STOPWORDS = new Set(
   (
     'a an and are as at be been but by can could did do does for from get got had has have how i if in into is isnt it its ' +
@@ -34,4 +36,9 @@ export function queryTerms(query: string): string[] {
 /** Builds an FTS5 query that matches any of the terms. Each term is quoted so it is never parsed as syntax. */
 export function ftsAnyOf(terms: string[]): string {
   return terms.map((term) => `"${term.replace(/"/g, '')}"`).join(' OR ');
+}
+
+/** Porter stem of a word, so "jammed", "jamming" and "jam" compare equal. */
+export function stem(word: string): string {
+  return stemmer(word.toLowerCase());
 }

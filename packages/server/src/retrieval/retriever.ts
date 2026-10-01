@@ -2,6 +2,7 @@ import type { Db } from '../db/schema.js';
 import type { DocType } from '../ingest/corpus.js';
 import type { Embedder } from '../ingest/embed.js';
 import { assessSufficiency, DEFAULT_THRESHOLDS, type Confidence, type Signals, type Thresholds } from './sufficiency.js';
+import { createSynonymLookup } from './synonyms.js';
 import { codeTerms, ftsAnyOf, queryTerms } from './text.js';
 
 export interface SearchOptions {
@@ -38,6 +39,8 @@ export interface SearchResult {
   gaps: string[];
   /** Gaps that appear nowhere in the whole corpus: the documentation never uses these words. */
   unknownTerms: string[];
+  /** Terms the user used that the top results only cover through a synonym, for example jammed matched as clogged. */
+  synonymMatches: { term: string; matched: string }[];
   suggestedRefinement?: string;
   /** Facts the caller must establish before searching again, for example "product_id". */
   needs: string[];
@@ -141,10 +144,13 @@ export function createRetriever(options: {
     return dot(query, vector);
   };
 
-  const matchedWithin = (term: string, ids: number[]): boolean =>
+  /** Whether any of the words occurs in one of the chunks. */
+  const matchedWithin = (variants: string[], ids: number[]): boolean =>
     db
       .prepare(`SELECT 1 FROM chunks_fts WHERE chunks_fts MATCH ? AND rowid IN (${ids.map(() => '?').join(',')}) LIMIT 1`)
-      .get(ftsAnyOf([term]), ...ids) !== undefined;
+      .get(ftsAnyOf(variants), ...ids) !== undefined;
+
+  const synonyms = createSynonymLookup(db);
 
   const productRow = db.prepare('SELECT 1 FROM products WHERE id = ?');
 
@@ -153,6 +159,8 @@ export function createRetriever(options: {
     async search({ query, productId, docTypes, limit = 4 }) {
       const terms = queryTerms(query);
       const codes = codeTerms(query);
+      // A term stands for itself plus its synonyms. Codes and model numbers are exact and never expanded.
+      const variantsOf = (term: string): string[] => (codes.includes(term) ? [term] : synonyms.expand(term));
 
       const [queryVector] = await embedder.embed([query]);
 
@@ -180,7 +188,7 @@ export function createRetriever(options: {
       );
       const scoped = (ids: number[]) => ids.filter((id) => allowed.has(id));
 
-      const keyword = scoped(ftsRanked(terms));
+      const keyword = scoped(ftsRanked([...new Set(terms.flatMap(variantsOf))]));
       const semantic = scoped(nearest(queryVector!));
       const exact = scoped(ftsRanked(codes));
       const fused = fuse([keyword, semantic, exact]);
@@ -213,10 +221,16 @@ export function createRetriever(options: {
 
       const top = hits.slice(0, TOP_FOR_SIGNALS);
       const topIds = top.map((hit) => hit.chunkId);
-      const matched = (term: string) => topIds.length > 0 && matchedWithin(term, topIds);
+      const matched = (term: string) => topIds.length > 0 && matchedWithin(variantsOf(term), topIds);
       const gaps = terms.filter((term) => !matched(term));
-      const unknown = gaps.filter((term) => ftsRanked([term]).length === 0);
+      // Unknown means no variant of the term appears anywhere in the corpus.
+      const unknown = gaps.filter((term) => ftsRanked(variantsOf(term)).length === 0);
       const codeMatched = codes.every(matched);
+      const synonymMatches = terms.flatMap((term) => {
+        if (gaps.includes(term) || topIds.length === 0 || matchedWithin([term], topIds)) return [];
+        const via = variantsOf(term).find((variant) => matchedWithin([variant], topIds));
+        return via ? [{ term, matched: via }] : [];
+      });
 
       const otherProduct = hits.find((hit) => hit.productId !== hits[0]?.productId);
       const ambiguousProduct = !productId && !!otherProduct && otherProduct.score >= 0.9 * hits[0]!.score;
@@ -238,6 +252,7 @@ export function createRetriever(options: {
         confidence,
         gaps,
         unknownTerms: unknown,
+        synonymMatches,
         suggestedRefinement: refinement(confidence, gaps, unknown, codes, !!productId, needs),
         needs,
       };

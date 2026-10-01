@@ -1,0 +1,11 @@
+{
+  "groups": [
+    ["clogged", "blocked", "jammed", "stuck", "choked"],
+    ["weak", "watery", "thin"],
+    ["noisy", "loud", "buzzing", "rattling", "gurgling"],
+    ["leak", "leaking", "dripping"],
+    ["lukewarm", "cold", "tepid"],
+    ["limescale", "scale", "descale", "chalky"],
+    ["slow", "sluggish"]
+  ]
+}

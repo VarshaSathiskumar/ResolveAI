@@ -25,6 +25,8 @@ const answerable: { query: string; product: string; section: RegExp | undefined;
   { query: 'it only makes half a pot', product: DRIP, section: /slow|partial/i, minimum: 'high' },
   { query: 'nothing lights up no power', product: DRIP, section: /no power/i, minimum: 'high' },
   { query: 'how long is the warranty', product: PRO200, section: /warranty term/i, minimum: 'high' },
+  { query: 'I think the needle is jammed', product: PRO200, section: /needle/i, minimum: 'high' },
+  { query: 'pump is gurgling', product: ES1, section: /airlock/i, minimum: 'medium' },
   { query: 'the shot is watery', product: ES1, section: undefined, minimum: 'medium' },
 ];
 

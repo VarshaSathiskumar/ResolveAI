@@ -13,6 +13,7 @@ const DESCRIPTION = [
   '- low: do not answer from these results. Follow `suggested_refinement`, ask the user one diagnostic question, or say it is not in their documentation.',
   '`needs` lists what to establish before searching again, for example product_id.',
   '`unknown_terms` are words the documentation never uses: do not assume the product has that feature.',
+  '`synonym_matches` show where the user\'s word was matched through a synonym (for example jammed as clogged); the match is reliable but confirm with the user if the step is risky.',
 ].join('\n');
 
 const docType = z.enum(['manual', 'troubleshooting', 'warranty']);
@@ -33,6 +34,7 @@ const outputSchema = z.object({
   confidence: z.enum(['high', 'medium', 'low']),
   gaps: z.array(z.string()),
   unknown_terms: z.array(z.string()),
+  synonym_matches: z.array(z.object({ term: z.string(), matched: z.string() })),
   needs: z.array(z.string()),
   suggested_refinement: z.string().optional(),
   results: z.array(resultSchema),
@@ -97,6 +99,7 @@ export function registerSearchTroubleshootingTool(server: McpServer, deps: Serve
         confidence: result.confidence,
         gaps: result.gaps,
         unknown_terms: result.unknownTerms,
+        synonym_matches: result.synonymMatches,
         needs: result.needs,
         ...(result.suggestedRefinement ? { suggested_refinement: result.suggestedRefinement } : {}),
         results: result.hits.map(toResult),
