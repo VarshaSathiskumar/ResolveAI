@@ -26,13 +26,13 @@ function transport(): StreamableHTTPClientTransport {
   });
 }
 
-async function pingWith(client: Client): Promise<unknown> {
+async function lookUpProductWith(client: Client): Promise<unknown> {
   await client.connect(transport());
   try {
     const { tools } = await client.listTools();
-    expect(tools.map((tool) => tool.name)).toContain('ping');
-    const result = await client.callTool({ name: 'ping', arguments: { message: 'sdk' } });
-    return result.structuredContent;
+    expect(tools.map((tool) => tool.name)).toContain('get_product');
+    const result = await client.callTool({ name: 'get_product', arguments: { product_id: 'brewwell-brew-pro-200' } });
+    return (result.structuredContent as { model: string }).model;
   } finally {
     await client.close();
   }
@@ -41,7 +41,7 @@ async function pingWith(client: Client): Promise<unknown> {
 describe('SDK client against the server', () => {
   it('works over the 2025-era session handshake', async () => {
     const client = new Client({ name: 'legacy-client', version: '0.0.0' });
-    expect(await pingWith(client)).toEqual({ reply: 'pong: sdk' });
+    expect(await lookUpProductWith(client)).toBe('Brew Pro 200');
   });
 
   it('works over the pinned 2026-07-28 stateless path', async () => {
@@ -49,6 +49,6 @@ describe('SDK client against the server', () => {
       { name: 'modern-client', version: '0.0.0' },
       { versionNegotiation: { mode: { pin: '2026-07-28' } } },
     );
-    expect(await pingWith(client)).toEqual({ reply: 'pong: sdk' });
+    expect(await lookUpProductWith(client)).toBe('Brew Pro 200');
   });
 });

@@ -7,6 +7,7 @@ const DESCRIPTION = [
   "Search the product's manuals, troubleshooting guides and warranty documents for the user's problem.",
   'Use it once you know which product the user means (pass product_id) and have a symptom, error code or light pattern to search for.',
   'Every result carries a ready-to-say citation (document and page); name it when you give a step.',
+  'To read more around a result, call get_document_section with its document_id and page.',
   'Read `confidence` before answering:',
   '- high: answer from the results, one or two steps at a time.',
   '- medium: the match is partial. Reword the query with the error code or what the machine does, or ask the user one clarifying question.',
@@ -20,6 +21,7 @@ const docType = z.enum(['manual', 'troubleshooting', 'warranty']);
 
 const resultSchema = z.object({
   citation: z.string(),
+  uri: z.string(),
   product_id: z.string(),
   product_model: z.string(),
   doc_type: docType,
@@ -42,7 +44,8 @@ const outputSchema = z.object({
 
 function toResult(hit: SearchHit): z.infer<typeof resultSchema> {
   return {
-    citation: `${hit.citation}`,
+    citation: hit.citation,
+    uri: `doc://${hit.documentId}#p${hit.page}`,
     product_id: hit.productId,
     product_model: hit.productModel,
     doc_type: hit.docType,

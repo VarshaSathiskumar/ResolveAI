@@ -10,6 +10,8 @@ export interface Product {
   specs: Record<string, unknown>;
   knownIssues: string[];
   warrantyTermMonths: number;
+  warrantyCoverage: string[];
+  warrantyExclusions: string[];
 }
 
 export interface OwnedProduct {
@@ -31,11 +33,29 @@ export interface ProductDocument {
   pages: number;
 }
 
+export interface DocumentInfo {
+  documentId: number;
+  productId: string;
+  productModel: string;
+  type: DocType;
+  title: string;
+  pages: number;
+}
+
+export interface PageChunk {
+  page: number;
+  section: string;
+  text: string;
+}
+
 export interface Catalog {
   allProducts(): Product[];
   getProduct(id: string): Product | undefined;
   documentsFor(productId: string): ProductDocument[];
   ownedBy(userId: string): OwnedProduct[];
+  getDocument(documentId: number): DocumentInfo | undefined;
+  /** The chunks on the given pages of a document, in reading order. */
+  chunksOnPages(documentId: number, pages: number[]): PageChunk[];
 }
 
 interface ProductRow {
@@ -47,6 +67,8 @@ interface ProductRow {
   specs_json: string;
   known_issues: string;
   term_months: number;
+  coverage_json: string;
+  exclusions: string;
 }
 
 function toProduct(row: ProductRow): Product {
@@ -59,11 +81,13 @@ function toProduct(row: ProductRow): Product {
     specs: JSON.parse(row.specs_json) as Record<string, unknown>,
     knownIssues: JSON.parse(row.known_issues) as string[],
     warrantyTermMonths: row.term_months,
+    warrantyCoverage: JSON.parse(row.coverage_json) as string[],
+    warrantyExclusions: JSON.parse(row.exclusions) as string[],
   };
 }
 
 const PRODUCT_SELECT = `SELECT p.id, p.brand, p.model, p.aliases, p.category, p.specs_json, p.known_issues,
-                               w.term_months
+                               w.term_months, w.coverage_json, w.exclusions
                         FROM products p JOIN warranties w ON w.product_id = p.id`;
 
 /** Read-only queries over the products, documents and owned_products tables. */
@@ -87,6 +111,32 @@ export function createCatalog(db: Db): Catalog {
           )
           .all(productId) as { document_id: number; type: DocType; title: string; pages: number }[]
       ).map((row) => ({ documentId: row.document_id, type: row.type, title: row.title, pages: row.pages })),
+
+    getDocument(documentId) {
+      const row = db
+        .prepare(
+          `SELECT d.id AS document_id, d.product_id, p.model AS product_model, d.type, d.title,
+                  COALESCE((SELECT MAX(page) FROM chunks WHERE document_id = d.id), 0) AS pages
+           FROM documents d JOIN products p ON p.id = d.product_id WHERE d.id = ?`,
+        )
+        .get(documentId) as
+        | { document_id: number; product_id: string; product_model: string; type: DocType; title: string; pages: number }
+        | undefined;
+      return row
+        ? { documentId: row.document_id, productId: row.product_id, productModel: row.product_model, type: row.type, title: row.title, pages: row.pages }
+        : undefined;
+    },
+
+    chunksOnPages: (documentId, pages) =>
+      pages.length === 0
+        ? []
+        : (db
+            .prepare(
+              `SELECT page, section, text FROM chunks
+               WHERE document_id = ? AND page IN (${pages.map(() => '?').join(',')})
+               ORDER BY page, id`,
+            )
+            .all(documentId, ...pages) as PageChunk[]),
 
     ownedBy: (userId) =>
       (

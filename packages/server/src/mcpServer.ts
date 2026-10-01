@@ -1,10 +1,15 @@
 import { McpServer } from '@modelcontextprotocol/server';
 import type { Principal } from './auth.js';
 import type { ServerDeps } from './deps.js';
+import { registerDocumentResource } from './resources/documents.js';
+import { registerCheckWarrantyTool } from './tools/checkWarranty.js';
+import { registerCreateSupportCaseTool } from './tools/createSupportCase.js';
+import { registerGetCaseStateTool } from './tools/getCaseState.js';
+import { registerGetDocumentSectionTool } from './tools/getDocumentSection.js';
 import { registerGetProductTool } from './tools/getProduct.js';
 import { registerIdentifyProductTool } from './tools/identifyProduct.js';
 import { registerListOwnedProductsTool } from './tools/listOwnedProducts.js';
-import { registerPingTool } from './tools/ping.js';
+import { registerRecordDiagnosticStepTool } from './tools/recordDiagnosticStep.js';
 import { registerSearchTroubleshootingTool } from './tools/searchTroubleshooting.js';
 
 /**
@@ -13,10 +18,15 @@ import { registerSearchTroubleshootingTool } from './tools/searchTroubleshooting
  */
 export function createMcpServer(deps: ServerDeps, principal: Principal = {}): McpServer {
   const server = new McpServer({ name: 'resolveai', version: '0.0.0' });
-  registerPingTool(server);
   registerListOwnedProductsTool(server, deps, principal);
   registerIdentifyProductTool(server, deps, principal);
   registerGetProductTool(server, deps);
   registerSearchTroubleshootingTool(server, deps);
+  registerGetDocumentSectionTool(server, deps);
+  registerGetCaseStateTool(server, deps, principal);
+  registerRecordDiagnosticStepTool(server, deps, principal);
+  registerCheckWarrantyTool(server, deps, principal);
+  registerCreateSupportCaseTool(server, deps, principal);
+  registerDocumentResource(server, deps);
   return server;
 }

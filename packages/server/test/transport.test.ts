@@ -178,19 +178,19 @@ describe('sessions (2025-era)', () => {
 });
 
 describe('tools', () => {
-  it('lists and calls the ping stub tool', async () => {
+  it('lists and calls a tool', async () => {
     const id = await openSession();
     const session = { 'Mcp-Session-Id': id, 'MCP-Protocol-Version': PROTOCOL };
 
     const list = await rpc(await post({ jsonrpc: '2.0', id: 2, method: 'tools/list' }, session));
-    expect(list.result.tools.map((tool: { name: string }) => tool.name)).toContain('ping');
+    expect(list.result.tools.map((tool: { name: string }) => tool.name)).toContain('get_product');
 
     const call = await rpc(
       await post(
-        { jsonrpc: '2.0', id: 3, method: 'tools/call', params: { name: 'ping', arguments: { message: 'hi' } } },
+        { jsonrpc: '2.0', id: 3, method: 'tools/call', params: { name: 'get_product', arguments: { product_id: 'brewwell-brew-pro-200' } } },
         session,
       ),
     );
-    expect(call.result.structuredContent).toEqual({ reply: 'pong: hi' });
+    expect(call.result.structuredContent.model).toBe('Brew Pro 200');
   });
 });
