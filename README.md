@@ -97,26 +97,29 @@ sequenceDiagram
 How the agent works through a problem:
 
 ```mermaid
-flowchart TD
-    A["Customer describes a problem"] --> B{"Machine known?"}
-    B -->|"No"| C["list_owned_products or identify_product"]
-    C --> D{"Ambiguous?"}
-    D -->|"Yes"| E["Ask which model"]
-    E --> B
-    D -->|"No"| F
-    B -->|"Yes"| F["search_troubleshooting"]
-    F --> G{"Confidence"}
-    G -->|"High"| H["Give one step with its source"]
-    G -->|"Medium or low"| I["Ask one diagnostic question"]
-    I --> F
-    H --> J["record_diagnostic_step"]
-    J --> K{"Fixed?"}
-    K -->|"Yes"| L["Close warmly"]
-    K -->|"No, twice"| M["check_warranty"]
-    K -->|"No, not yet twice"| F
-    M --> N{"Customer wants a case?"}
-    N -->|"Yes"| O["create_support_case and show ticket card"]
-    N -->|"No"| P["Leave it there"]
+flowchart LR
+    A(["Problem"]) --> B["1. Find<br/>the machine"]
+    B --> C["2. Search<br/>the docs"]
+    C --> D{"Confident?"}
+    D -->|"No"| E["Ask one<br/>question"]
+    E --> C
+    D -->|"Yes"| F["3. Give<br/>one step"]
+    F --> G{"Fixed?"}
+    G -->|"Yes"| H(["Done"])
+    G -->|"No, next step"| F
+    G -->|"No, after 2 tries"| I["4. Check<br/>warranty"]
+    I --> J{"Wants a<br/>case?"}
+    J -->|"Yes"| K(["Ticket filed"])
+    J -->|"No"| L(["Leave it"])
+
+    classDef start fill:#e8f0fe,stroke:#4a6fa5,color:#1a1a1a
+    classDef step fill:#fff7e0,stroke:#c9a227,color:#1a1a1a
+    classDef ask fill:#f3e8ff,stroke:#8a5cc2,color:#1a1a1a
+    classDef end_ fill:#e6f4ea,stroke:#3d8b57,color:#1a1a1a
+    class A start
+    class B,C,F,I step
+    class D,E,G,J ask
+    class H,K,L end_
 ```
 
 Safety words (smoke, sparks, shock, water near a plugged-in machine) skip all of this: the agent tells the customer to unplug it if safe and contact support.
