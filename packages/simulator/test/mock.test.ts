@@ -75,6 +75,14 @@ describe('mock agent with Raj (two machines, one out of warranty)', () => {
     expect(texts.at(-1)).toMatch(/warranty has expired, so a repair would not be covered/);
   });
 
+  it('lists no tried steps on a ticket for a new conversation, even if an earlier one left a case open', async () => {
+    await chat('raj', ['the milk from my coffee machine is not frothing', 'the brew pro 300', "didn't work"]);
+    await chat('raj', ['is my machine still under warranty?', 'the brew pro 300', 'yes please']);
+    const ticket = stack.app.deps.db.prepare('SELECT summary, steps_tried FROM support_cases ORDER BY id DESC LIMIT 1').get() as { summary: string; steps_tried: string };
+    expect(JSON.parse(ticket.steps_tried)).toEqual([]);
+    expect(ticket.summary).not.toMatch(/steps from the guide/);
+  });
+
   it('keeps his machines and cases apart from Alex', async () => {
     const alex = await ask('alex', 'is my machine still under warranty?');
     expect(alex.tools).toEqual(['list_owned_products', 'check_warranty']);

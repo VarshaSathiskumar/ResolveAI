@@ -108,6 +108,10 @@ function decide(messages: Message[]): LlmResponse {
     return next && state.unknownAnswers === 0 ? say(`${MOCK_NOT_FOUND} ${next}`) : offerSupport(MOCK_NOT_FOUND);
   };
 
+  /** Writes to this conversation's case, or starts a new one: an open case left by an earlier conversation is not continued. */
+  const record = (input: Record<string, unknown>): LlmResponse =>
+    call(id, 'record_diagnostic_step', { ...(state.caseId !== undefined ? { case_id: state.caseId } : { new_case: true }), ...input });
+
   /** The last step from the guide the customer was given, if it is not on the case yet. */
   const lastAdvisedStep = (): string | undefined => {
     const source = state.lastSearch?.results.find((result) => stepsIn(result.body).length > 0);
@@ -116,12 +120,16 @@ function decide(messages: Message[]): LlmResponse {
   };
 
   const failedOutcome = (product: string): LlmResponse =>
-    call(id, 'record_diagnostic_step', { kind: 'outcome', content: 'The customer said the last step did not help', product_id: product, symptom });
+    record({ kind: 'outcome', content: 'The customer said the last step did not help', product_id: product, symptom });
+
+  /** What went wrong and what did not help, saying nothing was tried when nothing was. */
+  const caseSummary = (): string =>
+    `${symptom} ${progressOf(state).steps.length > 0 ? 'The steps from the guide did not fix it.' : 'The customer asked for a support case.'}`.slice(0, 590);
 
   const openCase = (product: string): LlmResponse =>
     state.caseId !== undefined
-      ? call(id, 'create_support_case', { summary: `${symptom} The steps from the guide did not fix it.`.slice(0, 590) })
-      : call(id, 'record_diagnostic_step', { kind: 'step', content: 'Followed the steps from the troubleshooting guide without success', product_id: product, symptom });
+      ? call(id, 'create_support_case', { summary: caseSummary() })
+      : record({ kind: 'answer', content: `Customer reported: ${symptom}`, product_id: product, symptom });
 
   /** Once the machine is known: open a case, check the warranty, or search, depending on what was asked. */
   const nextStep = (product: string): LlmResponse => {
@@ -153,13 +161,13 @@ function decide(messages: Message[]): LlmResponse {
         return state.lastSearch ? advise() : productId ? nextStep(productId) : call(id, 'list_owned_products', {}, 'Let me check which machine you have.');
       case 'affirm':
         if (state.answering?.kind === 'escalate') return productId ? openCase(productId) : say('Which model do you have?');
-        return call(id, 'record_diagnostic_step', { kind: 'outcome', content: 'The customer said the step fixed the problem', resolved: true, ...(productId ? { product_id: productId, symptom } : {}) });
+        return record({ kind: 'outcome', content: 'The customer said the step fixed the problem', resolved: true, ...(productId ? { product_id: productId, symptom } : {}) });
       case 'deny': {
         if (state.answering?.kind === 'escalate') return say('No problem, I will leave it there. Is there anything else I can help with?');
         if (!productId) return call(id, 'list_owned_products', {}, 'Let me check which machine you have.');
         // Record the step that failed, so a support case can list what was tried, then the outcome.
         const tried = lastAdvisedStep();
-        return tried ? call(id, 'record_diagnostic_step', { kind: 'step', content: tried, product_id: productId, symptom }) : failedOutcome(productId);
+        return tried ? record({ kind: 'step', content: tried, product_id: productId, symptom }) : failedOutcome(productId);
       }
       default:
         break;
@@ -211,7 +219,7 @@ function decide(messages: Message[]): LlmResponse {
     }
     case 'record_diagnostic_step': {
       if (input.kind === 'step' && state.lastIntent === 'deny' && productId) return failedOutcome(productId);
-      if (input.kind === 'step') return call(id, 'create_support_case', { summary: `${symptom} The steps from the guide did not fix it.`.slice(0, 590) });
+      if (input.kind === 'answer') return call(id, 'create_support_case', { summary: caseSummary() });
       if (input.resolved === true) return say('Glad that fixed it. Tell me if anything else comes up.');
       // The step did not help: another step if there is one, a support case once enough have failed.
       return progressOf(state).failed >= ESCALATE_AFTER ? offerSupport('I am sorry that did not help.') : advise();
