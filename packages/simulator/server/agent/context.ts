@@ -1,5 +1,5 @@
 import type { Block, Message } from './llm.js';
-import { ACK_WORDS, ESCALATE_AFTER, LOOKUP_TOOLS, NEUTRAL_PRODUCT_KEY, OVERLAP_STOP_WORDS, PATTERN_ABOUT_THE_HELP, PATTERN_ASKS, PATTERN_CLARIFY, PATTERN_DOMAIN, PATTERN_DONT_KNOW, PATTERN_ERROR_CODE, PATTERN_ESCALATE, PATTERN_FAILED, PATTERN_FIXED, PATTERN_NEXT, PATTERN_NO, PATTERN_OFFER_YES, PATTERN_REFERS_BACK, PATTERN_SAFETY, PATTERN_WILL_ACT, PATTERN_YES, READ_ONLY_TOOLS, REPEAT_OVERLAP, SKIPPED_PREFIX } from '../../../../config.js';
+import { ACK_WORDS, ESCALATE_AFTER, LOOKUP_TOOLS, NEUTRAL_PRODUCT_KEY, OVERLAP_STOP_WORDS, PATTERN_ABOUT_THE_HELP, PATTERN_ASKS, PATTERN_CLARIFY, PATTERN_DOMAIN, PATTERN_DONT_KNOW, PATTERN_ERROR_CODE, PATTERN_ESCALATE, PATTERN_FAILED, PATTERN_FIXED, PATTERN_NEXT, PATTERN_NO, PATTERN_OFFER_YES, PATTERN_REFERS_BACK, PATTERN_SAFETY, PATTERN_WHICH_PRODUCT, PATTERN_WILL_ACT, PATTERN_YES, READ_ONLY_TOOLS, REPEAT_OVERLAP, SKIPPED_PREFIX } from '../../../../config.js';
 
 /**
  * What the conversation has established so far, worked out from the message history alone. The history is the single
@@ -19,6 +19,8 @@ export type Intent =
   | 'acknowledge'
   /** A question about what the assistant just said ("say that again", "what do you mean"). */
   | 'clarify'
+  /** A question about which machine the conversation is about ("which device is this for?"). */
+  | 'which_product'
   /** A request for what comes next ("what is the next step", "anything else I can try"). */
   | 'continue'
   | 'off_topic'
@@ -155,6 +157,7 @@ export function classifyMessage(raw: string, state: ConversationState): Intent {
     // A bare yes or no with nothing asked is no request.
     if ((PATTERN_YES.test(text) || PATTERN_NO.test(text)) && !pending) return 'acknowledge';
   }
+  if (talking && state.product && PATTERN_WHICH_PRODUCT.test(text)) return 'which_product';
   if (talking && PATTERN_CLARIFY.test(text)) return 'clarify';
   if (talking && PATTERN_NEXT.test(text)) return 'continue';
   if (!aboutProduct(text, state) && !(pending && words.length <= 3)) return 'off_topic';
@@ -418,6 +421,8 @@ function describeMessage(state: ConversationState, intent: Intent): string | und
       return 'a request for what comes next. Give the next step from the results you already have, one that you have not given yet; search again only if none is left, and offer a support case if there are no more steps.';
     case 'clarify':
       return 'a question about what you just said. Answer from the conversation; search again only if the answer is not there.';
+    case 'which_product':
+      return 'a question about which machine this is for. Answer with the machine model from this note, without searching.';
     case 'answer':
       return state.lastText && PATTERN_DONT_KNOW.test(state.lastText.toLowerCase())
         ? 'the customer could not answer your question. Do not ask it again; try a different angle or offer a support case.'

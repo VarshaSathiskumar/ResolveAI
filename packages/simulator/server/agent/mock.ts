@@ -145,6 +145,8 @@ function decide(messages: Message[]): LlmResponse {
         return say(state.answering?.kind === 'outcome' ? 'Sure. Let me know how it goes.' : "You're welcome. Tell me if anything else comes up.");
       case 'off_topic':
         return say('That is outside what I can help with, but I am glad to help with your Brewwell machine.');
+      case 'which_product':
+        return say(`This is for your ${state.models[productId ?? ''] ?? 'machine'}.`);
       case 'clarify':
         return say(`Sure. ${state.lastReply}`);
       case 'continue':

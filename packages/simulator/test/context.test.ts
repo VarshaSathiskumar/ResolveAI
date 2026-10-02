@@ -50,6 +50,7 @@ describe('reading a customer line in context', () => {
     ['I did that and nothing changed', 'deny'],
     ['still nothing, I tried that too', 'deny'],
     ['sorry, can you say that again?', 'clarify'],
+    ['for which device is this?', 'which_product'],
     ['so what is the next step?', 'continue'],
     ["what's the weather like tomorrow?", 'off_topic'],
     ['who won the football game last night?', 'off_topic'],

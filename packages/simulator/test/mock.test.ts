@@ -53,6 +53,12 @@ describe('mock agent with Raj (two machines, one out of warranty)', () => {
     expect(turns[1]!.text).toMatch(/warranty ended on 2025-06-20/);
   });
 
+  it('names the machine when asked which device it is for', async () => {
+    const turns = await chat('raj', ['the milk from my coffee machine is not frothing', 'the brew pro 300', 'for which device is this?']);
+    expect(turns[2]!.tools).toEqual([]);
+    expect(turns[2]!.text).toMatch(/Brew Pro 300/);
+  });
+
   it('files a case on the expired machine and warns that a repair is not covered', async () => {
     const mcp = await stack.connect('raj');
     const conversation = createConversation(await mcp.tools());

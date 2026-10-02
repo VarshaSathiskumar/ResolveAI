@@ -356,6 +356,8 @@ export const PATTERN_FIXED = /\b(worked|fixed|solved|works now|working now|worki
 export const PATTERN_FAILED =
   /\b(didn'?t|did not|doesn'?t|does not|won'?t|will not|isn'?t|not) (work|help|fix|change|brew|working|helping)\b|\bstill (not|nothing|no|won'?t|will not|the same|broken|blinking|dripping|leaking|doesn'?t|isn'?t)\b|\bnothing (changed|happened|works?)\b|\bno (change|difference|luck)\b|\bnothing\b|\bsame (problem|thing)\b|\btried (that|it)\b/;
 export const PATTERN_CLARIFY = /\b(repeat|say (that|it) again|come again|pardon|what do you mean|what was that|didn'?t (catch|hear|get|understand)|can you (explain|clarify|rephrase)|what does that mean)\b/;
+/** "Which device is this for?": a question about the machine the conversation is about. */
+export const PATTERN_WHICH_PRODUCT = /\b(which|what) (device|machine|model|product)\b/;
 export const PATTERN_NEXT = /\b(next step|what (next|now|else)|anything else (i can|to) try|another (way|step|option)|something else|what should i do (now|next))\b/;
 export const PATTERN_DONT_KNOW = /\b(don'?t know|do not know|no idea|not sure|can'?t tell|unsure|dunno)\b/;
 // What a home-product conversation is about. A line with none of this, and no one to answer, is not about the product.
