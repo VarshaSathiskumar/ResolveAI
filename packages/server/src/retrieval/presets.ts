@@ -1,12 +1,5 @@
 import type { RetrieverOptions } from './retriever.js';
-
-/**
- * Reranker settings the shipped calibration model was fitted under (eval variant "rerank:keep=2,ctx=1"). The model's
- * signals only mean the same thing under the same settings, so these live in one place and a test ties them to the
- * model's recorded fit.
- */
-export const RERANK_SETTINGS = { rerankTop: 10, rerankWeight: 1, rerankKeep: 2, rerankContext: true } as const;
-export const RERANK_VARIANT = 'rerank:keep=2,ctx=1';
+import { RERANK_SETTINGS, RERANK_VARIANT } from '../../../../config.js';
 
 /**
  * The retrieval configuration the server runs, chosen from the benchmarks in eval/README.md.

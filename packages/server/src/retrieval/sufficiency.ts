@@ -1,3 +1,4 @@
+import { DEFAULT_THRESHOLDS, FEATURES, RERANK_FEATURES, UNKNOWN_DEMOTES_AT } from '../../../../config.js';
 export type Confidence = 'high' | 'medium' | 'low';
 
 /** Evidence gathered by the retriever for one query. */
@@ -48,20 +49,6 @@ export interface Thresholds {
 }
 
 /**
- * Cosine thresholds are tuned for all-MiniLM-L6-v2 against the synthetic corpus.
- * Re-tune them (see test/retrieval.eval.test.ts) when the embedding model changes.
- */
-export const DEFAULT_THRESHOLDS: Thresholds = {
-  highCoverage: 0.75,
-  highCosine: 0.3,
-  mediumCoverage: 0.5,
-  mediumCosine: 0.2,
-};
-
-/** Unknown terms at or above this share of the query lower the confidence by one level. */
-const UNKNOWN_DEMOTES_AT = 1 / 3;
-
-/**
  * Deterministic sufficiency check: is what was retrieved enough to answer from?
  * An exact code the user gave that appears nowhere in the results is always low,
  * because the results are then about something else.
@@ -109,11 +96,6 @@ const FEATURE_FUNCTIONS: Record<string, (signals: Signals) => number | undefined
   rerankMargin: (s) => s.rerankMargin,
   rerankTopScore: (s) => s.rerankTopScore,
 };
-
-/** Features for retrieval without a reranker. */
-export const FEATURES = ['coverage', 'coverageTop1', 'unknownShare', 'topCosine', 'cosineProminence', 'agreement', 'margin', 'exactCode'] as const;
-/** Features for retrieval with a reranker: the same ones, plus three that describe its output. */
-export const RERANK_FEATURES = [...FEATURES, 'rerankTopMatchesRrfTop', 'rerankMargin', 'rerankTopScore'] as const;
 
 export function featureVector(signals: Signals, names: readonly string[] = FEATURES): number[] {
   return names.map((name) => {

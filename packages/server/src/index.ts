@@ -1,5 +1,5 @@
 import { createApp } from './app.js';
-import { loadConfig } from './config.js';
+import { loadConfig } from '../../../config.js';
 import { createDeps } from './deps.js';
 
 const config = loadConfig();

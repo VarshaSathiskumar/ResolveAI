@@ -7,12 +7,13 @@ import { createTransformersEmbedder } from '../src/ingest/embed.js';
 import { ingestCorpus } from '../src/ingest/ingest.js';
 import { createRetriever } from '../src/retrieval/retriever.js';
 import { createCrossEncoderReranker } from '../src/retrieval/rerank.js';
-import { FEATURES, RERANK_FEATURES, featureVector, type CalibrationFile, type CalibrationModel } from '../src/retrieval/sufficiency.js';
+import { featureVector, type CalibrationFile, type CalibrationModel } from '../src/retrieval/sufficiency.js';
 import { chooseCutoffs, fitLogistic, leaveOneOut, logLoss, standardize, type Sample } from './calibration.js';
 import { FRESH_PATH, LOCK_PATH, verifyLock } from './lock.js';
 import { goldRank, PRODUCT_ALIASES, type EvalQuery } from './metrics.js';
 import { assertTrainingSet, splitMain } from './splits.js';
 import { variantOptions } from './variants.js';
+import { FEATURES, RERANK_FEATURES } from '../../../config.js';
 
 /**
  * Fits the confidence model on the DEV split only, with leave-one-out validation, and writes

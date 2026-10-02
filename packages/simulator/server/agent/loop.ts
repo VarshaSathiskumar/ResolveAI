@@ -1,6 +1,6 @@
 import { randomUUID } from 'node:crypto';
 import type { TraceListener, TurnEndReason } from '../../shared/events.js';
-import type { SimConfig } from '../config.js';
+import type { SimConfig } from '../../../../config.js';
 import type { McpConnection, McpTool } from '../mcp/client.js';
 import { toModelTools, type ModelTool } from '../mcp/tools.js';
 import { summarizeToolResult } from '../summary.js';
@@ -8,6 +8,7 @@ import { analyzeMessage, deriveState } from './context.js';
 import { guardCall } from './guard.js';
 import { toLlmError, type Block, type LlmClient, type Message } from './llm.js';
 import { SYSTEM_PROMPT } from './prompt.js';
+import { TRACE_TEXT_LIMIT } from '../../../../config.js';
 
 /**
  * One conversation with one customer. `messages` is append-only: earlier entries are never edited, trimmed or
@@ -40,8 +41,6 @@ export interface TurnResult {
   text: string;
   rounds: number;
 }
-
-const TRACE_TEXT_LIMIT = 600;
 
 const isToolUse = (block: Block): block is Block & { id: string; name: string; input: unknown } =>
   block.type === 'tool_use' && typeof block.id === 'string' && typeof block.name === 'string';

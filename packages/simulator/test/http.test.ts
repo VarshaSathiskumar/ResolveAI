@@ -3,7 +3,7 @@ import { afterEach, beforeAll, afterAll, describe, expect, it } from 'vitest';
 import type { TraceEvent } from '../shared/events.js';
 import { createSimApp, type SimApp } from '../server/http/app.js';
 import { createSessionManager } from '../server/http/sessions.js';
-import { loadSimConfig, type SimConfig } from '../server/config.js';
+import { loadSimConfig, type SimConfig } from '../../../config.js';
 import { connectMcp } from '../server/mcp/client.js';
 import { callTools, sayThenStop, scriptedLlm, startStack, TOKENS, toolUse, type ScriptedLlm, type Stack } from './helpers.js';
 

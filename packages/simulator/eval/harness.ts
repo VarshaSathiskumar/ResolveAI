@@ -1,7 +1,7 @@
 import { createConversation, runTurn } from '../server/agent/loop.js';
 import { createMockLlm } from '../server/agent/mock.js';
 import type { LlmClient } from '../server/agent/llm.js';
-import type { SimConfig } from '../server/config.js';
+import type { SimConfig } from '../../../config.js';
 import type { TraceEvent } from '../shared/events.js';
 import type { Stack } from '../test/helpers.js';
 

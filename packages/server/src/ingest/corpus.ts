@@ -3,8 +3,8 @@ import { join } from 'node:path';
 import { z } from 'zod';
 import { stem, words } from '../retrieval/text.js';
 import { documentTitle } from './chunk.js';
+import { DOC_TYPES } from '../../../../config.js';
 
-export const DOC_TYPES = ['manual', 'troubleshooting', 'warranty'] as const;
 export type DocType = (typeof DOC_TYPES)[number];
 
 const productFile = z.object({

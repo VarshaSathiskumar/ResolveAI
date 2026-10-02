@@ -1,6 +1,7 @@
 import Anthropic from '@anthropic-ai/sdk';
 import type { Usage } from '../../shared/events.js';
 import type { ModelTool } from '../mcp/tools.js';
+import { LLM_FALLBACK_BETA } from '../../../../config.js';
 
 /** A content block exactly as the API returned it. Kept opaque so it can be sent back unchanged. */
 export type Block = { type: string; [key: string]: unknown };
@@ -83,7 +84,7 @@ export function createAnthropicLlm(client: Anthropic = new Anthropic()): LlmClie
             // Caches the longest stable prefix (tools, system, earlier turns) without placing breakpoints by hand.
             cache_control: { type: 'ephemeral' },
             ...(request.effort ? { output_config: { effort: request.effort } } : {}),
-            ...(request.fallback ? { betas: ['server-side-fallback-2026-07-01'], fallbacks: 'default' as const } : {}),
+            ...(request.fallback ? { betas: [LLM_FALLBACK_BETA], fallbacks: 'default' as const } : {}),
           },
           { signal: request.signal },
         );

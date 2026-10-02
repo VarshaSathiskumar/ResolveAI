@@ -1,4 +1,5 @@
 import type { Block, Message } from './llm.js';
+import { ACK_WORDS, ESCALATE_AFTER, LOOKUP_TOOLS, NEUTRAL_PRODUCT_KEY, OVERLAP_STOP_WORDS, PATTERN_ABOUT_THE_HELP, PATTERN_ASKS, PATTERN_CLARIFY, PATTERN_DOMAIN, PATTERN_DONT_KNOW, PATTERN_ERROR_CODE, PATTERN_ESCALATE, PATTERN_FAILED, PATTERN_FIXED, PATTERN_NEXT, PATTERN_NO, PATTERN_OFFER_YES, PATTERN_REFERS_BACK, PATTERN_SAFETY, PATTERN_WILL_ACT, PATTERN_YES, READ_ONLY_TOOLS, REPEAT_OVERLAP, SKIPPED_PREFIX } from '../../../../config.js';
 
 /**
  * What the conversation has established so far, worked out from the message history alone. The history is the single
@@ -83,21 +84,8 @@ export interface ConversationState {
   lastText: string;
 }
 
-/** After this many attempts that did not help, or questions the customer could not answer, a support case is the next step. */
-export const ESCALATE_AFTER = 2;
-
-/** Calls that only read: the same call twice returns the same answer, so the second adds nothing. */
-export const READ_ONLY_TOOLS = new Set(['search_troubleshooting', 'identify_product', 'list_owned_products', 'get_product', 'check_warranty', 'get_document_section']);
-
-/** Lookups a message that carries no problem must not start. */
-export const LOOKUP_TOOLS = new Set(['search_troubleshooting', 'identify_product', 'list_owned_products']);
-
-export const SKIPPED_PREFIX = '[skipped] ';
-
-const NEUTRAL = '';
-
 export const progressOf = (state: ConversationState, productId: string | undefined = state.product?.id): Progress => {
-  const key = productId ?? NEUTRAL;
+  const key = productId ?? NEUTRAL_PRODUCT_KEY;
   return (state.progress[key] ??= { steps: [], failed: 0, advised: false });
 };
 
@@ -121,44 +109,18 @@ export function emptyState(): ConversationState {
 
 // Reading the customer ------------------------------------------------------------------------------------------
 
-const SAFETY = /\b(smoke|smoking|fire|burning|sparks?|sparking|electric shock|shocked|electrocut\w*|melting|melted)\b/;
-const ESCALATE = /\b(support|ticket|escalate|complaint)\b|\b(open|create|file|start|raise)\b.*\bcase\b|\b(talk|speak) to (a |an )?(human|person|agent|someone)\b/;
-const ACK = new Set(
-  ['ok', 'okay', 'alright', 'all', 'right', 'thanks', 'thank', 'thx', 'you', 'so', 'much', 'very', 'a', 'lot', 'again', 'great', 'cool', 'nice', 'perfect', 'awesome', 'got', 'it', 'i', 'see', 'understood', 'makes', 'sense', 'will', 'do', 'cheers', 'bye', 'goodbye', 'good', 'morning', 'afternoon', 'evening', 'night', 'hello', 'hi', 'hey', 'sounds', 'fine', 'noted', 'anyway', 'though'],
-);
-const YES = /^(yes|yeah|yep|yup|sure|please|absolutely|definitely|go ahead|do it|correct)\b/;
-const NO = /^(no|nope|nah|not really|not now|maybe later|no need|never ?mind|i'?m (good|fine)|i am (good|fine))\b/;
-// "I'll try that" promises an action; it asks for nothing.
-const WILL_ACT = /\b(i'?ll|i will|let me|i'?m going to|gonna) (try|check|do|give|see|get|go|look|test|have a go)\b/;
-const OFFER_YES = /^(yes|yeah|yep|yup|sure|please|ok|okay|alright|go ahead|do it|sounds good|absolutely|definitely)\b/;
-const FIXED = /\b(worked|fixed|solved|works now|working now|working again|sorted)\b/;
-const FAILED =
-  /\b(didn'?t|did not|doesn'?t|does not|won'?t|will not|isn'?t|not) (work|help|fix|change|brew|working|helping)\b|\bstill (not|nothing|no|won'?t|will not|the same|broken|blinking|dripping|leaking|doesn'?t|isn'?t)\b|\bnothing (changed|happened|works?)\b|\bno (change|difference|luck)\b|\bnothing\b|\bsame (problem|thing)\b|\btried (that|it)\b/;
-const CLARIFY = /\b(repeat|say (that|it) again|come again|pardon|what do you mean|what was that|didn'?t (catch|hear|get|understand)|can you (explain|clarify|rephrase)|what does that mean)\b/;
-const NEXT = /\b(next step|what (next|now|else)|anything else (i can|to) try|another (way|step|option)|something else|what should i do (now|next))\b/;
-const DONT_KNOW = /\b(don'?t know|do not know|no idea|not sure|can'?t tell|unsure|dunno)\b/;
-// What a home-product conversation is about. A line with none of this, and no one to answer, is not about the product.
-const DOMAIN =
-  /\b(machine|maker|coffee|espresso|brew\w*|drip\w*|pods?|capsules?|cups?|carafe|pot|water|tank|reservoir|filter|descal\w*|scale|clean\w*|leak\w*|error|codes?|lights?|leds?|blink\w*|flash\w*|buttons?|display|screen|steam|pump|noise|noisy|loud|grind\w*|milk|froth\w*|temperature|hot|cold|warm|lukewarm|weak|bitter|taste|smell|burnt|warranty|cover\w*|repair\w*|replac\w*|broken|fix\w*|work\w*|manual|guide|model|serial|product|appliance|device|unit|reset|brewwell|wi-?fi|apps?|connect\w*|bluetooth|alexa|firmware)\b/;
-const ERROR_CODE = /\be-?\d{1,3}\b/;
-// A line that asks something of its own, rather than giving the detail that was asked for.
-const ASKS = /\?\s*$|^(what|where|when|why|how|who|which|is|are|do|does|can|could|will|would|should)\b/;
-// Words about the conversation itself ("what is the next step", "anything else I can try").
-const ABOUT_THE_HELP = /\b(steps?|next|options?|alternatives?|else|another|instead|different)\b/;
-const REFERS_BACK = /\b(it|this|that|they|them|these|those)\b/;
-
 const wordsOf = (text: string): string[] => text.match(/[a-z0-9']+/g) ?? [];
 
 /** Whether the line mentions the machine, by name or by the kind of thing a machine does or suffers. */
 function aboutProduct(text: string, state: ConversationState): boolean {
-  if (DOMAIN.test(text) || ERROR_CODE.test(text) || wantsEscalation(text)) return true;
+  if (PATTERN_DOMAIN.test(text) || PATTERN_ERROR_CODE.test(text) || wantsEscalation(text)) return true;
   const names = Object.values(state.models).flatMap((model) => wordsOf(model.toLowerCase()).filter((word) => word.length >= 4));
   if (names.some((name) => text.includes(name))) return true;
   const active = state.product && (progressOf(state).advised || progressOf(state).steps.length > 0 || state.pending || state.problem.length > 0);
-  return Boolean(active && (REFERS_BACK.test(text) || ABOUT_THE_HELP.test(text)));
+  return Boolean(active && (PATTERN_REFERS_BACK.test(text) || PATTERN_ABOUT_THE_HELP.test(text)));
 }
 
-export const wantsEscalation = (text: string): boolean => ESCALATE.test(text.toLowerCase());
+export const wantsEscalation = (text: string): boolean => PATTERN_ESCALATE.test(text.toLowerCase());
 
 /**
  * What the customer's line is, in the light of the conversation so far. Deliberately blunt: short lines are read in
@@ -168,10 +130,10 @@ export const wantsEscalation = (text: string): boolean => ESCALATE.test(text.toL
 export function classifyMessage(raw: string, state: ConversationState): Intent {
   const text = raw.trim().toLowerCase().replace(/[‘’]/g, "'");
   const words = wordsOf(text);
-  if (SAFETY.test(text)) return 'safety';
+  if (PATTERN_SAFETY.test(text)) return 'safety';
   if (words.length === 0) return 'acknowledge';
   // "No idea" is an answer, not a refusal, so it is read before the yes and no rules.
-  if (state.lastReply !== '' && DONT_KNOW.test(text)) return 'answer';
+  if (state.lastReply !== '' && PATTERN_DONT_KNOW.test(text)) return 'answer';
 
   const pending = state.pending;
   const progress = progressOf(state);
@@ -180,24 +142,24 @@ export function classifyMessage(raw: string, state: ConversationState): Intent {
 
   if (short) {
     if (pending?.kind === 'escalate') {
-      if (OFFER_YES.test(text) && !FAILED.test(text)) return 'affirm';
-      if (NO.test(text)) return 'deny';
+      if (PATTERN_OFFER_YES.test(text) && !PATTERN_FAILED.test(text)) return 'affirm';
+      if (PATTERN_NO.test(text)) return 'deny';
     }
-    if (pending?.kind === 'closing' && (NO.test(text) || YES.test(text))) return 'acknowledge';
+    if (pending?.kind === 'closing' && (PATTERN_NO.test(text) || PATTERN_YES.test(text))) return 'acknowledge';
     const reportsOutcome = pending?.kind !== 'escalate' && pending?.kind !== 'closing' && (pending?.kind === 'outcome' || progress.advised || progress.steps.length > 0);
     if (reportsOutcome) {
-      if (FAILED.test(text) || (pending?.kind === 'outcome' && NO.test(text))) return 'deny';
-      if (FIXED.test(text) || (pending?.kind === 'outcome' && YES.test(text))) return 'affirm';
+      if (PATTERN_FAILED.test(text) || (pending?.kind === 'outcome' && PATTERN_NO.test(text))) return 'deny';
+      if (PATTERN_FIXED.test(text) || (pending?.kind === 'outcome' && PATTERN_YES.test(text))) return 'affirm';
     }
-    if (words.every((word) => ACK.has(word)) || WILL_ACT.test(text)) return 'acknowledge';
+    if (words.every((word) => ACK_WORDS.has(word)) || PATTERN_WILL_ACT.test(text)) return 'acknowledge';
     // A bare yes or no with nothing asked is no request.
-    if ((YES.test(text) || NO.test(text)) && !pending) return 'acknowledge';
+    if ((PATTERN_YES.test(text) || PATTERN_NO.test(text)) && !pending) return 'acknowledge';
   }
-  if (talking && CLARIFY.test(text)) return 'clarify';
-  if (talking && NEXT.test(text)) return 'continue';
+  if (talking && PATTERN_CLARIFY.test(text)) return 'clarify';
+  if (talking && PATTERN_NEXT.test(text)) return 'continue';
   if (!aboutProduct(text, state) && !(pending && words.length <= 3)) return 'off_topic';
   // Only a question that asks for a detail takes an answer; after a yes or no question, anything else is a new request.
-  const takesAnswer = pending?.kind === 'product' || (pending?.kind === 'detail' && !ASKS.test(text));
+  const takesAnswer = pending?.kind === 'product' || (pending?.kind === 'detail' && !PATTERN_ASKS.test(text));
   return takesAnswer && !wantsEscalation(text) ? 'answer' : 'request';
 }
 
@@ -214,8 +176,7 @@ export function questionKind(question: string): QuestionKind {
 
 const questionsIn = (text: string): string[] => text.split(/(?<=[.!?])\s+/).map((sentence) => sentence.trim()).filter((sentence) => sentence.endsWith('?'));
 
-const STOP = new Set(['the', 'a', 'an', 'is', 'it', 'that', 'this', 'you', 'your', 'to', 'of', 'and', 'or', 'do', 'did', 'can', 'what', 'i']);
-const contentWords = (text: string): Set<string> => new Set(wordsOf(text.toLowerCase()).filter((word) => !STOP.has(word)));
+const contentWords = (text: string): Set<string> => new Set(wordsOf(text.toLowerCase()).filter((word) => !OVERLAP_STOP_WORDS.has(word)));
 
 /** How much of the shorter text the other one repeats, from 0 to 1. */
 export function overlap(a: string, b: string): number {
@@ -226,8 +187,6 @@ export function overlap(a: string, b: string): number {
   for (const word of left) if (right.has(word)) shared += 1;
   return shared / Math.min(left.size, right.size);
 }
-
-export const REPEAT = 0.8;
 
 // Folding the history -------------------------------------------------------------------------------------------
 
@@ -359,7 +318,7 @@ export function observeCustomer(state: ConversationState, text: string): Intent 
     case 'request':
       if (state.resolved) {
         state.resolved = false;
-        state.progress[state.product?.id ?? NEUTRAL] = { steps: [], failed: 0, advised: false };
+        state.progress[state.product?.id ?? NEUTRAL_PRODUCT_KEY] = { steps: [], failed: 0, advised: false };
         state.unknownAnswers = 0;
         state.declined = false;
       }
@@ -367,7 +326,7 @@ export function observeCustomer(state: ConversationState, text: string): Intent 
       state.problem = wantsEscalation(text) && state.problem.length > 0 ? state.problem : [text];
       break;
     case 'answer':
-      if (DONT_KNOW.test(text.toLowerCase())) state.unknownAnswers += 1;
+      if (PATTERN_DONT_KNOW.test(text.toLowerCase())) state.unknownAnswers += 1;
       else if (pending?.kind !== 'product') state.problem.push(text);
       break;
     case 'deny':
@@ -395,7 +354,7 @@ function observeReply(state: ConversationState, raw: string): void {
   // "Did that help?" follows every step by design, so it is neither a repeat nor something not to ask again.
   const questions = all.filter((question) => questionKind(question) !== 'outcome');
   const earlier = state.lastReply !== '' || state.asked.length > 0;
-  state.repeatedReply = earlier && contentWords(text).size >= 4 && (overlap(state.lastReply, text) >= REPEAT || questions.some((q) => state.asked.some((old) => overlap(old, q) >= REPEAT)));
+  state.repeatedReply = earlier && contentWords(text).size >= 4 && (overlap(state.lastReply, text) >= REPEAT_OVERLAP || questions.some((q) => state.asked.some((old) => overlap(old, q) >= REPEAT_OVERLAP)));
   state.asked.push(...questions);
   state.lastReply = text;
   const last = text.split(/(?<=[.!?])\s+/).at(-1)?.trim() ?? '';
@@ -460,7 +419,7 @@ function describeMessage(state: ConversationState, intent: Intent): string | und
     case 'clarify':
       return 'a question about what you just said. Answer from the conversation; search again only if the answer is not there.';
     case 'answer':
-      return state.lastText && DONT_KNOW.test(state.lastText.toLowerCase())
+      return state.lastText && PATTERN_DONT_KNOW.test(state.lastText.toLowerCase())
         ? 'the customer could not answer your question. Do not ask it again; try a different angle or offer a support case.'
         : 'an answer to your question. Combine it with the problem so far.';
     case 'off_topic':

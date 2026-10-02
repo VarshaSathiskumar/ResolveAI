@@ -1,3 +1,4 @@
+import { CHUNK_HEADING, CHUNK_PAGE_MARKER, CHUNK_SEPARATOR_CELL } from '../../../../config.js';
 export interface Chunk {
   page: number;
   /** Heading path, for example "Clogged needle (error E01)". */
@@ -17,10 +18,6 @@ export interface ChunkOptions {
   maxRowColumns?: number;
 }
 
-const PAGE_MARKER = /^<!--\s*page:\s*(\d+)\s*-->$/;
-const HEADING = /^(#{1,3})\s+(.+?)\s*$/;
-const SEPARATOR_CELL = /^:?-{2,}:?$/;
-
 function cells(line: string): string[] {
   return line.trim().replace(/^\|/, '').replace(/\|$/, '').split('|').map((cell) => cell.trim());
 }
@@ -33,7 +30,7 @@ export function tableRows(lines: string[], maxColumns = Infinity): string[] | un
   if (lines.length < 3 || !lines.every((line) => line.trim().startsWith('|'))) return undefined;
   const header = cells(lines[0]!);
   if (header.length > maxColumns) return undefined;
-  if (!cells(lines[1]!).every((cell) => SEPARATOR_CELL.test(cell))) return undefined;
+  if (!cells(lines[1]!).every((cell) => CHUNK_SEPARATOR_CELL.test(cell))) return undefined;
   return lines.slice(2).map((line) =>
     cells(line)
       .map((cell, index) => (cell ? `${header[index] || `Column ${index + 1}`}: ${cell}` : ''))
@@ -89,13 +86,13 @@ export function chunkMarkdown(markdown: string, options: ChunkOptions = {}): Chu
   };
 
   for (const line of markdown.split('\n')) {
-    const pageMatch = PAGE_MARKER.exec(line.trim());
+    const pageMatch = CHUNK_PAGE_MARKER.exec(line.trim());
     if (pageMatch) {
       flushBlock();
       page = Number(pageMatch[1]);
       continue;
     }
-    const heading = HEADING.exec(line);
+    const heading = CHUNK_HEADING.exec(line);
     if (heading) {
       flushBlock();
       const level = heading[1]!.length;

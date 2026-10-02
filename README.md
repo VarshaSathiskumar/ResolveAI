@@ -215,6 +215,8 @@ Each `MCP_USER_TOKENS` entry is `token:user-id`, a demo user's linked account. `
 
 ### Settings
 
+All configuration lives in one file, [`config.ts`](config.ts) at the repo root: every environment variable (read by `loadConfig` and `loadSimConfig`), plus ports, limits, model names, file locations, tuning values and the word lists and patterns the agent uses. Change a value there, not in the module that uses it.
+
 | Variable | Effect |
 | --- | --- |
 | `ANTHROPIC_API_KEY` | Lets the demo use Claude instead of the mock agent |

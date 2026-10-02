@@ -1,7 +1,7 @@
 import Anthropic from '@anthropic-ai/sdk';
 import { describe, expect, it } from 'vitest';
 import { LlmError, toLlmError } from '../server/agent/llm.js';
-import { loadSimConfig } from '../server/config.js';
+import { loadSimConfig } from '../../../config.js';
 
 describe('loadSimConfig', () => {
   const env = { SIM_PERSONAS: 'alex:ta' };

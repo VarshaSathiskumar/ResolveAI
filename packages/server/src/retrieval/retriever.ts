@@ -7,7 +7,6 @@ import { applyRerank, type Reranker } from './rerank.js';
 import {
   assessSufficiency,
   assessSufficiencyV2,
-  DEFAULT_THRESHOLDS,
   type CalibrationFile,
   type CalibrationModel,
   type Confidence,
@@ -16,6 +15,7 @@ import {
 } from './sufficiency.js';
 import { createSynonymLookup } from './synonyms.js';
 import { codeTerms, ftsAnyOf, queryTerms } from './text.js';
+import { CANDIDATES_PER_LIST, DEFAULT_THRESHOLDS, DOC_TYPE_PRIOR, FTS_CONTENT_WEIGHTS, RRF_K, TOP_FOR_SIGNALS, WARRANTY_INTENT } from '../../../../config.js';
 
 export interface SearchOptions {
   query: string;
@@ -104,15 +104,8 @@ interface ChunkRow {
   text: string;
 }
 
-/** bm25 weights for the section, text and context columns of chunks_fts. */
-const CONTENT_WEIGHTS = '1.0, 1.0, 0.5';
 /** Restricts an FTS query to the chunk's own section and text, leaving out the title context column. */
 const inContent = (query: string) => `{section text} : (${query})`;
-const RRF_K = 60;
-const FETCH = 200;
-const TOP_FOR_SIGNALS = 3;
-const WARRANTY_INTENT = /\b(warranty|guarantee|guaranteed|covered|coverage|claim|replacement|repair)\b/i;
-const DOC_TYPE_PRIOR: Record<DocType, number> = { troubleshooting: 1.1, manual: 1, warranty: 0.9 };
 
 /** Reciprocal rank fusion: each list contributes 1 / (k + rank) to every chunk it contains. */
 function fuse(lists: number[][]): Map<number, number> {
@@ -220,9 +213,9 @@ export function createRetriever(options: RetrieverOptions): Retriever {
       : (
           db
             .prepare(
-              `SELECT rowid FROM chunks_fts WHERE chunks_fts MATCH ? ORDER BY bm25(chunks_fts, ${CONTENT_WEIGHTS}) LIMIT ?`,
+              `SELECT rowid FROM chunks_fts WHERE chunks_fts MATCH ? ORDER BY bm25(chunks_fts, ${FTS_CONTENT_WEIGHTS}) LIMIT ?`,
             )
-            .all(contentOnly ? inContent(ftsAnyOf(terms)) : ftsAnyOf(terms), FETCH) as { rowid: number }[]
+            .all(contentOnly ? inContent(ftsAnyOf(terms)) : ftsAnyOf(terms), CANDIDATES_PER_LIST) as { rowid: number }[]
         ).map((row) => row.rowid);
 
   /** Nearest chunks, best first, with the cosine similarity (vectors are unit length, so cosine = 1 - distance^2 / 2). */
@@ -230,7 +223,7 @@ export function createRetriever(options: RetrieverOptions): Retriever {
     (
       db
         .prepare('SELECT rowid, distance FROM chunks_vec WHERE embedding MATCH ? AND k = ? ORDER BY distance')
-        .all(Buffer.from(vector.buffer, vector.byteOffset, vector.byteLength), FETCH) as { rowid: number | bigint; distance: number }[]
+        .all(Buffer.from(vector.buffer, vector.byteOffset, vector.byteLength), CANDIDATES_PER_LIST) as { rowid: number | bigint; distance: number }[]
     ).map((row) => ({ id: Number(row.rowid), cosine: 1 - (row.distance * row.distance) / 2 }));
 
   const storedVector = db.prepare('SELECT embedding FROM chunks_vec WHERE rowid = ?');

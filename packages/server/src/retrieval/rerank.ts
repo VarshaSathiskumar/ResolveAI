@@ -1,3 +1,4 @@
+import { RERANKER_MODEL, RERANK_BLEND_K } from '../../../../config.js';
 /**
  * A reranker re-scores a few candidate passages against the query, jointly, which is more accurate than comparing
  * independently computed embeddings but too slow to run over the whole corpus. It only reorders candidates the
@@ -10,10 +11,8 @@ export interface Reranker {
   score(query: string, passages: string[]): Promise<number[]>;
 }
 
-const DEFAULT_MODEL = 'Xenova/ms-marco-MiniLM-L-6-v2';
-
 /** A small cross-encoder (MS MARCO MiniLM) run locally with transformers.js. Downloads once, then cached. */
-export function createCrossEncoderReranker(model = DEFAULT_MODEL): Reranker {
+export function createCrossEncoderReranker(model = RERANKER_MODEL): Reranker {
   type Loaded = {
     tokenizer: (queries: string[], options: object) => unknown;
     model: (inputs: unknown) => Promise<{ logits: { data: Float32Array | number[] } }>;
@@ -80,8 +79,6 @@ export interface Reranked {
   scores: Map<number, number>;
 }
 
-const BLEND_K = 60;
-
 /**
  * Reorders the first `top` candidates by reranker score (optionally blended with their fused rank) and leaves the
  * rest in their original order after them. `candidates` must already be in fused order. Pure given the scores.
@@ -96,7 +93,7 @@ export function applyRerank(scoresInOrder: number[], total: number, options: Rer
   const blended = [...Array(count).keys()]
     .map((index) => ({
       index,
-      value: options.weight / (BLEND_K + rerankRank.get(index)!) + (1 - options.weight) / (BLEND_K + index + 1),
+      value: options.weight / (RERANK_BLEND_K + rerankRank.get(index)!) + (1 - options.weight) / (RERANK_BLEND_K + index + 1),
     }))
     .sort((a, b) => b.value - a.value || a.index - b.index)
     .map((entry) => entry.index);

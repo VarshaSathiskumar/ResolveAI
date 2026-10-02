@@ -1,17 +1,15 @@
 import { mkdirSync } from 'node:fs';
-import { dirname, resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { dirname } from 'node:path';
 import { parseArgs } from 'node:util';
+import { CORPUS_DIR, repoPath, resolveDbPath } from '../../../../config.js';
 import { openDb } from '../db/schema.js';
 import { createHashEmbedder, createTransformersEmbedder } from './embed.js';
 import { ingestCorpus } from './ingest.js';
 
-const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), '../../../..');
-
 const { values } = parseArgs({
   options: {
-    corpus: { type: 'string', default: resolve(repoRoot, 'corpus') },
-    db: { type: 'string', default: process.env.RESOLVEAI_DB ?? resolve(repoRoot, 'data/resolveai.db') },
+    corpus: { type: 'string', default: repoPath(CORPUS_DIR) },
+    db: { type: 'string', default: resolveDbPath() },
     embedder: { type: 'string', default: 'transformers' },
   },
 });

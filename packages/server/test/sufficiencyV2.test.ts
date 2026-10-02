@@ -1,18 +1,17 @@
 import { describe, expect, it } from 'vitest';
 import calibrationFile from '../src/retrieval/calibration.json' with { type: 'json' };
-import { RERANK_SETTINGS, RERANK_VARIANT, productionRetrieval } from '../src/retrieval/presets.js';
+import { productionRetrieval } from '../src/retrieval/presets.js';
 import {
   assessSufficiencyV2,
   calibratedScore,
   featureVector,
-  FEATURES,
-  RERANK_FEATURES,
   type CalibrationFile,
   type CalibrationModel,
   type Signals,
 } from '../src/retrieval/sufficiency.js';
 import { variantOptions } from '../eval/variants.js';
 import { createOverlapReranker } from '../src/retrieval/rerank.js';
+import { FEATURES, RERANK_FEATURES, RERANK_SETTINGS, RERANK_VARIANT } from '../../../config.js';
 
 /** A hand-made model: confidence rises with coverage and the cross-encoder score, falls with unknown words. */
 const model: CalibrationModel = {

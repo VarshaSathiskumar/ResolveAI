@@ -3,8 +3,9 @@ import { resolve } from 'node:path';
 import { getToolUiResourceUri, RESOURCE_MIME_TYPE } from '@modelcontextprotocol/ext-apps/app-bridge';
 import { Client, StreamableHTTPClientTransport } from '@modelcontextprotocol/client';
 import { afterAll, describe, expect, it } from 'vitest';
-import { loadTicketCardHtml, TICKET_CARD_URI } from '../src/ui/ticketCard.js';
+import { loadTicketCardHtml } from '../src/ui/ticketCard.js';
 import { startTestApp, TOKENS, type TestApp } from './testApp.js';
+import { TICKET_CARD_URI } from '../../../config.js';
 
 const HTML = '<!doctype html><html><body>ticket card</body></html>';
 const apps: TestApp[] = [];

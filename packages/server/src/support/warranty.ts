@@ -1,3 +1,4 @@
+import { DAY_MS } from '../../../../config.js';
 export type WarrantyStatus = 'in_warranty' | 'expired' | 'unknown';
 
 export interface WarrantyAssessment {
@@ -9,8 +10,6 @@ export interface WarrantyAssessment {
   /** Why the status is unknown. */
   reason?: string;
 }
-
-const DAY_MS = 86_400_000;
 
 function parseDate(value: string): Date | undefined {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) return undefined;

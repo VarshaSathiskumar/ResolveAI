@@ -1,5 +1,6 @@
 import { timingSafeEqual } from 'node:crypto';
 import type { AuthInfo } from '@modelcontextprotocol/server';
+import { AUTH_USER_PREFIX } from '../../../config.js';
 
 /** Who made a request. `userId` is set when the token belongs to a registered user. */
 export interface Principal {
@@ -33,14 +34,12 @@ export function authenticate(header: string | undefined, config: TokenConfig): P
   return found;
 }
 
-const USER_PREFIX = 'user:';
-
 /** The auth info handed to the MCP handler. The principal travels in `clientId`. */
 export function toAuthInfo(principal: Principal): AuthInfo {
-  return { token: '', clientId: principal.userId ? `${USER_PREFIX}${principal.userId}` : 'anonymous', scopes: [] };
+  return { token: '', clientId: principal.userId ? `${AUTH_USER_PREFIX}${principal.userId}` : 'anonymous', scopes: [] };
 }
 
 export function principalFromAuthInfo(authInfo: AuthInfo | undefined): Principal {
   const id = authInfo?.clientId;
-  return id?.startsWith(USER_PREFIX) ? { userId: id.slice(USER_PREFIX.length) } : {};
+  return id?.startsWith(AUTH_USER_PREFIX) ? { userId: id.slice(AUTH_USER_PREFIX.length) } : {};
 }

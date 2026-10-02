@@ -4,8 +4,8 @@ import { z } from 'zod';
 import type { Principal } from '../auth.js';
 import type { ServerDeps } from '../deps.js';
 import { lookupWarranty } from '../support/lookup.js';
-import { TICKET_CARD_URI } from '../ui/ticketCard.js';
 import { errorResult, findCase } from './caseAccess.js';
+import { TICKET_CARD_URI } from '../../../../config.js';
 
 const DESCRIPTION = [
   'File a support case for the troubleshooting case, after the fixes you gave did not work or the fault needs a repair.',

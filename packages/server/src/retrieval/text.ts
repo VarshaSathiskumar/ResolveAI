@@ -1,29 +1,5 @@
 import { stemmer } from 'stemmer';
-
-const STOPWORDS = new Set(
-  (
-    'a an and are as at be been but by can could did do does for from get got had has have how i if in into is isnt it its ' +
-    'just me my no not of on or our please so that the their them then there these they this to up was we were what when ' +
-    'where which while who why will with would you your wont dont doesnt cant im ive help need want long many much often think thinks maybe seems seem really very bit kind sort thing something' +
-    // Generic to every document in the corpus, so they say nothing about whether the right page was found.
-    ' coffee machine maker'
-  ).split(' '),
-);
-
-/**
- * Generic English verbs, adverbs and pronouns that say nothing about a product problem ("air is getting into the
- * pump", "it barely trickles", "if none of this works"). A general rule, not a list built from particular queries.
- * Left out by default so it can be measured on its own; the calibrated retriever turns it on.
- */
-const FILLER = new Set(
-  (
-    'get gets getting got gotten make makes making made take takes taking took go goes going went gone come comes coming came ' +
-    'keep keeps keeping kept put puts putting say says said see sees seen seem seems seemed happen happens happening happened ' +
-    'try tries trying tried work works working worked barely hardly almost still even already always ever again anymore also ' +
-    'properly actually basically anything everything nothing none something someone anyone everyone ' +
-    'ok okay hi hello thanks thank'
-  ).split(' '),
-);
+import { FILLER_WORDS, STOPWORDS } from '../../../../config.js';
 
 /** Lower-cased alphanumeric words from free text, with apostrophes removed ("isn't" becomes "isnt"). */
 export function words(text: string): string[] {
@@ -45,7 +21,7 @@ export function queryTerms(query: string, options: { filler?: boolean } = {}): s
   // Take the codes out first so "E-04" is one term rather than "e" and "04".
   const rest = query.toLowerCase().replace(/\b[a-z]{1,3}-?\d{1,3}\b/g, ' ');
   const terms = words(rest).filter(
-    (word) => word.length > 1 && !STOPWORDS.has(word) && !(options.filler && FILLER.has(word)),
+    (word) => word.length > 1 && !STOPWORDS.has(word) && !(options.filler && FILLER_WORDS.has(word)),
   );
   return [...new Set([...terms, ...codes])];
 }

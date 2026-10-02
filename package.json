@@ -13,7 +13,7 @@
     "test": "npm run test --workspaces --if-present",
     "dev:server": "npm run dev -w @resolveai/server",
     "ingest": "npm run ingest -w @resolveai/server --",
-    "demo": "node packages/simulator/scripts/dev.mjs",
-    "demo:mock": "node packages/simulator/scripts/dev.mjs --mock"
+    "demo": "tsx packages/simulator/scripts/dev.mjs",
+    "demo:mock": "tsx packages/simulator/scripts/dev.mjs --mock"
   }
 }

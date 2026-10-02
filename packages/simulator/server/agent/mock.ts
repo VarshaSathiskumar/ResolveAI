@@ -1,5 +1,6 @@
-import { ESCALATE_AFTER, REPEAT, dataOf, deriveState, overlap, progressOf, readableOf, signature, wantsEscalation, type ConversationState } from './context.js';
+import { dataOf, deriveState, overlap, progressOf, readableOf, signature, wantsEscalation, type ConversationState } from './context.js';
 import type { Block, LlmClient, LlmRequest, LlmResponse, Message } from './llm.js';
+import { ESCALATE_AFTER, MOCK_DETAIL_QUESTIONS, MOCK_GENERIC_WORDS, MOCK_INPUT_TOKENS, MOCK_MODEL, MOCK_MODEL_MENTION, MOCK_NOT_FOUND, REPEAT_OVERLAP } from '../../../../config.js';
 
 /**
  * A rule-based stand-in for Claude, for trying the simulator without an API credential (SIM_LLM=mock). It makes real
@@ -9,29 +10,21 @@ import type { Block, LlmClient, LlmRequest, LlmResponse, Message } from './llm.j
  * from, and what the offline demo and the multi-turn eval show, is what the loop makes available to the real agent.
  * The model badge says "mock-agent".
  */
-const MODEL = 'mock-agent';
-
 const blocks = (message: Message | undefined): Block[] => (Array.isArray(message?.content) ? message.content : []);
 
-const say = (text: string): LlmResponse => ({ content: [{ type: 'text', text }], stopReason: 'end_turn', usage: usage(text), model: MODEL });
+const say = (text: string): LlmResponse => ({ content: [{ type: 'text', text }], stopReason: 'end_turn', usage: usage(text), model: MOCK_MODEL });
 const call = (id: string, name: string, input: Record<string, unknown>, lead?: string): LlmResponse => ({
   content: [...(lead ? [{ type: 'text', text: lead } as Block] : []), { type: 'tool_use', id, name, input }],
   stopReason: 'tool_use',
   usage: usage(JSON.stringify(input)),
-  model: MODEL,
+  model: MOCK_MODEL,
 });
 
 function usage(text: string) {
-  return { inputTokens: 5200, outputTokens: Math.ceil(text.length / 4), cacheReadTokens: 0, cacheWriteTokens: 0 };
+  return { inputTokens: MOCK_INPUT_TOKENS, outputTokens: Math.ceil(text.length / 4), cacheReadTokens: 0, cacheWriteTokens: 0 };
 }
 
-const NOT_FOUND = "I couldn't find that in your documentation.";
-// Each is put once, in this order, so a second "not found" asks something new instead of the same thing again.
-const DETAIL_QUESTIONS = ['What error code or light pattern do you see?', 'What does the machine do when you try to use it, for example any sounds or leaks?'];
-const MODEL_MENTION = /\be-?0\d\b|brew ?pro|dripmate|\bes-?1\b|espresso/i;
-
-const GENERIC = new Set(['machine', 'coffee', 'brewwell', 'maker', 'the', 'one', 'my', 'is', 'it']);
-const tokens = (text: string): string[] => (text.toLowerCase().replace(/-/g, '').match(/[a-z0-9]+/g) ?? []).filter((token) => !GENERIC.has(token));
+const tokens = (text: string): string[] => (text.toLowerCase().replace(/-/g, '').match(/[a-z0-9]+/g) ?? []).filter((token) => !MOCK_GENERIC_WORDS.has(token));
 
 /** Which of the machines the customer owns they mean ("the first one", "the espresso one", "DripMate"), if it is clear. */
 function pickOwned(state: ConversationState, answer: string): string | undefined {
@@ -99,7 +92,7 @@ function decide(messages: Message[]): LlmResponse {
     // The first result that has steps (the top one can be a symptom table), and the first of its steps not yet given.
     const source = search?.results.find((result) => stepsIn(result.body).length > 0);
     const next = source ? stepsIn(source.body).find((step) => !said.some((reply) => reply.includes(step))) : undefined;
-    if (!source || !next) return offerSupport(search ? 'That is everything the guide suggests.' : NOT_FOUND);
+    if (!source || !next) return offerSupport(search ? 'That is everything the guide suggests.' : MOCK_NOT_FOUND);
     return say(`${next} That is from ${source.citation}. Did that help?`);
   };
 
@@ -111,8 +104,8 @@ function decide(messages: Message[]): LlmResponse {
 
   /** Nothing usable was found: ask for a detail, a different one each time, and when they run out offer a way forward. */
   const nothingFound = (): LlmResponse => {
-    const next = DETAIL_QUESTIONS.find((question) => !state.asked.some((asked) => overlap(asked, question) >= REPEAT));
-    return next && state.unknownAnswers === 0 ? say(`${NOT_FOUND} ${next}`) : offerSupport(NOT_FOUND);
+    const next = MOCK_DETAIL_QUESTIONS.find((question) => !state.asked.some((asked) => overlap(asked, question) >= REPEAT_OVERLAP));
+    return next && state.unknownAnswers === 0 ? say(`${MOCK_NOT_FOUND} ${next}`) : offerSupport(MOCK_NOT_FOUND);
   };
 
   const openCase = (product: string): LlmResponse =>
@@ -168,7 +161,7 @@ function decide(messages: Message[]): LlmResponse {
       const picked = pickOwned(state, state.lastText);
       return picked ? nextStep(picked) : call(id, 'identify_product', { description: state.lastText });
     }
-    if (MODEL_MENTION.test(state.lastText) && !namesCurrent(state, state.lastText)) return call(id, 'identify_product', { description: state.lastText });
+    if (MOCK_MODEL_MENTION.test(state.lastText) && !namesCurrent(state, state.lastText)) return call(id, 'identify_product', { description: state.lastText });
     // The machine was already settled earlier in this conversation.
     if (productId) return nextStep(productId);
     return call(id, 'list_owned_products', {}, 'Let me check which machine you have.');
@@ -242,5 +235,3 @@ export function createMockLlm(options: { delayMs?: number } = {}): LlmClient {
     },
   };
 }
-
-export const MOCK_MODEL = MODEL;

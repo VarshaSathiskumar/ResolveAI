@@ -1,5 +1,6 @@
 import { App, applyDocumentTheme, applyHostFonts, applyHostStyleVariables, type McpUiHostContext } from '@modelcontextprotocol/ext-apps';
 import './style.css';
+import { TICKET_STATUS_LABEL } from '../../../../../config.js';
 
 /** The structured output of create_support_case. */
 interface Ticket {
@@ -23,8 +24,6 @@ function element<K extends keyof HTMLElementTagNameMap>(tag: K, className?: stri
   return node;
 }
 
-const STATUS_LABEL = { in_warranty: 'In warranty', expired: 'Expired', unknown: 'Not confirmed' } as const;
-
 function render(ticket: Ticket): void {
   const head = element('div', 'head');
   head.append(element('p', 'title', ticket.already_existed ? 'Support ticket (already filed)' : 'Support ticket'), element('span', 'pill', ticket.simulated ? 'Simulated' : 'Filed'));
@@ -38,7 +37,7 @@ function render(ticket: Ticket): void {
   };
   if (ticket.symptom) add('Problem', ticket.symptom);
 
-  const status = element('span', `status status--${ticket.warranty.status}`, STATUS_LABEL[ticket.warranty.status]);
+  const status = element('span', `status status--${ticket.warranty.status}`, TICKET_STATUS_LABEL[ticket.warranty.status]);
   const warranty = element('span');
   warranty.append(status, ticket.warranty.end_date ? ` until ${ticket.warranty.end_date}` : '');
   add('Warranty', warranty);

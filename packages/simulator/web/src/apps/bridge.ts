@@ -1,10 +1,10 @@
 import { AppBridge, PostMessageTransport, buildAllowAttribute } from '@modelcontextprotocol/ext-apps/app-bridge';
 import type { McpUiResourceCsp, McpUiResourcePermissions, McpUiSandboxProxyReadyNotification } from '@modelcontextprotocol/ext-apps/app-bridge';
 import { HOST_STYLE_VARIABLES } from './hostStyles';
+import { APP_HOST_INFO, sandboxPort } from '../../../../../config.js';
 
-const HOST = { name: 'ResolveAI Simulator', version: '0.0.0' };
 /** The sandbox page must be on another origin than this app, so a view can never reach the host's page or storage. */
-const SANDBOX_PORT = Number(import.meta.env.VITE_SANDBOX_PORT ?? 5174);
+const SANDBOX_PORT = sandboxPort(import.meta.env);
 
 export interface CallToolResultLike {
   [key: string]: unknown;
@@ -48,7 +48,7 @@ export function loadSandboxProxy(iframe: HTMLIFrameElement, csp?: McpUiResourceC
  * the result it is given, but it cannot call tools or read resources on the server by itself.
  */
 export function createBridge(iframe: HTMLIFrameElement, hooks: BridgeHooks = {}): AppBridge {
-  const bridge = new AppBridge(null, HOST, { openLinks: {} }, {
+  const bridge = new AppBridge(null, APP_HOST_INFO, { openLinks: {} }, {
     hostContext: {
       theme: 'dark',
       platform: 'web',

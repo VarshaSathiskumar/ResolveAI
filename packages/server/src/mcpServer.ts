@@ -12,7 +12,7 @@ import { registerIdentifyProductTool } from './tools/identifyProduct.js';
 import { registerListOwnedProductsTool } from './tools/listOwnedProducts.js';
 import { registerRecordDiagnosticStepTool } from './tools/recordDiagnosticStep.js';
 import { registerSearchTroubleshootingTool } from './tools/searchTroubleshooting.js';
-import { TICKET_CARD_URI } from './ui/ticketCard.js';
+import { TICKET_CARD_URI } from '../../../config.js';
 
 /**
  * Builds a fresh server instance for one user. Both transport eras call this, so tools are

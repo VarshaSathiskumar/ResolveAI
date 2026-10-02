@@ -1,5 +1,5 @@
 {
   "extends": "./tsconfig.json",
-  "compilerOptions": { "rootDir": ".", "noEmit": true },
-  "include": ["src", "eval"]
+  "compilerOptions": { "rootDir": "../..", "noEmit": true },
+  "include": ["src", "eval", "../../config.ts"]
 }

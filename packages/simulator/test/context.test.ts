@@ -1,8 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { classifyMessage, deriveState, ESCALATE_AFTER, overlap, progressOf, renderNote, shouldEscalate, signature, SKIPPED_PREFIX, type Intent } from '../server/agent/context.js';
+import { classifyMessage, deriveState, overlap, progressOf, renderNote, shouldEscalate, signature, type Intent } from '../server/agent/context.js';
 import { guardCall } from '../server/agent/guard.js';
 import type { Block, Message } from '../server/agent/llm.js';
 import type { ModelTool } from '../server/mcp/tools.js';
+import { ESCALATE_AFTER, SKIPPED_PREFIX } from '../../../config.js';
 
 const BP200 = 'brewwell-brew-pro-200';
 const DRIPMATE = 'brewwell-dripmate-12';

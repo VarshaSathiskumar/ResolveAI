@@ -2,7 +2,8 @@ import type { McpServer } from '@modelcontextprotocol/server';
 import { z } from 'zod';
 import type { Principal } from '../auth.js';
 import type { ServerDeps } from '../deps.js';
-import { errorResult, findCase, NO_ACCOUNT } from './caseAccess.js';
+import { errorResult, findCase } from './caseAccess.js';
+import { NO_ACCOUNT } from '../../../../config.js';
 
 const DESCRIPTION = [
   'Write one entry to the troubleshooting case: a question you asked, the user\'s answer, a step you gave them, or an outcome.',

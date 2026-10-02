@@ -1,4 +1,5 @@
 import { Client, StreamableHTTPClientTransport } from '@modelcontextprotocol/client';
+import { DEFAULT_TOOL_TIMEOUT_MS } from '../../../../config.js';
 
 export interface McpTool {
   name: string;
@@ -31,8 +32,6 @@ export interface McpConnection {
   readResource(uri: string): Promise<ResourceContent>;
   close(): Promise<void>;
 }
-
-const DEFAULT_TOOL_TIMEOUT_MS = 30_000;
 
 interface RawTool {
   name: string;

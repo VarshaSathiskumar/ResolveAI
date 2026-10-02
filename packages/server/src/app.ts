@@ -14,14 +14,11 @@ import {
   toWebRequest,
 } from '@modelcontextprotocol/node';
 import { authenticate, principalFromAuthInfo, toAuthInfo, type Principal } from './auth.js';
-import type { Config } from './config.js';
+import type { Config } from '../../../config.js';
 import type { ServerDeps } from './deps.js';
 import { HttpError, readJsonBody, sendError } from './http.js';
 import { createMcpServer } from './mcpServer.js';
-
-const MCP_PATH = '/mcp';
-const MAX_BODY_BYTES = 4 * 1024 * 1024;
-const ALLOWED_METHODS = ['POST', 'GET', 'DELETE'];
+import { SERVER_ALLOWED_METHODS, SERVER_MAX_BODY_BYTES, SERVER_MCP_PATH } from '../../../config.js';
 
 export interface App {
   server: Server;
@@ -100,12 +97,12 @@ export function createApp(config: Config, deps: ServerDeps): App {
     (req as IncomingMessage & { auth?: ReturnType<typeof toAuthInfo> }).auth = toAuthInfo(principal);
 
     const { pathname } = new URL(req.url ?? '/', 'http://localhost');
-    if (pathname !== MCP_PATH) {
+    if (pathname !== SERVER_MCP_PATH) {
       sendError(res, 404, 'Not found');
       return;
     }
-    if (!req.method || !ALLOWED_METHODS.includes(req.method)) {
-      sendError(res, 405, 'Method not allowed', -32000, { Allow: ALLOWED_METHODS.join(', ') });
+    if (!req.method || !SERVER_ALLOWED_METHODS.includes(req.method)) {
+      sendError(res, 405, 'Method not allowed', -32000, { Allow: SERVER_ALLOWED_METHODS.join(', ') });
       return;
     }
 
@@ -115,7 +112,7 @@ export function createApp(config: Config, deps: ServerDeps): App {
         sendError(res, 415, 'Content-Type must be application/json');
         return;
       }
-      body = await readJsonBody(req, MAX_BODY_BYTES);
+      body = await readJsonBody(req, SERVER_MAX_BODY_BYTES);
     }
 
     const probe = await toWebRequest(req, body);

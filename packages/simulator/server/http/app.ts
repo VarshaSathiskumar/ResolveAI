@@ -1,13 +1,8 @@
 import { createServer, type IncomingMessage, type Server, type ServerResponse } from 'node:http';
 import { z } from 'zod';
-import type { SimConfig } from '../config.js';
-import { PERSONAS } from '../personas.js';
-import { MAX_MESSAGE_CHARS, SessionError, type SessionManager } from './sessions.js';
-
-const MAX_BODY_BYTES = 8 * 1024;
-const HEARTBEAT_MS = 15_000;
-/** Only these schemes can be read through the backend: cited document pages and MCP App views. */
-const READABLE_URI = /^(doc|ui):\/\//;
+import type { SimConfig } from '../../../../config.js';
+import { SessionError, type SessionManager } from './sessions.js';
+import { MAX_MESSAGE_CHARS, PERSONAS, SIM_HEARTBEAT_MS, SIM_MAX_BODY_BYTES, SIM_READABLE_URI, SIM_SSE_RETRY_MS } from '../../../../config.js';
 
 class HttpError extends Error {
   constructor(
@@ -24,7 +19,7 @@ async function readJson(req: IncomingMessage): Promise<unknown> {
   for await (const chunk of req) {
     const buffer = Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk as string);
     size += buffer.length;
-    if (size > MAX_BODY_BYTES) throw new HttpError(413, 'Request body too large');
+    if (size > SIM_MAX_BODY_BYTES) throw new HttpError(413, 'Request body too large');
     chunks.push(buffer);
   }
   if (size === 0) return {};
@@ -78,7 +73,7 @@ export function createSimApp(config: SimConfig, sessions: SessionManager): SimAp
       Connection: 'keep-alive',
       'X-Accel-Buffering': 'no',
     });
-    res.write('retry: 2000\n\n');
+    res.write(`retry: ${SIM_SSE_RETRY_MS}\n\n`);
 
     const write = (entry: { id: number; event: unknown }) => res.write(`id: ${entry.id}\ndata: ${JSON.stringify(entry.event)}\n\n`);
     // A reconnecting client sends the last id it saw; a new one gets everything so far.
@@ -86,7 +81,7 @@ export function createSimApp(config: SimConfig, sessions: SessionManager): SimAp
     for (const entry of session.log) if (entry.id > lastSeen) write(entry);
 
     session.listeners.add(write);
-    const heartbeat = setInterval(() => res.write(': keep-alive\n\n'), HEARTBEAT_MS);
+    const heartbeat = setInterval(() => res.write(': keep-alive\n\n'), SIM_HEARTBEAT_MS);
     const close = () => {
       clearInterval(heartbeat);
       session.listeners.delete(write);
@@ -138,7 +133,7 @@ export function createSimApp(config: SimConfig, sessions: SessionManager): SimAp
 
       if (req.method === 'GET' && action === 'resource') {
         const uri = url.searchParams.get('uri') ?? '';
-        if (!READABLE_URI.test(uri)) throw new HttpError(400, 'Only doc:// and ui:// resources can be read');
+        if (!SIM_READABLE_URI.test(uri)) throw new HttpError(400, 'Only doc:// and ui:// resources can be read');
         const session = sessions.get(id);
         const resource = await session.mcp.readResource(uri).catch((error: unknown) => {
           throw new HttpError(404, error instanceof Error ? error.message : 'Resource not found');

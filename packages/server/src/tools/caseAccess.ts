@@ -1,9 +1,7 @@
 import type { Principal } from '../auth.js';
 import type { CaseRecord } from '../cases/store.js';
 import type { ServerDeps } from '../deps.js';
-
-export const NO_ACCOUNT =
-  'Cases belong to a signed-in user and this connection has no account linked, so case tools are unavailable.';
+import { NO_ACCOUNT } from '../../../../config.js';
 
 export function errorResult(text: string) {
   return { isError: true as const, content: [{ type: 'text' as const, text }] };

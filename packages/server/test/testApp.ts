@@ -1,7 +1,7 @@
 import type { AddressInfo } from 'node:net';
 import { Client, StreamableHTTPClientTransport } from '@modelcontextprotocol/client';
 import { createApp, type App } from '../src/app.js';
-import { loadConfig } from '../src/config.js';
+import { loadConfig } from '../../../config.js';
 import { makeDeps, type TestDeps } from './helpers.js';
 
 export const TOKENS = { alex: 'token-alex', service: 'token-service' };

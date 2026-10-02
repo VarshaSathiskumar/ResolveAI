@@ -1,17 +1,17 @@
 import { createAnthropicLlm } from './agent/llm.js';
-import { createMockLlm, MOCK_MODEL } from './agent/mock.js';
-import { loadSimConfig } from './config.js';
+import { createMockLlm } from './agent/mock.js';
+import { loadLlmMode, loadSimConfig, MOCK_MODEL } from '../../../config.js';
 import { createSimApp } from './http/app.js';
 import { createSessionManager } from './http/sessions.js';
 import { connectMcp } from './mcp/client.js';
 
 const config = loadSimConfig();
-const mock = process.env.SIM_LLM === 'mock';
+const { mock, hasCredential } = loadLlmMode();
 
 if (mock) {
   config.agent.model = MOCK_MODEL;
   console.warn('SIM_LLM=mock: using the rule-based mock agent, not Claude. Unset it to use the real model.');
-} else if (!process.env.ANTHROPIC_API_KEY && !process.env.ANTHROPIC_AUTH_TOKEN) {
+} else if (!hasCredential) {
   console.warn('No ANTHROPIC_API_KEY set. Set one, or sign in with `ant auth login`; without a credential every turn will fail. (Or try SIM_LLM=mock.)');
 }
 

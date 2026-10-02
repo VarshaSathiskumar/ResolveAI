@@ -2,9 +2,10 @@ import { randomUUID } from 'node:crypto';
 import type { PersonaInfo, TraceEvent } from '../../shared/events.js';
 import { createConversation, runTurn, type Conversation, type TurnResult } from '../agent/loop.js';
 import type { LlmClient } from '../agent/llm.js';
-import type { SimConfig } from '../config.js';
+import type { SimConfig } from '../../../../config.js';
 import type { McpConnection } from '../mcp/client.js';
 import { personaById } from '../personas.js';
+import { MAX_MESSAGE_CHARS, SIM_EVENT_LOG_LIMIT, SIM_IDLE_MS, SIM_MAX_SESSIONS } from '../../../../config.js';
 
 export interface LoggedEvent {
   /** Increases by one per event within a session, so a client can resume with Last-Event-ID. */
@@ -44,10 +45,8 @@ export interface SessionManagerOptions {
   logLimit?: number;
 }
 
-export const MAX_MESSAGE_CHARS = 1000;
-
 export function createSessionManager(options: SessionManagerOptions) {
-  const { config, llm, connect, now = Date.now, maxSessions = 20, idleMs = 30 * 60_000, logLimit = 2000 } = options;
+  const { config, llm, connect, now = Date.now, maxSessions = SIM_MAX_SESSIONS, idleMs = SIM_IDLE_MS, logLimit = SIM_EVENT_LOG_LIMIT } = options;
   const sessions = new Map<string, Session>();
 
   const closeSession = async (session: Session) => {

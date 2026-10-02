@@ -1,7 +1,6 @@
 import type { McpUiSandboxProxyReadyNotification, McpUiSandboxResourceReadyNotification } from "@modelcontextprotocol/ext-apps/app-bridge";
 import { buildAllowAttribute } from "@modelcontextprotocol/ext-apps/app-bridge";
-
-const ALLOWED_REFERRER_PATTERN = /^http:\/\/(localhost|127\.0\.0\.1)(:|\/|$)/;
+import { SANDBOX_ALLOWED_REFERRER } from '../../../../config.js';
 
 if (window.self === window.top) {
   throw new Error("This file is only to be used in an iframe sandbox.");
@@ -11,7 +10,7 @@ if (!document.referrer) {
   throw new Error("No referrer, cannot validate embedding site.");
 }
 
-if (!document.referrer.match(ALLOWED_REFERRER_PATTERN)) {
+if (!document.referrer.match(SANDBOX_ALLOWED_REFERRER)) {
   throw new Error(
     `Embedding domain not allowed in referrer ${document.referrer}. (Consider updating the validation logic to allow your domain.)`,
   );

@@ -1,6 +1,6 @@
 import type { TraceEvent } from '../shared/events.js';
 import type { Block, LlmClient, LlmRequest, LlmResponse, Message } from '../server/agent/llm.js';
-import type { SimConfig } from '../server/config.js';
+import type { SimConfig } from '../../../config.js';
 import { startTestApp, TOKENS, type TestApp } from '../../server/test/testApp.js';
 import { connectMcp, type McpConnection } from '../server/mcp/client.js';
 

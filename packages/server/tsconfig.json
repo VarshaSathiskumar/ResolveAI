@@ -9,9 +9,9 @@
     "skipLibCheck": true,
     "types": ["node"],
     "outDir": "dist",
-    "rootDir": "src",
+    "rootDir": "../..",
     "declaration": true,
     "resolveJsonModule": true
   },
-  "include": ["src"]
+  "include": ["src", "../../config.ts"]
 }

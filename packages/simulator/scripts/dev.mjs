@@ -7,31 +7,30 @@ import { existsSync } from 'node:fs';
 import { createConnection } from 'node:net';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { DB_FILE, DEFAULT_MCP_URL, DEMO_PORT_POLL_MS, DEMO_PORT_TIMEOUT_MS, DEMO_TOKENS, LOCAL_HOST, loadLlmMode, PORTS, TICKET_CARD_HTML } from '../../../config.js';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '../../..');
 const args = new Set(process.argv.slice(2));
-const hasCredential = Boolean(process.env.ANTHROPIC_API_KEY || process.env.ANTHROPIC_AUTH_TOKEN);
+const { hasCredential } = loadLlmMode();
 const mock = args.has('--mock') || (!args.has('--live') && !hasCredential);
 if (args.has('--live') && !hasCredential) {
   console.error('--live needs ANTHROPIC_API_KEY (or ANTHROPIC_AUTH_TOKEN). Set one, or run without --live to use the mock agent.');
   process.exit(1);
 }
 
-if (!existsSync(resolve(root, 'data/resolveai.db'))) {
+if (!existsSync(resolve(root, DB_FILE))) {
   console.error('There is no search index yet. Run `npm run ingest` first (it downloads the embedding model on the first run).');
   process.exit(1);
 }
 
 // The support ticket card is a built view; build it once so create_support_case can show it.
-if (!existsSync(resolve(root, 'packages/server/dist/ui/ticket-card.html'))) {
+if (!existsSync(resolve(root, TICKET_CARD_HTML))) {
   console.log('Building the ticket card...');
   execSync('npm run build:ui -w @resolveai/server', { cwd: root, stdio: 'inherit' });
 }
 
-// Demo-only tokens: they exist only on this machine and unlock only the fictional demo accounts.
-const TOKENS = { alex: 'demo-token-alex' };
-const mcpUsers = Object.entries(TOKENS).map(([persona, token]) => `${token}:demo-${persona}`).join(',');
-const personas = Object.entries(TOKENS).map(([persona, token]) => `${persona}:${token}`).join(',');
+const mcpUsers = Object.entries(DEMO_TOKENS).map(([persona, token]) => `${token}:demo-${persona}`).join(',');
+const personas = Object.entries(DEMO_TOKENS).map(([persona, token]) => `${persona}:${token}`).join(',');
 
 const children = [];
 const start = (label, command, argv, env) => {
@@ -60,32 +59,32 @@ const waitForPort = (port) =>
   new Promise((resolvePort, reject) => {
     const started = Date.now();
     const attempt = () => {
-      const socket = createConnection({ port, host: '127.0.0.1' }, () => {
+      const socket = createConnection({ port, host: LOCAL_HOST }, () => {
         socket.end();
         resolvePort();
       });
       socket.on('error', () => {
         socket.destroy();
-        if (Date.now() - started > 120_000) reject(new Error(`port ${port} did not open`));
-        else setTimeout(attempt, 500);
+        if (Date.now() - started > DEMO_PORT_TIMEOUT_MS) reject(new Error(`port ${port} did not open`));
+        else setTimeout(attempt, DEMO_PORT_POLL_MS);
       });
     };
     attempt();
   });
 
 console.log(mock ? 'Agent: offline mock (no Claude credential used)' : 'Agent: Claude');
-start('mcp', 'npx', ['tsx', 'packages/server/src/index.ts'], { MCP_USER_TOKENS: mcpUsers, PORT: '3000' });
-await waitForPort(3000);
+start('mcp', 'npx', ['tsx', 'packages/server/src/index.ts'], { MCP_USER_TOKENS: mcpUsers, PORT: String(PORTS.mcp) });
+await waitForPort(PORTS.mcp);
 start('backend', 'npx', ['tsx', 'packages/simulator/server/index.ts'], {
   SIM_PERSONAS: personas,
-  SIM_MCP_URL: 'http://127.0.0.1:3000/mcp',
-  SIM_PORT: '3200',
+  SIM_MCP_URL: DEFAULT_MCP_URL,
+  SIM_PORT: String(PORTS.simulator),
   ...(mock ? { SIM_LLM: 'mock' } : {}),
 });
-await waitForPort(3200);
+await waitForPort(PORTS.simulator);
 // The sandbox for MCP App views runs on its own port, so a view is always on a different origin than the app.
 start('sandbox', 'npx', ['vite', '--config', 'packages/simulator/web/sandbox.vite.config.ts'], {});
-await waitForPort(5174);
+await waitForPort(PORTS.sandbox);
 start('web', 'npx', ['vite', '--config', 'packages/simulator/web/vite.config.ts'], {});
-await waitForPort(5173);
-console.log('\nReady: open http://localhost:5173 (or http://127.0.0.1:5173)\n');
+await waitForPort(PORTS.web);
+console.log(`\nReady: open http://localhost:${PORTS.web} (or http://${LOCAL_HOST}:${PORTS.web})\n`);

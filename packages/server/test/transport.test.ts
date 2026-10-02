@@ -1,7 +1,7 @@
 import type { AddressInfo } from 'node:net';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { createApp, type App } from '../src/app.js';
-import { loadConfig } from '../src/config.js';
+import { loadConfig } from '../../../config.js';
 import { makeDeps } from './helpers.js';
 
 const TOKEN = 'test-token';

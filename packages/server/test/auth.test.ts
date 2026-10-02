@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { authenticate, principalFromAuthInfo, toAuthInfo } from '../src/auth.js';
-import { loadConfig } from '../src/config.js';
+import { loadConfig } from '../../../config.js';
 
 const config = { bearerToken: 'service', userTokens: { 'token-a': 'demo-alex', 'token-b': 'demo-other' } };
 

@@ -1,5 +1,6 @@
 import { stem, words } from '../retrieval/text.js';
 import type { Product } from './catalog.js';
+import { IDENTIFY_AMBIGUITY_MARGIN, IDENTIFY_FUZZY_CEILING, IDENTIFY_GENERIC_WORDS, IDENTIFY_HIGH, IDENTIFY_MEDIUM } from '../../../../config.js';
 
 export type MatchConfidence = 'high' | 'medium' | 'low';
 
@@ -22,14 +23,6 @@ export interface Identification {
   needs: string[];
   suggestedQuestion?: string;
 }
-
-/** Candidates this close to the best score are treated as equally likely. */
-const AMBIGUITY_MARGIN = 0.15;
-/** Fuzzy word overlap never outranks a phrase match. */
-const FUZZY_CEILING = 0.6;
-const HIGH = 0.85;
-const MEDIUM = 0.4;
-const GENERIC = new Set(['coffee', 'machine', 'maker', 'the', 'a', 'an', 'my', 'one', 'with', 'and', 'of', 'i', 'have', 'got']);
 
 /** "BP-200" becomes "bp200" so a model number matches however it is typed. */
 function tokens(text: string): string[] {
@@ -67,7 +60,7 @@ export function identifyProduct(
 ): Identification {
   const said = tokens(description);
   const saidCompact = said.join('');
-  const saidTerms = said.filter((token) => !GENERIC.has(token) && token.length > 1).map(stem);
+  const saidTerms = said.filter((token) => !IDENTIFY_GENERIC_WORDS.has(token) && token.length > 1).map(stem);
 
   // How many products carry each name, to tell a shared alias from a unique one.
   const names = (product: Product) => [`${product.brand} ${product.model}`, product.model, ...product.aliases];
@@ -90,7 +83,7 @@ export function identifyProduct(
         [...names(product).flatMap(tokens), ...tokens(product.category), ...specText(product)].map(stem),
       );
       const matched = saidTerms.filter((term) => vocabulary.has(term)).length;
-      score = (matched / saidTerms.length) * FUZZY_CEILING;
+      score = (matched / saidTerms.length) * IDENTIFY_FUZZY_CEILING;
     }
     return { product, score: Number(score.toFixed(3)) };
   });
@@ -109,14 +102,14 @@ export function identifyProduct(
   }
 
   const best = ranked[0]!.score;
-  const tied = ranked.filter((entry) => entry.score >= best - AMBIGUITY_MARGIN);
+  const tied = ranked.filter((entry) => entry.score >= best - IDENTIFY_AMBIGUITY_MARGIN);
   const ambiguous = tied.length > 1;
   const tiedIds = new Set(tied.map((entry) => entry.product.id));
 
   const differing = ambiguous ? differingSpecs(tied.map((entry) => entry.product)) : new Map<string, string[]>();
 
   const candidates: Candidate[] = ranked.slice(0, limit).map(({ product, score }) => {
-    let confidence: MatchConfidence = score >= HIGH ? 'high' : score >= MEDIUM ? 'medium' : 'low';
+    let confidence: MatchConfidence = score >= IDENTIFY_HIGH ? 'high' : score >= IDENTIFY_MEDIUM ? 'medium' : 'low';
     if (ambiguous && tiedIds.has(product.id) && confidence === 'high') confidence = 'medium';
     return {
       productId: product.id,

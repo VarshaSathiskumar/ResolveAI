@@ -1,8 +1,6 @@
-import { LOOKUP_TOOLS, READ_ONLY_TOOLS, SKIPPED_PREFIX, signature, type ConversationState, type Intent } from './context.js';
+import { signature, type ConversationState, type Intent } from './context.js';
 import type { ModelTool } from '../mcp/tools.js';
-
-/** Lines that carry nothing to look up: a search or a product lookup for one is wasted, and misleading. */
-const NO_LOOKUP: Intent[] = ['acknowledge', 'off_topic', 'safety', 'affirm'];
+import { GUARD_NO_LOOKUP_INTENTS, LOOKUP_TOOLS, READ_ONLY_TOOLS, SKIPPED_PREFIX } from '../../../../config.js';
 
 export type Decision =
   /** Run the call, with these arguments (a missing product_id may have been filled in). */
@@ -26,7 +24,7 @@ const acceptsProduct = (tools: ModelTool[], name: string): boolean => {
 export function guardCall(state: ConversationState, tools: ModelTool[], name: string, input: Record<string, unknown>): Decision {
   const intent = state.lastIntent;
   const declinedOffer = intent === 'deny' && state.answering?.kind === 'escalate';
-  if (LOOKUP_TOOLS.has(name) && intent && (NO_LOOKUP.includes(intent) || declinedOffer)) {
+  if (LOOKUP_TOOLS.has(name) && intent && (GUARD_NO_LOOKUP_INTENTS.includes(intent) || declinedOffer)) {
     return {
       action: 'skip',
       reason: 'not_needed',

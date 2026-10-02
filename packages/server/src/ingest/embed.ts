@@ -1,3 +1,4 @@
+import { EMBEDDING_BATCH_SIZE, EMBEDDING_DIMS, EMBEDDING_MODEL, HASH_EMBEDDER_DIMS } from '../../../../config.js';
 export interface Embedder {
   /** Identifier stored with the index so a model change is detected. */
   model: string;
@@ -6,10 +7,8 @@ export interface Embedder {
   embed(texts: string[]): Promise<Float32Array[]>;
 }
 
-const MINILM = 'Xenova/all-MiniLM-L6-v2';
-
 /** Local sentence embeddings via transformers.js. The model downloads on first use and is cached. */
-export function createTransformersEmbedder(model = MINILM): Embedder {
+export function createTransformersEmbedder(model = EMBEDDING_MODEL): Embedder {
   let extractor: Promise<(texts: string[], opts: object) => Promise<{ data: Float32Array; dims: number[] }>> | undefined;
 
   const load = () => {
@@ -24,12 +23,12 @@ export function createTransformersEmbedder(model = MINILM): Embedder {
 
   return {
     model,
-    dims: 384,
+    dims: EMBEDDING_DIMS,
     async embed(texts) {
       const run = await load();
       const vectors: Float32Array[] = [];
-      for (let i = 0; i < texts.length; i += 16) {
-        const batch = texts.slice(i, i + 16);
+      for (let i = 0; i < texts.length; i += EMBEDDING_BATCH_SIZE) {
+        const batch = texts.slice(i, i + EMBEDDING_BATCH_SIZE);
         const out = await run(batch, { pooling: 'mean', normalize: true });
         const dims = out.dims[1]!;
         for (let row = 0; row < batch.length; row++) {
@@ -45,7 +44,7 @@ export function createTransformersEmbedder(model = MINILM): Embedder {
  * Deterministic bag-of-words hashing embedder. No download and no model, so it is fast and
  * reproducible for tests and offline development. Not semantic: similar words only match when equal.
  */
-export function createHashEmbedder(dims = 128): Embedder {
+export function createHashEmbedder(dims = HASH_EMBEDDER_DIMS): Embedder {
   return {
     model: `hash-${dims}`,
     dims,

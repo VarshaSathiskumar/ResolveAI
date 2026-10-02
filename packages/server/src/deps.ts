@@ -1,5 +1,5 @@
 import { existsSync } from 'node:fs';
-import type { Config } from './config.js';
+import type { Config } from '../../../config.js';
 import { openDb } from './db/schema.js';
 import { createHashEmbedder, createTransformersEmbedder } from './ingest/embed.js';
 import { createCaseStore, type CaseStore } from './cases/store.js';
