@@ -17,6 +17,7 @@ export interface TestDeps {
   catalog: Catalog;
   cases: CaseStore;
   now: () => Date;
+  ticketCardHtml?: string;
 }
 
 /** An in-memory index of the real corpus. Uses the hash embedder unless one is given. */
@@ -27,6 +28,7 @@ export async function makeDeps(
   embedder: Embedder = createHashEmbedder(128),
   thresholds?: Thresholds,
   now: () => Date = () => TEST_NOW,
+  options: { ticketCardHtml?: string } = {},
 ): Promise<TestDeps> {
   const db = openDb(':memory:');
   await ingestCorpus({ corpusDir, db, embedder });
@@ -37,5 +39,6 @@ export async function makeDeps(
     catalog: createCatalog(db),
     cases: createCaseStore(db, now),
     now,
+    ticketCardHtml: options.ticketCardHtml,
   };
 }

@@ -1,8 +1,10 @@
+import { registerAppTool } from '@modelcontextprotocol/ext-apps/server';
 import type { McpServer } from '@modelcontextprotocol/server';
 import { z } from 'zod';
 import type { Principal } from '../auth.js';
 import type { ServerDeps } from '../deps.js';
 import { lookupWarranty } from '../support/lookup.js';
+import { TICKET_CARD_URI } from '../ui/ticketCard.js';
 import { errorResult, findCase } from './caseAccess.js';
 
 const DESCRIPTION = [
@@ -36,19 +38,18 @@ const outputSchema = z.object({
 });
 
 export function registerCreateSupportCaseTool(server: McpServer, deps: ServerDeps, principal: Principal): void {
-  server.registerTool(
-    'create_support_case',
-    {
-      title: 'Create a support case',
-      description: DESCRIPTION,
-      inputSchema: z.object({
-        case_id: z.number().int().positive().optional().describe("The troubleshooting case. Leave out for the user's latest open case."),
-        summary: z.string().min(10).max(600).describe('What is wrong and what did not help, in a sentence or two.'),
-      }),
-      outputSchema,
-      annotations: { readOnlyHint: false, idempotentHint: true },
-    },
-    async ({ case_id, summary }) => {
+  const config = {
+    title: 'Create a support case',
+    description: DESCRIPTION,
+    inputSchema: z.object({
+      case_id: z.number().int().positive().optional().describe("The troubleshooting case. Leave out for the user's latest open case."),
+      summary: z.string().min(10).max(600).describe('What is wrong and what did not help, in a sentence or two.'),
+    }),
+    outputSchema,
+    annotations: { readOnlyHint: false, idempotentHint: true },
+  };
+
+  const handler = async ({ case_id, summary }: { case_id?: number; summary: string }) => {
       const found = findCase(deps, principal, case_id);
       if (found.error) return found.error;
       const current = found.case;
@@ -99,7 +100,14 @@ export function registerCreateSupportCaseTool(server: McpServer, deps: ServerDep
         `Steps tried: ${record.stepsTried.length > 0 ? record.stepsTried.join('; ') : 'none recorded'}.`,
         ...warnings.map((warning) => `Note: ${warning}`),
       ].join('\n');
-      return { content: [{ type: 'text', text }], structuredContent: output };
-    },
-  );
+      return { content: [{ type: 'text' as const, text }], structuredContent: output };
+  };
+
+  // With the card built, hosts that support MCP Apps render the result as a ticket; the text result is unchanged
+  // for everyone else, and for the model.
+  if (deps.ticketCardHtml) {
+    registerAppTool(server, 'create_support_case', { ...config, _meta: { ui: { resourceUri: TICKET_CARD_URI } } }, handler);
+  } else {
+    server.registerTool('create_support_case', config, handler);
+  }
 }

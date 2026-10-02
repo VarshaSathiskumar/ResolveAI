@@ -5,17 +5,19 @@
   "type": "module",
   "scripts": {
     "dev": "tsx watch src/index.ts",
-    "build": "tsc -p tsconfig.json",
+    "build": "npm run build:ui && tsc -p tsconfig.json",
     "start": "node dist/index.js",
     "test": "vitest run",
     "ingest": "tsx src/ingest/cli.ts",
     "test:model": "RESOLVEAI_MODEL_TESTS=1 vitest run test/retrieval.eval.test.ts",
     "eval:retrieval": "tsx eval/run.ts",
     "eval:lock": "tsx eval/lock.ts",
-    "eval:calibrate": "tsx eval/calibrate.ts"
+    "eval:calibrate": "tsx eval/calibrate.ts",
+    "build:ui": "vite build --config ui/vite.config.ts"
   },
   "dependencies": {
     "@huggingface/transformers": "^4.3.0",
+    "@modelcontextprotocol/ext-apps": "^2.0.3",
     "@modelcontextprotocol/node": "^2.1.0",
     "@modelcontextprotocol/server": "^2.2.0",
     "better-sqlite3": "^13.0.3",
@@ -29,6 +31,8 @@
     "@types/node": "^26.6.3",
     "tsx": "^4.23.15",
     "typescript": "^7.0.2",
+    "vite": "^8.3.2",
+    "vite-plugin-singlefile": "^2.3.3",
     "vitest": "^5.0.3"
   }
 }

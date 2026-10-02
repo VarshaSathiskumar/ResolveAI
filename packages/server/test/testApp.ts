@@ -18,8 +18,8 @@ export interface TestApp {
 }
 
 /** Starts the real server over HTTP with the demo user and one anonymous token. */
-export async function startTestApp(): Promise<TestApp> {
-  const deps = await makeDeps();
+export async function startTestApp(options: { ticketCardHtml?: string } = {}): Promise<TestApp> {
+  const deps = await makeDeps(undefined, undefined, undefined, options);
   const app: App = createApp(
     loadConfig({
       MCP_USER_TOKENS: `${TOKENS.alex}:demo-alex`,

@@ -1,0 +1,32 @@
+/* Colours come from the host's CSS variables, with fallbacks so the card also reads fine on its own. */
+:root {
+  --bg: var(--color-background-secondary, #16213a);
+  --ink: var(--color-text-primary, #e8eefc);
+  --muted-ink: var(--color-text-secondary, #8fa0c4);
+  --line: var(--color-border-primary, #243252);
+  --radius: var(--border-radius-md, 14px);
+  --good: #34d399;
+  --warn: #fbbf24;
+  --bad: #f87171;
+  color-scheme: light dark;
+}
+* { box-sizing: border-box; }
+body { margin: 0; font: 14px/1.5 var(--font-sans, system-ui, sans-serif); color: var(--ink); background: transparent; }
+.card { margin: 0; padding: 14px 16px; background: var(--bg); border: 1px solid var(--line); border-radius: var(--radius); }
+.muted { color: var(--muted-ink); margin: 0; }
+.head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.title { font-size: 13px; font-weight: 600; color: var(--muted-ink); margin: 0; }
+.pill { font-size: 12px; padding: 1px 8px; border-radius: 999px; border: 1px solid var(--line); color: var(--muted-ink); }
+.ref { font: 600 22px/1.2 var(--font-mono, ui-monospace, Menlo, monospace); margin: 6px 0 2px; letter-spacing: 0.02em; font-variant-numeric: tabular-nums; }
+.product { margin: 0 0 10px; color: var(--muted-ink); }
+dl { margin: 0; display: grid; grid-template-columns: max-content 1fr; gap: 6px 14px; }
+dt { color: var(--muted-ink); }
+dd { margin: 0; overflow-wrap: anywhere; }
+.status { display: inline-block; padding: 1px 10px; border-radius: 999px; font-weight: 600; font-size: 12px; border: 1px solid currentColor; }
+.status--in_warranty { color: var(--good); }
+.status--expired { color: var(--bad); }
+.status--unknown { color: var(--warn); }
+ul { margin: 0; padding-left: 18px; }
+.warn { margin: 10px 0 0; padding: 8px 10px; border-radius: 8px; border: 1px solid var(--warn); color: var(--warn); }
+.next { margin: 10px 0 0; color: var(--muted-ink); font-size: 13px; }
+::selection { background: rgba(56, 189, 248, 0.35); }
