@@ -1,5 +1,5 @@
 import type { Block, Message } from './llm.js';
-import { ACK_WORDS, ESCALATE_AFTER, LOOKUP_TOOLS, NEUTRAL_PRODUCT_KEY, OVERLAP_STOP_WORDS, PATTERN_ABOUT_THE_HELP, PATTERN_ASKS, PATTERN_BOTH, PATTERN_CLARIFY, PATTERN_DOMAIN, PATTERN_DONT_KNOW, PATTERN_ERROR_CODE, PATTERN_ESCALATE, PATTERN_FAILED, PATTERN_FIXED, PATTERN_NEXT, PATTERN_NO, PATTERN_OFFER_YES, PATTERN_REFERS_BACK, PATTERN_SAFETY, PATTERN_WHICH_PRODUCT, PATTERN_WILL_ACT, PATTERN_YES, READ_ONLY_TOOLS, REPEAT_OVERLAP, SKIPPED_PREFIX } from '../../../../config.js';
+import { ACK_WORDS, ESCALATE_AFTER, LOOKUP_TOOLS, MAX_FOLLOW_UPS, OPTIONS_LEAD, NEUTRAL_PRODUCT_KEY, OVERLAP_STOP_WORDS, PATTERN_ABOUT_THE_HELP, PATTERN_ASKS, PATTERN_BOTH, PATTERN_CLARIFY, PATTERN_DOMAIN, PATTERN_DONT_KNOW, PATTERN_ERROR_CODE, PATTERN_ESCALATE, PATTERN_FAILED, PATTERN_FIXED, PATTERN_NEXT, PATTERN_NO, PATTERN_OFFER_YES, PATTERN_REFERS_BACK, PATTERN_SAFETY, PATTERN_WHICH_PRODUCT, PATTERN_WILL_ACT, PATTERN_YES, READ_ONLY_TOOLS, REPEAT_OVERLAP, SKIPPED_PREFIX } from '../../../../config.js';
 
 /**
  * What the conversation has established so far, worked out from the message history alone. The history is the single
@@ -68,6 +68,10 @@ export interface ConversationState {
   progress: Record<string, Progress>;
   /** Every question the assistant has put that asked for something, in order (not the "did that help?" after a step). */
   asked: string[];
+  /** Follow-up questions asked about the problem so far (questions that asked for a detail, not "did that help?"). */
+  followUps: number;
+  /** A search found a guide page that asks narrowing questions, so vague complaints are worked out in rounds. */
+  guided: boolean;
   /** The question the assistant ended its last reply with, if the customer has not answered it yet. */
   pending?: Pending;
   /** The question the customer's latest message answered (or tried to). */
@@ -102,6 +106,8 @@ export function emptyState(): ConversationState {
     problem: [],
     progress: {},
     asked: [],
+    followUps: 0,
+    guided: false,
     lastReply: '',
     repeatedReply: false,
     unknownAnswers: 0,
@@ -172,7 +178,13 @@ export function classifyMessage(raw: string, state: ConversationState): Intent {
 
 // Reading the assistant -----------------------------------------------------------------------------------------
 
+/** The questions a guide page asks to narrow a problem down: its "- Ask: ...?" lines, in order. */
+export function askedBy(body: string): string[] {
+  return body.split('\n').flatMap((line) => /^\s*-\s*Ask:\s*(.+\?)\s*$/.exec(line)?.[1] ?? []);
+}
+
 export function questionKind(question: string): QuestionKind {
+  if (question.startsWith(OPTIONS_LEAD)) return 'detail';
   // "Is there anything else I can help with?" asks nothing about a step, so a no to it is not a failed attempt.
   if (/\banything else\b/i.test(question)) return 'closing';
   if (/\b(which|is it the)\b/i.test(question) && /\b(one|model|machine|product|or the)\b/i.test(question)) return 'product';
@@ -276,6 +288,7 @@ function observeResult(state: ConversationState, block: Block, calls: Map<string
         confidence: String(data.confidence ?? ''),
         results: resultsIn(readable),
       };
+      if (state.lastSearch.results.some((result) => askedBy(result.body).length > 0)) state.guided = true;
       if (data.confidence === 'high') progressOf(state).advised = true;
       break;
     }
@@ -333,6 +346,7 @@ export function observeCustomer(state: ConversationState, text: string): Intent 
         state.resolved = false;
         state.progress[state.product?.id ?? NEUTRAL_PRODUCT_KEY] = { steps: [], failed: 0, advised: false };
         state.unknownAnswers = 0;
+        state.followUps = 0;
         state.declined = false;
       }
       // Asking for a case is not a new problem: the problem stays what it was.
@@ -372,6 +386,7 @@ function observeReply(state: ConversationState, raw: string): void {
   state.lastReply = text;
   const last = text.split(/(?<=[.!?])\s+/).at(-1)?.trim() ?? '';
   state.pending = last.endsWith('?') ? { question: last, kind: questionKind(last) } : undefined;
+  if (state.pending?.kind === 'detail') state.followUps += 1;
   if (state.pending?.kind === 'escalate') state.offered = true;
 }
 
@@ -458,6 +473,9 @@ export function renderNote(state: ConversationState, intent: Intent): string {
   if (progress.steps.length > 0) lines.push(`Steps already given: ${quote(progress.steps)}. Do not give them again.`);
   if (progress.failed > 0) lines.push(`Attempts that did not help: ${progress.failed}.`);
   if (state.asked.length > 0) lines.push(`Questions you already asked: ${quote(state.asked.slice(-4))}. Do not ask them again.`);
+  if (state.followUps > 0) {
+    lines.push(`Follow-up questions asked so far: ${state.followUps} of ${MAX_FOLLOW_UPS}.${state.followUps >= MAX_FOLLOW_UPS ? ' Ask no more: give the best step the documentation has, or offer a support case.' : ''}`);
+  }
   if (state.repeatedReply) lines.push('Your last reply repeated an earlier one. Say something new.');
   if (shouldEscalate(state) && intent !== 'off_topic' && intent !== 'safety') lines.push('Attempts have run out. Check the warranty and offer a support case now.');
 

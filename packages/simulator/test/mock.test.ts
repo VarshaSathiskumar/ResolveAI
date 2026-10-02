@@ -1,6 +1,8 @@
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
 import { createConversation, runTurn } from '../server/agent/loop.js';
 import { createMockLlm } from '../server/agent/mock.js';
+import { questionKind } from '../server/agent/context.js';
+import { MAX_FOLLOW_UPS } from '../../../config.js';
 import { AGENT, collect, startStack, type Stack } from './helpers.js';
 
 let stack: Stack;
@@ -20,19 +22,52 @@ async function ask(persona: 'alex' | 'raj' | 'nate', text: string) {
 }
 
 /** Several customer lines in one conversation, with the tools and reply of each. */
-async function chat(persona: 'alex' | 'raj' | 'nate', lines: string[]) {
+async function chat(persona: 'alex' | 'raj' | 'nate', lines: string[], maxTurns?: number) {
   const mcp = await stack.connect(persona);
   const conversation = createConversation(await mcp.tools());
   const turns: { tools: string[]; queries: unknown[]; text: string; streamed: string }[] = [];
   for (const text of lines) {
     const trace = collect();
-    const result = await runTurn({ conversation, userText: text, llm: createMockLlm({ delayMs: 0 }), mcp, config: AGENT, emit: trace.emit });
+    const result = await runTurn({ conversation, userText: text, llm: createMockLlm({ delayMs: 0 }), mcp, config: maxTurns ? { ...AGENT, maxTurnsPerSession: maxTurns } : AGENT, emit: trace.emit });
     turns.push({ tools: trace.of('tool_call').map((event) => event.name), queries: trace.of('tool_call').map((event) => (event.input as { query?: unknown }).query), text: result.text, streamed: trace.of('text_delta').map((event) => event.text).join('') });
   }
   return turns;
 }
 
 describe('mock agent with Nate (a Pixel 9 and vague complaints)', () => {
+  /** The last question of a reply that asks the customer for a detail, if it does. */
+  const detailQuestion = (text: string): string | undefined => {
+    const last = text.split(/(?<=[.!?])\s+/).at(-1) ?? '';
+    return last.endsWith('?') && questionKind(last) === 'detail' ? last : undefined;
+  };
+
+  it('asks a follow-up question about a vague complaint instead of guessing a fix', async () => {
+    const turns = await chat('nate', ['my phone is acting up']);
+    expect(turns[0]!.tools).toEqual(['list_owned_products', 'search_troubleshooting']);
+    expect(detailQuestion(turns[0]!.text)).toBeDefined();
+    expect(turns[0]!.text).not.toMatch(/That is from/);
+  });
+
+  it('searches again with each answer, then gives a step once the page is clear', async () => {
+    const turns = await chat('nate', ['my phone is acting up', 'charging', 'with the cable']);
+    expect(turns[1]!.tools).toEqual(['search_troubleshooting']);
+    expect(turns[1]!.queries[0]).toMatch(/acting up.*charging/);
+    expect(detailQuestion(turns[1]!.text)).toBeDefined();
+    expect(turns[2]!.tools).toEqual(['search_troubleshooting']);
+    expect(turns[2]!.text).toMatch(/USB-C cable.*That is from Google Pixel 9 Troubleshooting Guide, page 2/);
+  });
+
+  it('gives the step straight away when the complaint already names the page', async () => {
+    const turns = await chat('nate', ['the screen is flickering']);
+    expect(turns[0]!.text).toMatch(/screen protector.*That is from Google Pixel 9 Troubleshooting Guide/);
+  });
+
+  it('asks at most five follow-up questions, then offers a support case', async () => {
+    const turns = await chat('nate', ['my phone is weird', 'its just weird', 'still weird', 'hard to say', 'nothing in particular', 'same', 'whatever'], 20);
+    expect(turns.filter((turn) => detailQuestion(turn.text)).length).toBeLessThanOrEqual(MAX_FOLLOW_UPS);
+    expect(turns.some((turn) => /support case/.test(turn.text))).toBe(true);
+  });
+
   it('knows his phone is covered', async () => {
     const turns = await chat('nate', ['is my phone still under warranty?']);
     expect(turns[0]!.text).toMatch(/covered until 2027-09-05/);

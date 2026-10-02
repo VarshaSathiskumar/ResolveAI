@@ -196,7 +196,7 @@ npm run demo         # uses Claude if ANTHROPIC_API_KEY is set, otherwise the mo
 
 To use Claude, export a key first: `export ANTHROPIC_API_KEY=sk-ant-...`
 
-**4. Open** http://localhost:5173 and pick a demo user. Alex owns one Brew Pro 200: try "my coffee machine isn't brewing, only drops come out". Raj owns a Brew Pro 300 (warranty expired) and an Espresso Studio ES-1: try "the milk from my coffee machine is not frothing" and the agent asks which machine you mean. Nate owns a Google Pixel 9: try "my phone wont charge".
+**4. Open** http://localhost:5173 and pick a demo user. Alex owns one Brew Pro 200: try "my coffee machine isn't brewing, only drops come out". Raj owns a Brew Pro 300 (warranty expired) and an Espresso Studio ES-1: try "the milk from my coffee machine is not frothing" and the agent asks which machine you mean. Nate owns a Google Pixel 9: try "my phone is acting up" and watch the agent search, ask a follow-up question, and search again with your answer (up to 5 questions, then it gives the best step it has or offers a support case).
 
 | Port | Service |
 | --- | --- |

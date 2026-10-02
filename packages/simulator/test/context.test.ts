@@ -3,7 +3,7 @@ import { classifyMessage, deriveState, overlap, progressOf, renderNote, shouldEs
 import { guardCall } from '../server/agent/guard.js';
 import type { Block, Message } from '../server/agent/llm.js';
 import type { ModelTool } from '../server/mcp/tools.js';
-import { ESCALATE_AFTER, SKIPPED_PREFIX } from '../../../config.js';
+import { ESCALATE_AFTER, MAX_FOLLOW_UPS, SKIPPED_PREFIX } from '../../../config.js';
 
 const BP200 = 'brewwell-brew-pro-200';
 const DRIPMATE = 'brewwell-dripmate-12';
@@ -319,5 +319,30 @@ describe('checking a tool call before it runs', () => {
   it('judges a call with the machine filled in, so leaving it out does not dodge the repeat check', () => {
     const decision = guard(advised, 'it still drips from the outlet', 'search_troubleshooting', { query: PROBLEM });
     expect(decision).toMatchObject({ action: 'skip', reason: 'repeat' });
+  });
+});
+
+describe('follow-up rounds on a vague complaint', () => {
+  const PIXEL = 'google-pixel-9';
+  const vague = 'my phone is acting up';
+  const guideSearch = exchange('g1', 'search_troubleshooting', { query: vague, product_id: PIXEL }, 'Confidence: high.\n\n1. Guide, page 1, section "Start here"\nSomething is wrong.\n\n- Ask: Is the problem with charging or the screen?', { confidence: 'high' });
+  const asked = (questions: string[]): Message[] => questions.flatMap((question) => [assistant(question), customer('not sure what you mean')]);
+
+  it('counts the questions that asked for a detail, not the "did that help?" after a step', () => {
+    const state = deriveState([customer(vague), ...ownsOne(PIXEL, 'Pixel 9'), ...guideSearch, assistant('Is the problem with charging or the screen?'), customer('charging'), assistant('Try another cable. Did that help?')]);
+    expect(state.followUps).toBe(1);
+  });
+
+  it('notes a guide that asks narrowing questions, and how many questions are left', () => {
+    const state = deriveState([customer(vague), ...ownsOne(PIXEL, 'Pixel 9'), ...guideSearch, assistant('Is the problem with charging or the screen?')]);
+    expect(state.guided).toBe(true);
+    expect(renderNote(state, 'answer')).toMatch(new RegExp(`Follow-up questions asked so far: 1 of ${MAX_FOLLOW_UPS}\\.`));
+  });
+
+  it('tells the model to stop asking at the limit', () => {
+    const questions = Array.from({ length: MAX_FOLLOW_UPS }, (_, index) => `Is it the ${['cable', 'port', 'charger', 'case', 'pad'][index]}?`);
+    const state = deriveState([customer(vague), ...ownsOne(PIXEL, 'Pixel 9'), ...guideSearch, ...asked(questions)]);
+    expect(state.followUps).toBe(MAX_FOLLOW_UPS);
+    expect(renderNote(state, 'answer')).toMatch(/Ask no more/);
   });
 });

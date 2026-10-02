@@ -1,6 +1,6 @@
-import { dataOf, deriveState, overlap, progressOf, readableOf, signature, wantsEscalation, type ConversationState } from './context.js';
+import { askedBy, dataOf, deriveState, overlap, progressOf, readableOf, signature, wantsEscalation, type ConversationState } from './context.js';
 import type { Block, LlmClient, LlmRequest, LlmResponse, Message } from './llm.js';
-import { ESCALATE_AFTER, MOCK_DETAIL_QUESTIONS, MOCK_GENERIC_WORDS, MOCK_INPUT_TOKENS, MOCK_MODEL, MOCK_MODEL_MENTION, MOCK_NOT_FOUND, PATTERN_BOTH, REPEAT_OVERLAP } from '../../../../config.js';
+import { ESCALATE_AFTER, MOCK_DETAIL_QUESTIONS, MOCK_GENERIC_WORDS, MOCK_INPUT_TOKENS, MOCK_MODEL, MOCK_MODEL_MENTION, MAX_FOLLOW_UPS, MOCK_NOT_FOUND, OPTIONS_LEAD, PATTERN_BOTH, PICK_OVERLAP, REPEAT_OVERLAP, SETTLED_COVERAGE, TITLE_STOP_WORDS } from '../../../../config.js';
 
 /**
  * A rule-based stand-in for Claude, for trying the simulator without an API credential (SIM_LLM=mock). It makes real
@@ -54,8 +54,16 @@ function namesCurrent(state: ConversationState, text: string): boolean {
   return best > 0 && hits(current) === best && numbers.every((number) => model.includes(number));
 }
 
+const stemOf = (word: string): string => word.replace(/(ing|ed|es|s|e)$/, '');
+
+/** The words of a page title that say what it is about ("Wired charging does not start" is wired, charging, start). */
+const titleWords = (section: string): string[] =>
+  (section.toLowerCase().replace(/\([^)]*\)/g, ' ').match(/[a-z0-9]+/g) ?? []).filter((word) => !TITLE_STOP_WORDS.has(word) && !MOCK_GENERIC_WORDS.has(word));
+
 /** The steps in the top result: its numbered lines, or else its first few sentences of prose. */
 function stepsIn(body: string): string[] {
+  const hub = askedBy(body).length > 0 && !/^\d+\.\s/m.test(body);
+  if (hub) return [];
   const numbered = body.split('\n').flatMap((line) => /^\d+\.\s+(.+)$/.exec(line.trim())?.[1] ?? []);
   if (numbered.length > 0) return numbered;
   const prose = body.split('\n').filter((line) => line.trim() && !/^[|#<-]/.test(line.trim())).join(' ');
@@ -95,7 +103,7 @@ function decide(messages: Message[]): LlmResponse {
   const advise = (): LlmResponse => {
     const search = state.lastSearch;
     // The first result that has steps (the top one can be a symptom table), and the first of its steps not yet given.
-    const source = search?.results.find((result) => stepsIn(result.body).length > 0);
+    const source = candidates()[0];
     const next = source ? stepsIn(source.body).find((step) => !said.some((reply) => reply.includes(step))) : undefined;
     if (!source || !next) return offerSupport(search ? 'That is everything the guide suggests.' : MOCK_NOT_FOUND);
     return say(`${next} That is from ${source.citation}. Did that help?`);
@@ -107,10 +115,61 @@ function decide(messages: Message[]): LlmResponse {
     return productId ? call(id, 'check_warranty', { product_id: productId }, lead) : say(`${lead} Would you like me to open a support case?`);
   };
 
+  const found = state.lastSearch?.results ?? [];
+  /** The pages found that give steps: the choices when a complaint fits several. */
+  const candidates = (): { citation: string; section: string; body: string }[] => {
+    const seen = new Set<string>();
+    const pages = found.filter((result) => stepsIn(result.body).length > 0 && !seen.has(result.section) && seen.add(result.section));
+    // A page the customer chose was searched for by its title, so it leads whatever order the search put it in.
+    const chosen = pages.findIndex((result) => result.section === state.lastSearch?.query);
+    return (chosen > 0 ? [pages[chosen]!, ...pages.filter((_, index) => index !== chosen)] : pages).slice(0, 4);
+  };
+  const fresh = (question: string): boolean => !state.asked.some((asked) => overlap(asked, question) >= REPEAT_OVERLAP);
+
+  /** Which of the choices just offered the customer's answer names ("the first one", or a word only one of them has). */
+  const pickedOption = (): string | undefined => {
+    const question = state.answering?.question ?? '';
+    if (!question.startsWith(OPTIONS_LEAD)) return undefined;
+    const offered = candidates().filter((result) => question.includes(result.section.replace(/\([^)]*\)/g, '').replace(/\s+/g, ' ').trim()));
+    const ordinal = /\b(first|1st)\b/.test(state.lastText.toLowerCase()) ? 0 : /\b(second|2nd)\b/.test(state.lastText.toLowerCase()) ? 1 : /\b(third|3rd|last)\b/.test(state.lastText.toLowerCase()) ? offered.length - 1 : -1;
+    if (ordinal >= 0) return offered[ordinal]?.section;
+    const scored = offered.map((result) => ({ section: result.section, score: overlap(state.lastText, `${result.section} ${result.body}`) })).sort((a, b) => b.score - a.score);
+    return scored[0] && scored[0].score >= PICK_OVERLAP && scored[0].score > (scored[1]?.score ?? 0) ? scored[0].section : undefined;
+  };
+
+  /** The share of a page's title that the customer's words cover (stemmed), from 0 to 1. */
+  const coverage = (result: { section: string }): number => {
+    const words = titleWords(result.section);
+    if (words.length === 0) return 1;
+    const heard = new Set(`${state.problem.join(' ')} ${pickedOption() ?? ''}`.toLowerCase().match(/[a-z0-9]+/g)?.map(stemOf) ?? []);
+    return words.filter((word) => heard.has(stemOf(word))).length / words.length;
+  };
+
+  /** The top page is the one the customer means once what they have said covers enough of its title. */
+  const settled = (): boolean => {
+    const top = candidates()[0];
+    return top !== undefined && coverage(top) >= SETTLED_COVERAGE;
+  };
+
+  /**
+   * Searching has not settled it: ask the next question, then search again with the answer, up to the limit. When the
+   * customer has said nothing the pages relate to, the guide's own "Ask:" lines come first. When they have named an
+   * area, the pages found for it are offered as choices.
+   */
+  const followUp = (): LlmResponse | undefined => {
+    if (state.followUps >= MAX_FOLLOW_UPS) return undefined;
+    const guide = found.slice(0, 4).flatMap((result) => askedBy(result.body)).find(fresh);
+    const related = candidates().filter((result) => coverage(result) > 0);
+    const options = related.length >= 2 ? related : candidates();
+    const choices = options.length >= 2 ? `${OPTIONS_LEAD} ${options.map((result) => result.section.replace(/\([^)]*\)/g, '').replace(/\s+/g, ' ').trim()).join(', ')}?` : undefined;
+    const next = (related.length === 0 && state.followUps === 0 ? [guide, choices] : [choices, guide]).find((question): question is string => question !== undefined && fresh(question));
+    return next ? say(state.followUps === 0 ? `Let me narrow that down. ${next}` : next) : undefined;
+  };
+
   /** Nothing usable was found: ask for a detail, a different one each time, and when they run out offer a way forward. */
   const nothingFound = (): LlmResponse => {
     const next = MOCK_DETAIL_QUESTIONS.find((question) => !state.asked.some((asked) => overlap(asked, question) >= REPEAT_OVERLAP));
-    return next && state.unknownAnswers === 0 ? say(`${MOCK_NOT_FOUND} ${next}`) : offerSupport(MOCK_NOT_FOUND);
+    return next && state.unknownAnswers === 0 && state.followUps < MAX_FOLLOW_UPS ? say(`${MOCK_NOT_FOUND} ${next}`) : offerSupport(MOCK_NOT_FOUND);
   };
 
   /** The customer owns several machines and said "both": check each warranty in turn, then report them together. */
@@ -145,7 +204,9 @@ function decide(messages: Message[]): LlmResponse {
   /** Once the machine is known: open a case, check the warranty, or search, depending on what was asked. */
   const nextStep = (product: string): LlmResponse => {
     if (wantsEscalation(state.lastText)) return openCase(product);
-    const problem = state.problem.join(' ');
+    const picked = pickedOption();
+    // A page the customer chose is searched for by its title, which is the most exact question the guide can answer.
+    const problem = picked ?? state.problem.join(' ');
     if (/warranty|covered/i.test(problem)) return state.warranty?.productId === product ? say(warrantyLine(state.warranty)) : call(id, 'check_warranty', { product_id: product });
     const query = { query: problem, product_id: product };
     // The same search would return the same thing: go on with the steps from the one already run.
@@ -159,11 +220,11 @@ function decide(messages: Message[]): LlmResponse {
       case 'safety':
         return say('Please unplug it only if that is safe, stop using it, and contact support. I would not troubleshoot this one.');
       case 'acknowledge':
-        if (state.lastReply === '') return say('Hello, how can I help with your Brewwell machine?');
+        if (state.lastReply === '') return say('Hello, how can I help with your device?');
         if (state.answering?.kind === 'closing') return say(/^(yes|yeah|yep|yup|sure|please)\b/i.test(state.lastText.trim()) ? 'Sure, what would you like help with?' : 'Alright. Have a good day.');
         return say(state.answering?.kind === 'outcome' ? 'Sure. Let me know how it goes.' : "You're welcome. Tell me if anything else comes up.");
       case 'off_topic':
-        return say('That is outside what I can help with, but I am glad to help with your Brewwell machine.');
+        return say('That is outside what I can help with, but I am glad to help with your device.');
       case 'which_product':
         return say(`This is for your ${state.models[productId ?? ''] ?? 'machine'}.`);
       case 'clarify':
@@ -186,7 +247,7 @@ function decide(messages: Message[]): LlmResponse {
     // They could not answer a question: offer a way forward rather than asking it again.
     if (state.lastIntent === 'answer' && state.unknownAnswers > 0 && /don'?t know|do not know|no idea|not sure|can'?t tell|unsure|dunno/i.test(state.lastText)) {
       return state.answering?.kind === 'escalate'
-        ? say('No problem. Whenever you are ready, ask me to open a support case, or contact Brewwell support directly.')
+        ? say('No problem. Whenever you are ready, ask me to open a support case, or contact support directly.')
         : offerSupport("That's okay.");
     }
     // They are answering "which machine?": use the answer, never ask again.
@@ -231,7 +292,11 @@ function decide(messages: Message[]): LlmResponse {
     case 'search_troubleshooting': {
       const needs = (data.needs as string[] | undefined) ?? [];
       if (needs.includes('product_id')) return say('I need to know which machine this is first. Which model do you have?');
-      return data.confidence === 'high' ? advise() : nothingFound();
+      if (!state.guided) return data.confidence === 'high' ? advise() : nothingFound();
+      // The guide asks narrowing questions: a page is only the answer once the customer's words fit it. Otherwise ask, and search again.
+      if (data.confidence !== 'low' && settled()) return advise();
+      const hasSteps = candidates().length > 0;
+      return followUp() ?? (data.confidence !== 'low' && hasSteps ? advise() : nothingFound());
     }
     case 'record_diagnostic_step': {
       if (input.kind === 'step' && state.lastIntent === 'deny' && productId) return failedOutcome(productId);

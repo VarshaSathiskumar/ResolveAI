@@ -45,7 +45,7 @@ export const DEMO_TOKENS = { alex: 'demo-token-alex', raj: 'demo-token-raj', nat
 export const PERSONAS: { id: string; name: string; note: string }[] = [
   { id: 'alex', name: 'Alex', note: 'Owns one machine: "my coffee machine" needs no question.' },
   { id: 'raj', name: 'Raj', note: 'Owns two machines, one out of warranty: "my coffee machine" needs a question.' },
-  { id: 'nate', name: 'Nate', note: 'Owns a Google Pixel 9 phone.' },
+  { id: 'nate', name: 'Nate', note: 'Owns a Google Pixel 9: a vague complaint takes follow-up questions and more searches.' },
 ];
 
 // Helpers for reading the environment -----------------------------------------------------------------------------
@@ -337,6 +337,15 @@ export const TRACE_TEXT_LIMIT = 600;
 // Conversation reading (packages/simulator/server/agent/context.ts)
 /** After this many attempts that did not help, or questions the customer could not answer, a support case is the next step. */
 export const ESCALATE_AFTER = 2;
+/** The most follow-up questions asked about one problem: search, ask, search again, up to this many times, then give the best documented step or offer a support case. */
+export const MAX_FOLLOW_UPS = 5;
+/** How a follow-up that offers the pages found as choices begins. It asks for a detail, whatever words the page titles use. */
+export const OPTIONS_LEAD = 'Which of these sounds like yours:';
+/** The complaint is settled when the customer's words cover at least this share of the top page's title. */
+export const SETTLED_COVERAGE = 0.5;
+/** An answer names one of the offered pages when this share of its words is found in that page and not equally in another. */
+export const PICK_OVERLAP = 0.6;
+export const TITLE_STOP_WORDS = new Set(['does', 'do', 'not', 'or', 'and', 'because', 'with', 'while', 'in', 'the', 'a', 'an', 'of', 'is', 'to', 'for', 'it']);
 /** Calls that only read: the same call twice returns the same answer, so the second adds nothing. */
 export const READ_ONLY_TOOLS = new Set(['search_troubleshooting', 'identify_product', 'list_owned_products', 'get_product', 'check_warranty', 'get_document_section']);
 /** Lookups a message that carries no problem must not start. */
@@ -355,7 +364,7 @@ export const PATTERN_WILL_ACT = /\b(i'?ll|i will|let me|i'?m going to|gonna) (tr
 export const PATTERN_OFFER_YES = /^(yes|yeah|yep|yup|sure|please|ok|okay|alright|go ahead|do it|sounds good|absolutely|definitely)\b/;
 export const PATTERN_FIXED = /\b(worked|fixed|solved|works now|working now|working again|sorted)\b/;
 export const PATTERN_FAILED =
-  /\b(didn'?t|did not|doesn'?t|does not|won'?t|will not|isn'?t|not) (work|help|fix|change|brew|working|helping)\b|\bstill (not|nothing|no|won'?t|will not|the same|broken|blinking|dripping|leaking|doesn'?t|isn'?t)\b|\bnothing (changed|happened|works?)\b|\bno (change|difference|luck)\b|\bnothing\b|\bsame (problem|thing)\b|\btried (that|it)\b/;
+  /\b(didn'?t|did not|doesn'?t|does not|won'?t|will not|isn'?t|not) (work|help|fix|change|brew|working|helping)\b|\bstill (not|nothing|no|won'?t|will not|the same|broken|blinking|dripping|leaking|doesn'?t|isn'?t|slow|hot|laggy|freezing|frozen|draining|dead|flickering|dim)\b|\bnothing (changed|happened|works?)\b|\bno (change|difference|luck)\b|\bnothing\b|\bsame (problem|thing)\b|\btried (that|it)\b/;
 export const PATTERN_CLARIFY = /\b(repeat|say (that|it) again|come again|pardon|what do you mean|what was that|didn'?t (catch|hear|get|understand)|can you (explain|clarify|rephrase)|what does that mean)\b/;
 /** "Which device is this for?": a question about the machine the conversation is about. */
 export const PATTERN_WHICH_PRODUCT = /\b(which|what) (device|machine|model|product)\b/;
