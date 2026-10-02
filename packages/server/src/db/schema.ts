@@ -86,7 +86,7 @@ export function applySchema(db: Db, embeddingDims: number): void {
     CREATE INDEX IF NOT EXISTS chunks_document ON chunks(document_id);
 
     CREATE VIRTUAL TABLE IF NOT EXISTS chunks_fts USING fts5(
-      section, text, tokenize = 'porter unicode61'
+      section, text, context, tokenize = 'porter unicode61'
     );
 
     CREATE VIRTUAL TABLE IF NOT EXISTS chunks_vec USING vec0(embedding float[${embeddingDims}]);

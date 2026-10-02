@@ -1,0 +1,397 @@
+[
+  {
+    "id": "f001",
+    "query": "pod machine just sputters and gives a tiny bit of coffee",
+    "product": "p200",
+    "expect": "answer",
+    "gold": [
+      "p200:troubleshooting:Clogged needle (error E01)"
+    ]
+  },
+  {
+    "id": "f002",
+    "query": "the light on top is flashing red and it won't make a cup",
+    "product": "p200",
+    "expect": "answer",
+    "gold": [
+      "p200:troubleshooting:Clogged needle (error E01)",
+      "p200:manual:Controls and indicator lights"
+    ]
+  },
+  {
+    "id": "f003",
+    "query": "how often do I need to descale",
+    "product": "p200",
+    "expect": "answer",
+    "gold": [
+      "p200:manual:Descaling"
+    ]
+  },
+  {
+    "id": "f004",
+    "query": "it says descale but I already did it",
+    "product": "p200",
+    "expect": "answer",
+    "gold": [
+      "p200:troubleshooting:Descale required (error E03)"
+    ]
+  },
+  {
+    "id": "f005",
+    "query": "can I use any brand of pods",
+    "product": "p200",
+    "expect": "answer",
+    "gold": [
+      "p200:manual:Brewing a cup"
+    ]
+  },
+  {
+    "id": "f006",
+    "query": "what do I do if there is water under it",
+    "product": "p200",
+    "expect": "answer",
+    "gold": [
+      "p200:troubleshooting:Leaks"
+    ]
+  },
+  {
+    "id": "f007",
+    "query": "red light stays on even though the tank is full",
+    "product": "p200",
+    "expect": "answer",
+    "gold": [
+      "p200:troubleshooting:Tank not detected",
+      "p200:manual:Controls and indicator lights"
+    ]
+  },
+  {
+    "id": "f008",
+    "query": "the display shows an error about the tank seal",
+    "product": "p300",
+    "expect": "answer",
+    "gold": [
+      "p300:troubleshooting:Tank seal error (E04)"
+    ]
+  },
+  {
+    "id": "f009",
+    "query": "it makes a racket but no coffee comes out",
+    "product": "p300",
+    "expect": "answer",
+    "gold": [
+      "p300:troubleshooting:Tank seal error (E04)"
+    ]
+  },
+  {
+    "id": "f010",
+    "query": "milk jug won't froth properly",
+    "product": "p300",
+    "expect": "answer",
+    "gold": [
+      "p300:troubleshooting:Frother problems"
+    ]
+  },
+  {
+    "id": "f011",
+    "query": "how do I do the first rinse",
+    "product": "p300",
+    "expect": "answer",
+    "gold": [
+      "p300:manual:First-time setup"
+    ]
+  },
+  {
+    "id": "f012",
+    "query": "how long does the descale cycle take",
+    "product": "p300",
+    "expect": "answer",
+    "gold": [
+      "p300:manual:Descaling"
+    ]
+  },
+  {
+    "id": "f013",
+    "query": "what size is the water tank",
+    "product": "p300",
+    "expect": "answer",
+    "gold": [
+      "p300:manual:Specifications"
+    ]
+  },
+  {
+    "id": "f014",
+    "query": "I lost the little black rubber ring",
+    "product": "p300",
+    "expect": "answer",
+    "gold": [
+      "p300:troubleshooting:Tank seal error (E04)",
+      "p300:manual:Box contents and parts"
+    ]
+  },
+  {
+    "id": "f015",
+    "query": "the carafe fills halfway then stops",
+    "product": "dm12",
+    "expect": "answer",
+    "gold": [
+      "dm12:troubleshooting:Slow or partial brew"
+    ]
+  },
+  {
+    "id": "f016",
+    "query": "grounds and water spill over the top",
+    "product": "dm12",
+    "expect": "answer",
+    "gold": [
+      "dm12:troubleshooting:Overflow"
+    ]
+  },
+  {
+    "id": "f017",
+    "query": "I plugged it in and nothing happens",
+    "product": "dm12",
+    "expect": "answer",
+    "gold": [
+      "dm12:troubleshooting:No power"
+    ]
+  },
+  {
+    "id": "f018",
+    "query": "how much coffee do I put in per cup",
+    "product": "dm12",
+    "expect": "answer",
+    "gold": [
+      "dm12:manual:Brewing"
+    ]
+  },
+  {
+    "id": "f019",
+    "query": "how do I get rid of limescale",
+    "product": "dm12",
+    "expect": "answer",
+    "gold": [
+      "dm12:manual:Descaling"
+    ]
+  },
+  {
+    "id": "f020",
+    "query": "how long can it stay on before it turns itself off",
+    "product": "dm12",
+    "expect": "answer",
+    "gold": [
+      "dm12:manual:Brewing"
+    ]
+  },
+  {
+    "id": "f021",
+    "query": "the clock is blank and the machine is dead",
+    "product": "dm12",
+    "expect": "answer",
+    "gold": [
+      "dm12:troubleshooting:No power"
+    ]
+  },
+  {
+    "id": "f022",
+    "query": "no water from the group head and the pump makes a loud buzzing noise",
+    "product": "es1",
+    "expect": "answer",
+    "gold": [
+      "es1:troubleshooting:Pump airlock (error E05)"
+    ]
+  },
+  {
+    "id": "f023",
+    "query": "espresso is thin and tastes like water",
+    "product": "es1",
+    "expect": "answer",
+    "gold": [
+      "es1:troubleshooting:Weak shot"
+    ]
+  },
+  {
+    "id": "f024",
+    "query": "portafilter is stuck tight and the gauge is in the red",
+    "product": "es1",
+    "expect": "answer",
+    "gold": [
+      "es1:troubleshooting:Choked shot"
+    ]
+  },
+  {
+    "id": "f025",
+    "query": "how do I backflush the machine",
+    "product": "es1",
+    "expect": "answer",
+    "gold": [
+      "es1:manual:Cleaning and descaling"
+    ]
+  },
+  {
+    "id": "f026",
+    "query": "what pressure does the pump run at",
+    "product": "es1",
+    "expect": "answer",
+    "gold": [
+      "es1:manual:Specifications"
+    ]
+  },
+  {
+    "id": "f027",
+    "query": "how long does it take to warm up",
+    "product": "es1",
+    "expect": "answer",
+    "gold": [
+      "es1:manual:First-time setup and priming"
+    ]
+  },
+  {
+    "id": "f028",
+    "query": "the pump keeps buzzing even after I refilled the tank",
+    "product": "es1",
+    "expect": "answer",
+    "gold": [
+      "es1:troubleshooting:Pump airlock (error E05)"
+    ]
+  },
+  {
+    "id": "f029",
+    "query": "how long am I covered for",
+    "product": "p300",
+    "expect": "answer",
+    "gold": [
+      "p300:warranty:Warranty term"
+    ]
+  },
+  {
+    "id": "f030",
+    "query": "does my warranty include the heating plate",
+    "product": "dm12",
+    "expect": "answer",
+    "gold": [
+      "dm12:warranty:What is covered"
+    ]
+  },
+  {
+    "id": "f031",
+    "query": "does the warranty cover a cracked case",
+    "product": "p200",
+    "expect": "answer",
+    "gold": [
+      "p200:warranty:What is not covered"
+    ]
+  },
+  {
+    "id": "f032",
+    "query": "what do I need to claim a repair",
+    "product": "es1",
+    "expect": "answer",
+    "gold": [
+      "es1:warranty:Making a claim"
+    ]
+  },
+  {
+    "id": "f033",
+    "query": "does it cover use in an office",
+    "product": "p200",
+    "expect": "answer",
+    "gold": [
+      "p200:warranty:What is not covered"
+    ]
+  },
+  {
+    "id": "f034",
+    "query": "is the display covered if it fails",
+    "product": "p300",
+    "expect": "answer",
+    "gold": [
+      "p300:warranty:What is covered"
+    ]
+  },
+  {
+    "id": "f035",
+    "query": "can I connect it to my smart speaker",
+    "product": "p300",
+    "expect": "abstain"
+  },
+  {
+    "id": "f036",
+    "query": "how do I change the language on the screen",
+    "product": "es1",
+    "expect": "abstain"
+  },
+  {
+    "id": "f037",
+    "query": "what is the best coffee bean to buy",
+    "product": "dm12",
+    "expect": "abstain"
+  },
+  {
+    "id": "f038",
+    "query": "the screen shows error E77",
+    "product": "p200",
+    "expect": "abstain"
+  },
+  {
+    "id": "f039",
+    "query": "how do I make iced coffee",
+    "product": "p200",
+    "expect": "abstain"
+  },
+  {
+    "id": "f040",
+    "query": "my Brew Pro won't turn on",
+    "expect": "ambiguous"
+  },
+  {
+    "id": "f041",
+    "query": "the coffee machine makes a loud noise",
+    "expect": "ambiguous",
+    "gold": [
+      "p300:troubleshooting:Tank seal error (E04)",
+      "es1:troubleshooting:Pump airlock (error E05)"
+    ]
+  },
+  {
+    "id": "f042",
+    "query": "the pump keeps running and nothing comes out",
+    "expect": "ambiguous",
+    "gold": [
+      "p300:troubleshooting:Tank seal error (E04)",
+      "es1:troubleshooting:Pump airlock (error E05)"
+    ]
+  },
+  {
+    "id": "f043",
+    "query": "my machine says E03",
+    "expect": "ambiguous",
+    "gold": [
+      "p200:troubleshooting:Descale required (error E03)",
+      "p300:troubleshooting:Descale required (error E03)"
+    ]
+  },
+  {
+    "id": "f044",
+    "query": "what does E05 mean",
+    "expect": "answer",
+    "gold": [
+      "es1:troubleshooting:Pump airlock (error E05)"
+    ]
+  },
+  {
+    "id": "f045",
+    "query": "my machine shows e-01",
+    "expect": "answer",
+    "gold": [
+      "p200:troubleshooting:Clogged needle (error E01)"
+    ]
+  },
+  {
+    "id": "f046",
+    "query": "tank seal E04",
+    "expect": "answer",
+    "gold": [
+      "p300:troubleshooting:Tank seal error (E04)"
+    ]
+  }
+]

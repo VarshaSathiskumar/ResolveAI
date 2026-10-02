@@ -7,3 +7,4 @@ dist/
 .DS_Store
 plan.md
 data/
+packages/server/eval/last-run.json

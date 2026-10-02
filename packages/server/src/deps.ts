@@ -4,6 +4,8 @@ import { openDb } from './db/schema.js';
 import { createHashEmbedder, createTransformersEmbedder } from './ingest/embed.js';
 import { createCaseStore, type CaseStore } from './cases/store.js';
 import { createCatalog, type Catalog } from './products/catalog.js';
+import { productionRetrieval } from './retrieval/presets.js';
+import { createCrossEncoderReranker } from './retrieval/rerank.js';
 import { createRetriever, type Retriever } from './retrieval/retriever.js';
 
 /** Everything the MCP tools need. Built once and shared by every session. */
@@ -22,8 +24,11 @@ export async function createDeps(config: Config): Promise<ServerDeps & { close()
   }
   const db = openDb(config.dbPath);
   const embedder = config.embedder === 'hash' ? createHashEmbedder() : createTransformersEmbedder();
-  const retriever = createRetriever({ db, embedder });
+  const reranker = config.reranker === 'cross-encoder' ? createCrossEncoderReranker() : undefined;
+  const retriever = createRetriever({ db, embedder, reranker, ...productionRetrieval(reranker !== undefined) });
   await embedder.embed(['warm up']);
+  // Load the cross-encoder now so the first real search does not pay for it.
+  await reranker?.score('warm up', ['warm up']);
   const now = () => new Date();
   return { retriever, catalog: createCatalog(db), cases: createCaseStore(db, now), now, close: () => db.close() };
 }

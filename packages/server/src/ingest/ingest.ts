@@ -18,6 +18,8 @@ interface PendingChunk {
   section: string;
   text: string;
   embeddingText: string;
+  /** Product and document title, searched with a lower weight than the chunk itself. */
+  context: string;
 }
 
 /** Rebuilds the product catalog and document index from a corpus directory. */
@@ -38,6 +40,7 @@ export async function ingestCorpus(options: {
           documentIndex,
           ...chunk,
           embeddingText: `${product.brand} ${product.model} ${document.title}\n${chunk.section}\n${chunk.text}`,
+          context: `${product.brand} ${product.model} ${document.title}`,
         });
       }
     });
@@ -89,12 +92,12 @@ export async function ingestCorpus(options: {
     });
 
     const insertChunk = db.prepare('INSERT INTO chunks (document_id, page, section, text) VALUES (?, ?, ?, ?)');
-    const insertFts = db.prepare('INSERT INTO chunks_fts (rowid, section, text) VALUES (?, ?, ?)');
+    const insertFts = db.prepare('INSERT INTO chunks_fts (rowid, section, text, context) VALUES (?, ?, ?, ?)');
     const insertVec = db.prepare('INSERT INTO chunks_vec (rowid, embedding) VALUES (?, ?)');
     pending.forEach((chunk, index) => {
       const documentId = documentIds.get(`${chunk.productIndex}:${chunk.documentIndex}`)!;
       const { lastInsertRowid } = insertChunk.run(documentId, chunk.page, chunk.section, chunk.text);
-      insertFts.run(lastInsertRowid, chunk.section, chunk.text);
+      insertFts.run(lastInsertRowid, chunk.section, chunk.text, chunk.context);
       const vector = vectors[index]!;
       insertVec.run(BigInt(lastInsertRowid), Buffer.from(vector.buffer, vector.byteOffset, vector.byteLength));
     });

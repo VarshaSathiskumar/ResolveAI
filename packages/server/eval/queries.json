@@ -1,0 +1,713 @@
+[
+  {
+    "id": "q001",
+    "query": "my machine isn't brewing, only a few drops come out",
+    "product": "p200",
+    "expect": "answer",
+    "gold": [
+      "p200:troubleshooting:Clogged needle (error E01)"
+    ]
+  },
+  {
+    "id": "q002",
+    "query": "red light is blinking and nothing comes out",
+    "product": "p200",
+    "expect": "answer",
+    "gold": [
+      "p200:troubleshooting:Clogged needle (error E01)"
+    ]
+  },
+  {
+    "id": "q003",
+    "query": "coffee barely trickles out of the outlet",
+    "product": "p200",
+    "expect": "answer",
+    "gold": [
+      "p200:troubleshooting:Clogged needle (error E01)"
+    ]
+  },
+  {
+    "id": "q004",
+    "query": "E01",
+    "product": "p200",
+    "expect": "answer",
+    "gold": [
+      "p200:troubleshooting:Clogged needle (error E01)"
+    ]
+  },
+  {
+    "id": "q005",
+    "query": "grounds are packed around the needle in the pod chamber",
+    "product": "p200",
+    "expect": "answer",
+    "gold": [
+      "p200:troubleshooting:Clogged needle (error E01)"
+    ]
+  },
+  {
+    "id": "q006",
+    "query": "I think the needle is jammed",
+    "product": "p200",
+    "expect": "answer",
+    "gold": [
+      "p200:troubleshooting:Clogged needle (error E01)"
+    ]
+  },
+  {
+    "id": "q007",
+    "query": "amber light keeps blinking",
+    "product": "p200",
+    "expect": "answer",
+    "gold": [
+      "p200:troubleshooting:Descale required (error E03)"
+    ]
+  },
+  {
+    "id": "q008",
+    "query": "how do I descale it",
+    "product": "p200",
+    "expect": "answer",
+    "gold": [
+      "p200:manual:Descaling",
+      "p200:troubleshooting:Descale required (error E03)"
+    ]
+  },
+  {
+    "id": "q009",
+    "query": "flow is slow and the machine sounds strained",
+    "product": "p200",
+    "expect": "answer",
+    "gold": [
+      "p200:troubleshooting:Descale required (error E03)"
+    ]
+  },
+  {
+    "id": "q010",
+    "query": "steady red light",
+    "product": "p200",
+    "expect": "answer",
+    "gold": [
+      "p200:troubleshooting:Tank not detected",
+      "p200:manual:Controls and indicator lights"
+    ]
+  },
+  {
+    "id": "q011",
+    "query": "my coffee comes out lukewarm",
+    "product": "p200",
+    "expect": "answer",
+    "gold": [
+      "p200:troubleshooting:Weak or cold coffee"
+    ]
+  },
+  {
+    "id": "q012",
+    "query": "water pooling under the machine",
+    "product": "p200",
+    "expect": "answer",
+    "gold": [
+      "p200:troubleshooting:Leaks"
+    ]
+  },
+  {
+    "id": "q013",
+    "query": "how do I clean the needle",
+    "product": "p200",
+    "expect": "answer",
+    "gold": [
+      "p200:manual:Cleaning and care"
+    ]
+  },
+  {
+    "id": "q014",
+    "query": "what does the blinking amber light mean",
+    "product": "p200",
+    "expect": "answer",
+    "gold": [
+      "p200:manual:Controls and indicator lights",
+      "p200:troubleshooting:Descale required (error E03)"
+    ]
+  },
+  {
+    "id": "q015",
+    "query": "how big is the water tank",
+    "product": "p200",
+    "expect": "answer",
+    "gold": [
+      "p200:manual:Specifications"
+    ]
+  },
+  {
+    "id": "q016",
+    "query": "pump runs but no water comes out",
+    "product": "p300",
+    "expect": "answer",
+    "gold": [
+      "p300:troubleshooting:Tank seal error (E04)"
+    ]
+  },
+  {
+    "id": "q017",
+    "query": "machine is really loud and nothing brews",
+    "product": "p300",
+    "expect": "answer",
+    "gold": [
+      "p300:troubleshooting:Tank seal error (E04)"
+    ]
+  },
+  {
+    "id": "q018",
+    "query": "E04 on the screen",
+    "product": "p300",
+    "expect": "answer",
+    "gold": [
+      "p300:troubleshooting:Tank seal error (E04)"
+    ]
+  },
+  {
+    "id": "q019",
+    "query": "the black ring is missing from the tank",
+    "product": "p300",
+    "expect": "answer",
+    "gold": [
+      "p300:troubleshooting:Tank seal error (E04)",
+      "p300:manual:Cleaning"
+    ]
+  },
+  {
+    "id": "q020",
+    "query": "where do I get a replacement seal ring",
+    "product": "p300",
+    "expect": "answer",
+    "gold": [
+      "p300:troubleshooting:Tank seal error (E04)"
+    ]
+  },
+  {
+    "id": "q021",
+    "query": "my milk isn't frothing",
+    "product": "p300",
+    "expect": "answer",
+    "gold": [
+      "p300:troubleshooting:Frother problems"
+    ]
+  },
+  {
+    "id": "q022",
+    "query": "how do I clean the milk frother jug",
+    "product": "p300",
+    "expect": "answer",
+    "gold": [
+      "p300:manual:Cleaning"
+    ]
+  },
+  {
+    "id": "q023",
+    "query": "E03 shows on the display",
+    "product": "p300",
+    "expect": "answer",
+    "gold": [
+      "p300:troubleshooting:Descale required (error E03)",
+      "p300:manual:Display and controls"
+    ]
+  },
+  {
+    "id": "q024",
+    "query": "how do I wash the tank",
+    "product": "p300",
+    "expect": "answer",
+    "gold": [
+      "p300:manual:Cleaning"
+    ]
+  },
+  {
+    "id": "q025",
+    "query": "can I make a latte",
+    "product": "p300",
+    "expect": "answer",
+    "gold": [
+      "p300:manual:Brewing and milk drinks"
+    ]
+  },
+  {
+    "id": "q026",
+    "query": "the display says Fill tank",
+    "product": "p300",
+    "expect": "answer",
+    "gold": [
+      "p300:manual:Display and controls"
+    ]
+  },
+  {
+    "id": "q027",
+    "query": "air is getting into the pump",
+    "product": "p300",
+    "expect": "answer",
+    "gold": [
+      "p300:troubleshooting:Tank seal error (E04)"
+    ]
+  },
+  {
+    "id": "q028",
+    "query": "it only makes half a pot",
+    "product": "dm12",
+    "expect": "answer",
+    "gold": [
+      "dm12:troubleshooting:Slow or partial brew"
+    ]
+  },
+  {
+    "id": "q029",
+    "query": "it brews really slowly",
+    "product": "dm12",
+    "expect": "answer",
+    "gold": [
+      "dm12:troubleshooting:Slow or partial brew"
+    ]
+  },
+  {
+    "id": "q030",
+    "query": "coffee stops partway through brewing",
+    "product": "dm12",
+    "expect": "answer",
+    "gold": [
+      "dm12:troubleshooting:Slow or partial brew"
+    ]
+  },
+  {
+    "id": "q031",
+    "query": "water overflows the basket",
+    "product": "dm12",
+    "expect": "answer",
+    "gold": [
+      "dm12:troubleshooting:Overflow"
+    ]
+  },
+  {
+    "id": "q032",
+    "query": "nothing lights up, completely dead",
+    "product": "dm12",
+    "expect": "answer",
+    "gold": [
+      "dm12:troubleshooting:No power"
+    ]
+  },
+  {
+    "id": "q033",
+    "query": "the clock stays dark",
+    "product": "dm12",
+    "expect": "answer",
+    "gold": [
+      "dm12:troubleshooting:No power"
+    ]
+  },
+  {
+    "id": "q034",
+    "query": "how do I descale with vinegar",
+    "product": "dm12",
+    "expect": "answer",
+    "gold": [
+      "dm12:manual:Descaling"
+    ]
+  },
+  {
+    "id": "q035",
+    "query": "how long does it keep the coffee warm",
+    "product": "dm12",
+    "expect": "answer",
+    "gold": [
+      "dm12:manual:Brewing"
+    ]
+  },
+  {
+    "id": "q036",
+    "query": "showerhead holes are blocked with grounds",
+    "product": "dm12",
+    "expect": "answer",
+    "gold": [
+      "dm12:manual:Cleaning",
+      "dm12:troubleshooting:Overflow"
+    ]
+  },
+  {
+    "id": "q037",
+    "query": "is the glass carafe covered if it breaks",
+    "product": "dm12",
+    "expect": "answer",
+    "gold": [
+      "dm12:warranty:What is not covered"
+    ]
+  },
+  {
+    "id": "q038",
+    "query": "it is out of warranty, what can I do",
+    "product": "dm12",
+    "expect": "answer",
+    "gold": [
+      "dm12:warranty:Out of warranty"
+    ]
+  },
+  {
+    "id": "q039",
+    "query": "how many cups does it make",
+    "product": "dm12",
+    "expect": "answer",
+    "gold": [
+      "dm12:manual:Specifications"
+    ]
+  },
+  {
+    "id": "q040",
+    "query": "pump buzzes but no water comes out",
+    "product": "es1",
+    "expect": "answer",
+    "gold": [
+      "es1:troubleshooting:Pump airlock (error E05)"
+    ]
+  },
+  {
+    "id": "q041",
+    "query": "E05",
+    "product": "es1",
+    "expect": "answer",
+    "gold": [
+      "es1:troubleshooting:Pump airlock (error E05)"
+    ]
+  },
+  {
+    "id": "q042",
+    "query": "the pump is gurgling and rattling",
+    "product": "es1",
+    "expect": "answer",
+    "gold": [
+      "es1:troubleshooting:Pump airlock (error E05)"
+    ]
+  },
+  {
+    "id": "q043",
+    "query": "air in the pump after the tank ran dry",
+    "product": "es1",
+    "expect": "answer",
+    "gold": [
+      "es1:troubleshooting:Pump airlock (error E05)"
+    ]
+  },
+  {
+    "id": "q044",
+    "query": "gauge stuck in the red and no espresso comes out",
+    "product": "es1",
+    "expect": "answer",
+    "gold": [
+      "es1:troubleshooting:Choked shot"
+    ]
+  },
+  {
+    "id": "q045",
+    "query": "grind is too fine and the shot won't flow",
+    "product": "es1",
+    "expect": "answer",
+    "gold": [
+      "es1:troubleshooting:Choked shot"
+    ]
+  },
+  {
+    "id": "q046",
+    "query": "the shot is watery",
+    "product": "es1",
+    "expect": "answer",
+    "gold": [
+      "es1:troubleshooting:Weak shot"
+    ]
+  },
+  {
+    "id": "q047",
+    "query": "how do I prime the pump",
+    "product": "es1",
+    "expect": "answer",
+    "gold": [
+      "es1:manual:First-time setup and priming"
+    ]
+  },
+  {
+    "id": "q048",
+    "query": "how often should I descale",
+    "product": "es1",
+    "expect": "answer",
+    "gold": [
+      "es1:manual:Cleaning and descaling",
+      "es1:troubleshooting:Descaling"
+    ]
+  },
+  {
+    "id": "q049",
+    "query": "how much coffee should I use",
+    "product": "es1",
+    "expect": "answer",
+    "gold": [
+      "es1:manual:Making espresso"
+    ]
+  },
+  {
+    "id": "q050",
+    "query": "slow flow and a noisy pump, it has been ages since I descaled",
+    "product": "es1",
+    "expect": "answer",
+    "gold": [
+      "es1:troubleshooting:Descaling"
+    ]
+  },
+  {
+    "id": "q051",
+    "query": "how big is the tank",
+    "product": "es1",
+    "expect": "answer",
+    "gold": [
+      "es1:manual:Specifications"
+    ]
+  },
+  {
+    "id": "q052",
+    "query": "how long is the warranty",
+    "product": "p200",
+    "expect": "answer",
+    "gold": [
+      "p200:warranty:Warranty term"
+    ]
+  },
+  {
+    "id": "q053",
+    "query": "what does the warranty cover",
+    "product": "p300",
+    "expect": "answer",
+    "gold": [
+      "p300:warranty:What is covered"
+    ]
+  },
+  {
+    "id": "q054",
+    "query": "how do I make a claim",
+    "product": "es1",
+    "expect": "answer",
+    "gold": [
+      "es1:warranty:Making a claim"
+    ]
+  },
+  {
+    "id": "q055",
+    "query": "is limescale damage covered",
+    "product": "p200",
+    "expect": "answer",
+    "gold": [
+      "p200:warranty:What is not covered"
+    ]
+  },
+  {
+    "id": "q056",
+    "query": "does the warranty cover the pump",
+    "product": "p300",
+    "expect": "answer",
+    "gold": [
+      "p300:warranty:What is covered"
+    ]
+  },
+  {
+    "id": "q057",
+    "query": "warranty length",
+    "product": "dm12",
+    "expect": "answer",
+    "gold": [
+      "dm12:warranty:Warranty term"
+    ]
+  },
+  {
+    "id": "q058",
+    "query": "can I use it in my cafe and still be covered",
+    "product": "es1",
+    "expect": "answer",
+    "gold": [
+      "es1:warranty:What is not covered"
+    ]
+  },
+  {
+    "id": "q059",
+    "query": "who do I contact if none of this works",
+    "product": "p200",
+    "expect": "answer",
+    "gold": [
+      "p200:troubleshooting:When to contact support",
+      "p200:warranty:Making a claim"
+    ]
+  },
+  {
+    "id": "q060",
+    "query": "wifi won't connect to the phone app",
+    "product": "p200",
+    "expect": "abstain"
+  },
+  {
+    "id": "q061",
+    "query": "the milk frother is not working",
+    "product": "p200",
+    "expect": "abstain"
+  },
+  {
+    "id": "q062",
+    "query": "how do I update the firmware",
+    "product": "dm12",
+    "expect": "abstain"
+  },
+  {
+    "id": "q063",
+    "query": "error E99 on the display",
+    "product": "p200",
+    "expect": "abstain"
+  },
+  {
+    "id": "q064",
+    "query": "the grinder is jamming",
+    "product": "es1",
+    "expect": "abstain"
+  },
+  {
+    "id": "q065",
+    "query": "how do I clean the washing machine drum",
+    "product": "p300",
+    "expect": "abstain"
+  },
+  {
+    "id": "q066",
+    "query": "can I set it to brew at 7am with the timer",
+    "product": "dm12",
+    "expect": "abstain"
+  },
+  {
+    "id": "q067",
+    "query": "bluetooth pairing fails",
+    "product": "es1",
+    "expect": "abstain"
+  },
+  {
+    "id": "q068",
+    "query": "error E12 on the screen",
+    "product": "p300",
+    "expect": "abstain"
+  },
+  {
+    "id": "q069",
+    "query": "how do I replace the heating element myself",
+    "product": "p200",
+    "expect": "abstain"
+  },
+  {
+    "id": "q070",
+    "query": "my refrigerator is leaking",
+    "product": "p300",
+    "expect": "abstain"
+  },
+  {
+    "id": "q071",
+    "query": "the bean hopper is empty",
+    "product": "es1",
+    "expect": "abstain"
+  },
+  {
+    "id": "q072",
+    "query": "Brew Pro is not brewing",
+    "expect": "ambiguous",
+    "gold": [
+      "p200:troubleshooting:Clogged needle (error E01)",
+      "p300:troubleshooting:Tank seal error (E04)"
+    ]
+  },
+  {
+    "id": "q073",
+    "query": "my pod machine won't work",
+    "expect": "ambiguous"
+  },
+  {
+    "id": "q074",
+    "query": "the pod coffee machine only drips",
+    "expect": "ambiguous"
+  },
+  {
+    "id": "q075",
+    "query": "my coffee machine isn't brewing",
+    "expect": "ambiguous"
+  },
+  {
+    "id": "q076",
+    "query": "the pump is noisy and no water comes out",
+    "expect": "ambiguous",
+    "gold": [
+      "p300:troubleshooting:Tank seal error (E04)",
+      "es1:troubleshooting:Pump airlock (error E05)"
+    ]
+  },
+  {
+    "id": "q077",
+    "query": "Brew Pro blinking light",
+    "expect": "ambiguous"
+  },
+  {
+    "id": "q078",
+    "query": "coffee machine is leaking",
+    "expect": "ambiguous"
+  },
+  {
+    "id": "q079",
+    "query": "E03",
+    "expect": "ambiguous",
+    "gold": [
+      "p200:troubleshooting:Descale required (error E03)",
+      "p300:troubleshooting:Descale required (error E03)"
+    ]
+  },
+  {
+    "id": "q080",
+    "query": "E01",
+    "expect": "answer",
+    "gold": [
+      "p200:troubleshooting:Clogged needle (error E01)"
+    ]
+  },
+  {
+    "id": "q081",
+    "query": "E04",
+    "expect": "answer",
+    "gold": [
+      "p300:troubleshooting:Tank seal error (E04)"
+    ]
+  },
+  {
+    "id": "q082",
+    "query": "E05",
+    "expect": "answer",
+    "gold": [
+      "es1:troubleshooting:Pump airlock (error E05)"
+    ]
+  },
+  {
+    "id": "q083",
+    "query": "error E-04",
+    "expect": "answer",
+    "gold": [
+      "p300:troubleshooting:Tank seal error (E04)"
+    ]
+  },
+  {
+    "id": "q084",
+    "query": "e05 error",
+    "expect": "answer",
+    "gold": [
+      "es1:troubleshooting:Pump airlock (error E05)"
+    ]
+  },
+  {
+    "id": "q085",
+    "query": "what is error E01",
+    "expect": "answer",
+    "gold": [
+      "p200:troubleshooting:Clogged needle (error E01)"
+    ]
+  }
+]

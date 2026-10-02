@@ -9,6 +9,10 @@ const strong: Signals = {
   topCosine: 0.5,
   ambiguousProduct: false,
   unknownShare: 0,
+  agreement: true,
+  margin: 0.2,
+  cosineProminence: 3,
+  coverageTop1: 1,
 };
 
 const assess = (overrides: Partial<Signals>) => assessSufficiency({ ...strong, ...overrides });

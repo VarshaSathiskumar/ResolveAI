@@ -12,7 +12,7 @@ const DESCRIPTION = [
   '- high: answer from the results, one or two steps at a time.',
   '- medium: the match is partial. Reword the query with the error code or what the machine does, or ask the user one clarifying question.',
   '- low: do not answer from these results. Follow `suggested_refinement`, ask the user one diagnostic question, or say it is not in their documentation.',
-  '`needs` lists what to establish before searching again, for example product_id.',
+  '`needs` lists what to establish before searching again, for example product_id; then `competing_products` names the models that matched about equally, so you can ask which one.',
   '`unknown_terms` are words the documentation never uses: do not assume the product has that feature.',
   '`synonym_matches` show where the user\'s word was matched through a synonym (for example jammed as clogged); the match is reliable but confirm with the user if the step is risky.',
 ].join('\n');
@@ -38,6 +38,7 @@ const outputSchema = z.object({
   unknown_terms: z.array(z.string()),
   synonym_matches: z.array(z.object({ term: z.string(), matched: z.string() })),
   needs: z.array(z.string()),
+  competing_products: z.array(z.object({ product_id: z.string(), model: z.string() })),
   suggested_refinement: z.string().optional(),
   results: z.array(resultSchema),
 });
@@ -104,6 +105,7 @@ export function registerSearchTroubleshootingTool(server: McpServer, deps: Serve
         unknown_terms: result.unknownTerms,
         synonym_matches: result.synonymMatches,
         needs: result.needs,
+        competing_products: result.competingProducts.map((entry) => ({ product_id: entry.productId, model: entry.model })),
         ...(result.suggestedRefinement ? { suggested_refinement: result.suggestedRefinement } : {}),
         results: result.hits.map(toResult),
       };

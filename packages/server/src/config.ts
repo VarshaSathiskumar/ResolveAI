@@ -15,6 +15,11 @@ export interface Config {
   dbPath: string;
   /** Must match the embedder used at ingestion. */
   embedder: 'transformers' | 'hash';
+  /**
+   * Cross-encoder reranking of the best search candidates: better first results at roughly 150 ms per search and a
+   * second small model to download. `off` serves the fused order with the original confidence rules.
+   */
+  reranker: 'cross-encoder' | 'off';
   /** Hostnames (no port) accepted in the Host header. */
   allowedHosts: string[];
   /** Hostnames (no scheme or port) accepted in the Origin header. */
@@ -54,6 +59,7 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): Config {
     userTokens,
     dbPath: env.RESOLVEAI_DB ?? resolve(REPO_ROOT, 'data/resolveai.db'),
     embedder: env.RESOLVEAI_EMBEDDER === 'hash' ? 'hash' : 'transformers',
+    reranker: env.RESOLVEAI_RERANKER === 'off' ? 'off' : 'cross-encoder',
     allowedHosts: [...LOCAL_HOSTNAMES, ...list(env.ALLOWED_HOSTS)],
     allowedOrigins: [...LOCAL_HOSTNAMES, ...list(env.ALLOWED_ORIGINS)],
   };

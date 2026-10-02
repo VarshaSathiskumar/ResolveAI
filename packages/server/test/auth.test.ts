@@ -45,6 +45,12 @@ describe('loadConfig tokens', () => {
     expect(() => loadConfig({})).toThrow(/MCP_USER_TOKENS/);
   });
 
+  it('turns the reranker on by default and off on request', () => {
+    expect(loadConfig({ MCP_BEARER_TOKEN: 'x' }).reranker).toBe('cross-encoder');
+    expect(loadConfig({ MCP_BEARER_TOKEN: 'x', RESOLVEAI_RERANKER: 'off' }).reranker).toBe('off');
+    expect(loadConfig({ MCP_BEARER_TOKEN: 'x', RESOLVEAI_RERANKER: 'anything-else' }).reranker).toBe('cross-encoder');
+  });
+
   it('rejects a malformed or duplicated entry', () => {
     expect(() => loadConfig({ MCP_USER_TOKENS: 'justatoken' })).toThrow(/token:user-id/);
     expect(() => loadConfig({ MCP_USER_TOKENS: 'a:x,a:y' })).toThrow(/twice/);

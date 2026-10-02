@@ -13,9 +13,12 @@ npm run ingest                                  # build data/resolveai.db from c
 npm run ingest -- --embedder hash               # offline, non-semantic embeddings for quick checks
 npm test
 npm run test:model -w @resolveai/server         # opt-in: calibration eval against the real embedding model
+npm run eval:retrieval -w @resolveai/server       # opt-in: 85-query retrieval eval with dev and held-out metrics (see packages/server/eval/README.md)
 ```
 
 Each token in `MCP_USER_TOKENS` is a demo user's linked account (`token:user-id`). Set `MCP_BEARER_TOKEN` as well for a token with no user behind it. The demo users are in `corpus/demo.json`: Alex owns one machine, Sam two, Jo none.
+
+Search quality: by default the server re-scores the best search candidates with a small cross-encoder (about 90 MB, downloaded on first start, roughly 150 to 200 ms per search on a laptop CPU) and rates confidence with a model calibrated for that setup. Set `RESOLVEAI_RERANKER=off` to skip it and use the original ranking and confidence rules. The measured trade-offs are in `packages/server/eval/README.md`.
 
 The server needs the index first, so run `npm run ingest` before starting it. Set `RESOLVEAI_EMBEDDER=hash` (and ingest with `--embedder hash`) to run fully offline.
 

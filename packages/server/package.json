@@ -9,7 +9,10 @@
     "start": "node dist/index.js",
     "test": "vitest run",
     "ingest": "tsx src/ingest/cli.ts",
-    "test:model": "RESOLVEAI_MODEL_TESTS=1 vitest run test/retrieval.eval.test.ts"
+    "test:model": "RESOLVEAI_MODEL_TESTS=1 vitest run test/retrieval.eval.test.ts",
+    "eval:retrieval": "tsx eval/run.ts",
+    "eval:lock": "tsx eval/lock.ts",
+    "eval:calibrate": "tsx eval/calibrate.ts"
   },
   "dependencies": {
     "@huggingface/transformers": "^4.3.0",

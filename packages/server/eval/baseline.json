@@ -1,0 +1,129 @@
+{
+  "chunks": 70,
+  "variant": "baseline",
+  "splits": {
+    "dev": {
+      "queries": 64,
+      "answerable": {
+        "n": 49,
+        "recall1": 0.5714285714285714,
+        "recall3": 0.9795918367346939,
+        "recall4": 0.9795918367346939,
+        "mrr": 0.748299319727891,
+        "pointerTop1": 0.22448979591836735,
+        "falseAbstain": 0.14285714285714285,
+        "needlessProductQuestion": 0,
+        "unscopedAnswerable": 4,
+        "confidentWrong": 0
+      },
+      "calibration": {
+        "high": {
+          "n": 35,
+          "goldInTop4": 1
+        },
+        "medium": {
+          "n": 7,
+          "goldInTop4": 1
+        },
+        "low": {
+          "n": 7,
+          "goldInTop4": 0.8571428571428571
+        }
+      },
+      "abstain": {
+        "n": 9,
+        "recall": 0.8888888888888888
+      },
+      "ambiguous": {
+        "n": 6,
+        "recall": 0.5
+      },
+      "latency": {
+        "p50": 2.3740000000000236,
+        "p95": 5.741624999999885
+      }
+    },
+    "heldout": {
+      "queries": 21,
+      "answerable": {
+        "n": 16,
+        "recall1": 0.5625,
+        "recall3": 1,
+        "recall4": 1,
+        "mrr": 0.7708333333333334,
+        "pointerTop1": 0.25,
+        "falseAbstain": 0,
+        "needlessProductQuestion": 0,
+        "unscopedAnswerable": 2,
+        "confidentWrong": 0
+      },
+      "calibration": {
+        "high": {
+          "n": 13,
+          "goldInTop4": 1
+        },
+        "medium": {
+          "n": 3,
+          "goldInTop4": 1
+        },
+        "low": {
+          "n": 0,
+          "goldInTop4": 0
+        }
+      },
+      "abstain": {
+        "n": 3,
+        "recall": 1
+      },
+      "ambiguous": {
+        "n": 2,
+        "recall": 1
+      },
+      "latency": {
+        "p50": 2.834916000000021,
+        "p95": 10.507834000000003
+      }
+    },
+    "fresh": {
+      "queries": 46,
+      "answerable": {
+        "n": 37,
+        "recall1": 0.4864864864864865,
+        "recall3": 0.8108108108108109,
+        "recall4": 0.918918918918919,
+        "mrr": 0.6621621621621622,
+        "pointerTop1": 0.1891891891891892,
+        "falseAbstain": 0.32432432432432434,
+        "needlessProductQuestion": 0,
+        "unscopedAnswerable": 3,
+        "confidentWrong": 0
+      },
+      "calibration": {
+        "high": {
+          "n": 12,
+          "goldInTop4": 1
+        },
+        "medium": {
+          "n": 13,
+          "goldInTop4": 1
+        },
+        "low": {
+          "n": 12,
+          "goldInTop4": 0.75
+        }
+      },
+      "abstain": {
+        "n": 5,
+        "recall": 1
+      },
+      "ambiguous": {
+        "n": 4,
+        "recall": 0.5
+      },
+      "latency": {
+        "p50": 1.955167000000074,
+        "p95": 3.112792000000127
+      }
+    }
+  }
+}
