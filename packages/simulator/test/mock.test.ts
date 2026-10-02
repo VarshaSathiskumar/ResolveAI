@@ -33,6 +33,21 @@ async function chat(persona: 'alex', lines: string[]) {
 }
 
 describe('mock agent (offline demo mode)', () => {
+  it('records the step that did not help, so the support case lists what was tried', async () => {
+    const mcp = await stack.connect('alex');
+    const conversation = createConversation(await mcp.tools());
+    const turns: ReturnType<typeof collect>[] = [];
+    for (const text of ["my coffee machine isn't brewing, only drops come out", "didn't work", 'nope', 'yes please']) {
+      const trace = collect();
+      await runTurn({ conversation, userText: text, llm: createMockLlm({ delayMs: 0 }), mcp, config: AGENT, emit: trace.emit });
+      turns.push(trace);
+    }
+    const recorded = turns[1]!.of('tool_call').filter((event) => event.name === 'record_diagnostic_step').map((event) => (event.input as { kind: string }).kind);
+    expect(recorded).toEqual(['step', 'outcome']);
+    const ticket = turns.at(-1)!.of('tool_result').find((event) => event.name === 'create_support_case')!;
+    expect(ticket.summary.badges.join(' ')).not.toMatch(/No troubleshooting steps/);
+  });
+
   it('a no to "anything else?" after a declined support case closes politely, without re-offering the case', async () => {
     const turns = await chat('alex', ["my coffee machine isn't brewing, only drops come out", "didn't work", "that did not help either", 'no', 'no']);
     const last = turns.at(-1)!;
