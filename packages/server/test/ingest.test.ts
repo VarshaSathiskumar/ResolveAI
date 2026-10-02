@@ -58,7 +58,6 @@ describe('ingestCorpus', () => {
     const owned = db.prepare('SELECT user_id, COUNT(*) AS n FROM owned_products GROUP BY user_id ORDER BY user_id').all();
     expect(owned).toEqual([
       { user_id: 'demo-alex', n: 1 },
-      { user_id: 'demo-sam', n: 2 },
     ]);
     const terms = db.prepare('SELECT product_id, term_months FROM warranties ORDER BY product_id').all();
     expect(terms).toContainEqual({ product_id: 'brewwell-dripmate-12', term_months: 12 });

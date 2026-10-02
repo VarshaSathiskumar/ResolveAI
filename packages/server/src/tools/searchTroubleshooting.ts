@@ -39,6 +39,7 @@ const outputSchema = z.object({
   synonym_matches: z.array(z.object({ term: z.string(), matched: z.string() })),
   needs: z.array(z.string()),
   competing_products: z.array(z.object({ product_id: z.string(), model: z.string() })),
+  rerank: z.object({ model: z.string(), candidates: z.number(), ms: z.number() }).optional(),
   suggested_refinement: z.string().optional(),
   results: z.array(resultSchema),
 });
@@ -106,6 +107,7 @@ export function registerSearchTroubleshootingTool(server: McpServer, deps: Serve
         synonym_matches: result.synonymMatches,
         needs: result.needs,
         competing_products: result.competingProducts.map((entry) => ({ product_id: entry.productId, model: entry.model })),
+        ...(result.rerank ? { rerank: result.rerank } : {}),
         ...(result.suggestedRefinement ? { suggested_refinement: result.suggestedRefinement } : {}),
         results: result.hits.map(toResult),
       };

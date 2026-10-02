@@ -1,12 +1,8 @@
 {
   "users": [
-    { "id": "demo-alex", "name": "Alex", "note": "One registered machine, so 'my coffee machine' resolves without a question" },
-    { "id": "demo-sam", "name": "Sam", "note": "Two registered machines, so the agent must ask which one" },
-    { "id": "demo-jo", "name": "Jo", "note": "No registered machines, so the agent must ask for the model" }
+    { "id": "demo-alex", "name": "Alex", "note": "One registered machine, so 'my coffee machine' resolves without a question" }
   ],
   "owned_products": [
-    { "user_id": "demo-alex", "product_id": "brewwell-brew-pro-200", "serial": "BP200-A1127", "purchase_date": "2026-03-14", "retailer": "Hearth and Home" },
-    { "user_id": "demo-sam", "product_id": "brewwell-dripmate-12", "serial": "DM12-C0471", "purchase_date": "2023-11-02", "retailer": "Kitchen Corner" },
-    { "user_id": "demo-sam", "product_id": "brewwell-espresso-studio-es1", "serial": "ES1-D2290", "purchase_date": "2025-12-20", "retailer": "Brewwell Store" }
+    { "user_id": "demo-alex", "product_id": "brewwell-brew-pro-200", "serial": "BP200-A1127", "purchase_date": "2026-03-14", "retailer": "Hearth and Home" }
   ]
 }

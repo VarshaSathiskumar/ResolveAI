@@ -1,4 +1,5 @@
 import { McpServer } from '@modelcontextprotocol/server';
+import { registerAppResource, RESOURCE_MIME_TYPE } from '@modelcontextprotocol/ext-apps/server';
 import type { Principal } from './auth.js';
 import type { ServerDeps } from './deps.js';
 import { registerDocumentResource } from './resources/documents.js';
@@ -11,6 +12,7 @@ import { registerIdentifyProductTool } from './tools/identifyProduct.js';
 import { registerListOwnedProductsTool } from './tools/listOwnedProducts.js';
 import { registerRecordDiagnosticStepTool } from './tools/recordDiagnosticStep.js';
 import { registerSearchTroubleshootingTool } from './tools/searchTroubleshooting.js';
+import { TICKET_CARD_URI } from './ui/ticketCard.js';
 
 /**
  * Builds a fresh server instance for one user. Both transport eras call this, so tools are
@@ -28,5 +30,12 @@ export function createMcpServer(deps: ServerDeps, principal: Principal = {}): Mc
   registerCheckWarrantyTool(server, deps, principal);
   registerCreateSupportCaseTool(server, deps, principal);
   registerDocumentResource(server, deps);
+  const html = deps.ticketCardHtml;
+  if (html) {
+    // The view for create_support_case. It needs no network access, so it declares no CSP domains.
+    registerAppResource(server, 'Support ticket card', TICKET_CARD_URI, { description: 'Shows a filed support ticket: reference, product, steps tried and warranty status.' }, async () => ({
+      contents: [{ uri: TICKET_CARD_URI, mimeType: RESOURCE_MIME_TYPE, text: html }],
+    }));
+  }
   return server;
 }

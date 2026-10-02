@@ -17,16 +17,18 @@ export interface TestDeps {
   catalog: Catalog;
   cases: CaseStore;
   now: () => Date;
+  ticketCardHtml?: string;
 }
 
 /** An in-memory index of the real corpus. Uses the hash embedder unless one is given. */
-/** Fixed so warranty results do not drift: Alex's Brew Pro 200 is in warranty, Sam's DripMate 12 has expired. */
+/** Fixed so warranty results do not drift: Alex's Brew Pro 200 is in warranty. */
 export const TEST_NOW = new Date('2026-10-01T12:00:00Z');
 
 export async function makeDeps(
   embedder: Embedder = createHashEmbedder(128),
   thresholds?: Thresholds,
   now: () => Date = () => TEST_NOW,
+  options: { ticketCardHtml?: string } = {},
 ): Promise<TestDeps> {
   const db = openDb(':memory:');
   await ingestCorpus({ corpusDir, db, embedder });
@@ -37,5 +39,6 @@ export async function makeDeps(
     catalog: createCatalog(db),
     cases: createCaseStore(db, now),
     now,
+    ticketCardHtml: options.ticketCardHtml,
   };
 }

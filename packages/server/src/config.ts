@@ -9,7 +9,7 @@ export interface Config {
   port: number;
   /** Token with no user behind it. Optional when user tokens are set. */
   bearerToken?: string;
-  /** Token to user id, from MCP_USER_TOKENS="token-a:demo-alex,token-b:demo-sam". */
+  /** Token to user id, from MCP_USER_TOKENS="token-a:demo-alex,token-b:demo-other". */
   userTokens: Record<string, string>;
   /** SQLite file built by `npm run ingest`. */
   dbPath: string;

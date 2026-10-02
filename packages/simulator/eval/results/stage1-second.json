@@ -1,0 +1,1332 @@
+{
+  "report": {
+    "blockedCalls": 8,
+    "checks": {
+      "passed": 48,
+      "total": 76
+    },
+    "byCategory": {
+      "context": {
+        "passed": 6,
+        "total": 11
+      },
+      "routing": {
+        "passed": 12,
+        "total": 18
+      },
+      "scope": {
+        "passed": 9,
+        "total": 13
+      },
+      "memory": {
+        "passed": 4,
+        "total": 6
+      },
+      "loops": {
+        "passed": 5,
+        "total": 8
+      },
+      "switching": {
+        "passed": 5,
+        "total": 7
+      },
+      "escalation": {
+        "passed": 7,
+        "total": 13
+      }
+    },
+    "counts": {
+      "productReasks": 0,
+      "redundantLookups": 0,
+      "retrievalOnNonProblem": 2,
+      "toolsOnOffTopic": 1,
+      "repeatedToolCalls": 0,
+      "repeatedQuestions": 13,
+      "repeatedReplies": 11
+    },
+    "failures": [
+      {
+        "scenario": "second-named-machine-then-it",
+        "turn": 1,
+        "check": "calls search_troubleshooting for brewwell-espresso-studio-es1"
+      },
+      {
+        "scenario": "second-named-machine-then-it",
+        "turn": 1,
+        "check": "does not ask which machine"
+      },
+      {
+        "scenario": "second-named-machine-then-it",
+        "turn": 2,
+        "check": "calls search_troubleshooting for brewwell-espresso-studio-es1"
+      },
+      {
+        "scenario": "second-named-machine-then-it",
+        "turn": 2,
+        "check": "never calls list_owned_products, identify_product"
+      },
+      {
+        "scenario": "second-named-machine-then-it",
+        "turn": 2,
+        "check": "does not ask which machine"
+      },
+      {
+        "scenario": "second-intent-to-act-is-not-a-request",
+        "turn": 2,
+        "check": "does not restart troubleshooting"
+      },
+      {
+        "scenario": "second-intent-to-act-is-not-a-request",
+        "turn": 3,
+        "check": "does not restart troubleshooting"
+      },
+      {
+        "scenario": "second-greeting-then-fixed-then-new-problem",
+        "turn": 2,
+        "check": "calls search_troubleshooting for brewwell-brew-pro-200"
+      },
+      {
+        "scenario": "second-greeting-then-fixed-then-new-problem",
+        "turn": 3,
+        "check": "calls record_diagnostic_step (outcome, resolved true)"
+      },
+      {
+        "scenario": "second-greeting-then-fixed-then-new-problem",
+        "turn": 4,
+        "check": "calls search_troubleshooting for brewwell-brew-pro-200"
+      },
+      {
+        "scenario": "second-greeting-then-fixed-then-new-problem",
+        "turn": 4,
+        "check": "does not ask which machine"
+      },
+      {
+        "scenario": "second-several-unrelated-asks",
+        "turn": 1,
+        "check": "does not ask which machine"
+      },
+      {
+        "scenario": "second-several-unrelated-asks",
+        "turn": 3,
+        "check": "does not restart troubleshooting"
+      },
+      {
+        "scenario": "second-several-unrelated-asks",
+        "turn": 4,
+        "check": "uses no tools"
+      },
+      {
+        "scenario": "second-several-unrelated-asks",
+        "turn": 4,
+        "check": "does not restart troubleshooting"
+      },
+      {
+        "scenario": "second-cannot-name-the-model",
+        "turn": 2,
+        "check": "does not repeat its previous reply"
+      },
+      {
+        "scenario": "second-cannot-name-the-model",
+        "turn": 3,
+        "check": "does not repeat its previous 2 replies"
+      },
+      {
+        "scenario": "second-same-question-twice",
+        "turn": 2,
+        "check": "does not repeat its previous reply"
+      },
+      {
+        "scenario": "second-fixed-then-new-problem-keeps-history-apart",
+        "turn": 2,
+        "check": "calls record_diagnostic_step (outcome, resolved false)"
+      },
+      {
+        "scenario": "second-fixed-then-new-problem-keeps-history-apart",
+        "turn": 3,
+        "check": "calls record_diagnostic_step (outcome, resolved true)"
+      },
+      {
+        "scenario": "second-three-machines-of-talk",
+        "turn": 2,
+        "check": "calls search_troubleshooting for brewwell-espresso-studio-es1"
+      },
+      {
+        "scenario": "second-three-machines-of-talk",
+        "turn": 4,
+        "check": "gets the warranty for brewwell-espresso-studio-es1"
+      },
+      {
+        "scenario": "second-ask-for-a-human",
+        "turn": 1,
+        "check": "calls search_troubleshooting for brewwell-brew-pro-200"
+      },
+      {
+        "scenario": "second-ask-for-a-human",
+        "turn": 2,
+        "check": "calls create_support_case"
+      },
+      {
+        "scenario": "second-ask-for-a-human",
+        "turn": 2,
+        "check": "reply matches /RAI-\\d{4}-\\d{6}/"
+      },
+      {
+        "scenario": "second-decline-with-different-words",
+        "turn": 3,
+        "check": "reply matches /support|warranty|case/i"
+      },
+      {
+        "scenario": "second-decline-with-different-words",
+        "turn": 4,
+        "check": "runs no search or product lookup"
+      },
+      {
+        "scenario": "second-decline-with-different-words",
+        "turn": 4,
+        "check": "does not restart troubleshooting"
+      }
+    ],
+    "scenarios": 12,
+    "turns": 36
+  },
+  "transcripts": [
+    {
+      "id": "second-side-question-then-warranty",
+      "turns": [
+        {
+          "say": "Hi, my Brewwell machine keeps showing a red light and won't make coffee",
+          "kind": "problem",
+          "reply": "I couldn't find that in your documentation. What error code or light pattern do you see?",
+          "calls": [
+            {
+              "name": "list_owned_products",
+              "input": {},
+              "ok": true
+            },
+            {
+              "name": "search_troubleshooting",
+              "input": {
+                "query": "Hi, my Brewwell machine keeps showing a red light and won't make coffee",
+                "product_id": "brewwell-brew-pro-200"
+              },
+              "ok": true
+            }
+          ],
+          "skipped": [],
+          "rounds": 3,
+          "reason": "end_turn"
+        },
+        {
+          "say": "where is the water tank on it?",
+          "kind": "problem",
+          "reply": "A steady red light means the tank is empty or not fully seated. That is from Brewwell Brew Pro 200 Troubleshooting Guide, page 3. Did that help?",
+          "calls": [
+            {
+              "name": "search_troubleshooting",
+              "input": {
+                "query": "where is the water tank on it?",
+                "product_id": "brewwell-brew-pro-200"
+              },
+              "ok": true
+            }
+          ],
+          "skipped": [],
+          "rounds": 2,
+          "reason": "end_turn"
+        },
+        {
+          "say": "and do I still have warranty on it?",
+          "kind": "problem",
+          "reply": "Good news, you are covered until 2028-03-14. Would you like me to open a support case?",
+          "calls": [
+            {
+              "name": "check_warranty",
+              "input": {
+                "product_id": "brewwell-brew-pro-200"
+              },
+              "ok": true
+            }
+          ],
+          "skipped": [],
+          "rounds": 2,
+          "reason": "end_turn"
+        }
+      ],
+      "checks": [
+        {
+          "turn": 1,
+          "name": "calls search_troubleshooting for brewwell-brew-pro-200",
+          "passed": true
+        },
+        {
+          "turn": 2,
+          "name": "calls search_troubleshooting for brewwell-brew-pro-200",
+          "passed": true
+        },
+        {
+          "turn": 2,
+          "name": "never calls identify_product, list_owned_products",
+          "passed": true
+        },
+        {
+          "turn": 2,
+          "name": "does not ask which machine",
+          "passed": true
+        },
+        {
+          "turn": 3,
+          "name": "gets the warranty for brewwell-brew-pro-200",
+          "passed": true
+        },
+        {
+          "turn": 3,
+          "name": "does not ask which machine",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "id": "second-named-machine-then-it",
+      "turns": [
+        {
+          "say": "my espresso machine's pump is really loud",
+          "kind": "problem",
+          "reply": "Which one is it, the Espresso Studio ES-1 or the DripMate 12?",
+          "calls": [
+            {
+              "name": "list_owned_products",
+              "input": {},
+              "ok": true
+            }
+          ],
+          "skipped": [],
+          "rounds": 2,
+          "reason": "end_turn"
+        },
+        {
+          "say": "does it need descaling?",
+          "kind": "problem",
+          "reply": "I could not tell which machine that is. Which model do you have?",
+          "calls": [
+            {
+              "name": "identify_product",
+              "input": {
+                "description": "does it need descaling?"
+              },
+              "ok": true
+            }
+          ],
+          "skipped": [],
+          "rounds": 2,
+          "reason": "end_turn"
+        }
+      ],
+      "checks": [
+        {
+          "turn": 1,
+          "name": "calls search_troubleshooting for brewwell-espresso-studio-es1",
+          "passed": false
+        },
+        {
+          "turn": 1,
+          "name": "does not ask which machine",
+          "passed": false
+        },
+        {
+          "turn": 2,
+          "name": "calls search_troubleshooting for brewwell-espresso-studio-es1",
+          "passed": false
+        },
+        {
+          "turn": 2,
+          "name": "never calls list_owned_products, identify_product",
+          "passed": false
+        },
+        {
+          "turn": 2,
+          "name": "does not ask which machine",
+          "passed": false
+        }
+      ]
+    },
+    {
+      "id": "second-intent-to-act-is-not-a-request",
+      "turns": [
+        {
+          "say": "the amber light keeps blinking and the coffee comes out slowly",
+          "kind": "problem",
+          "reply": "Follow the descaling procedure in the user manual, page 7. That is from Brewwell Brew Pro 200 Troubleshooting Guide, page 3. Did that help?",
+          "calls": [
+            {
+              "name": "list_owned_products",
+              "input": {},
+              "ok": true
+            },
+            {
+              "name": "search_troubleshooting",
+              "input": {
+                "query": "the amber light keeps blinking and the coffee comes out slowly",
+                "product_id": "brewwell-brew-pro-200"
+              },
+              "ok": true
+            }
+          ],
+          "skipped": [],
+          "rounds": 3,
+          "reason": "end_turn"
+        },
+        {
+          "say": "alright, I'll try that",
+          "kind": "ack",
+          "reply": "I couldn't find that in your documentation. What error code or light pattern do you see?",
+          "calls": [],
+          "skipped": [
+            {
+              "name": "search_troubleshooting",
+              "input": {
+                "query": "alright, I'll try that",
+                "product_id": "brewwell-brew-pro-200"
+              },
+              "ok": true
+            }
+          ],
+          "rounds": 2,
+          "reason": "end_turn"
+        },
+        {
+          "say": "perfect, thank you!",
+          "kind": "ack",
+          "reply": "I couldn't find that in your documentation. What error code or light pattern do you see?",
+          "calls": [],
+          "skipped": [
+            {
+              "name": "search_troubleshooting",
+              "input": {
+                "query": "perfect, thank you!",
+                "product_id": "brewwell-brew-pro-200"
+              },
+              "ok": true
+            }
+          ],
+          "rounds": 2,
+          "reason": "end_turn"
+        }
+      ],
+      "checks": [
+        {
+          "turn": 1,
+          "name": "calls search_troubleshooting for brewwell-brew-pro-200",
+          "passed": true
+        },
+        {
+          "turn": 2,
+          "name": "uses no tools",
+          "passed": true
+        },
+        {
+          "turn": 2,
+          "name": "does not restart troubleshooting",
+          "passed": false
+        },
+        {
+          "turn": 2,
+          "name": "replies",
+          "passed": true
+        },
+        {
+          "turn": 3,
+          "name": "uses no tools",
+          "passed": true
+        },
+        {
+          "turn": 3,
+          "name": "does not restart troubleshooting",
+          "passed": false
+        },
+        {
+          "turn": 3,
+          "name": "replies",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "id": "second-greeting-then-fixed-then-new-problem",
+      "turns": [
+        {
+          "say": "Hello",
+          "kind": "ack",
+          "reply": "Which model do you have?",
+          "calls": [],
+          "skipped": [
+            {
+              "name": "list_owned_products",
+              "input": {},
+              "ok": true
+            }
+          ],
+          "rounds": 2,
+          "reason": "end_turn"
+        },
+        {
+          "say": "my coffee machine won't brew, only drops come out",
+          "kind": "problem",
+          "reply": "Is it your registered Brew Pro 200, or the Brew Pro 300? (Brew Pro 200: type: single-serve pod, display: 3 indicator lights; Brew Pro 300: type: single-serve pod with milk frother, display: colour LCD)",
+          "calls": [
+            {
+              "name": "identify_product",
+              "input": {
+                "description": "my coffee machine won't brew, only drops come out"
+              },
+              "ok": true
+            }
+          ],
+          "skipped": [],
+          "rounds": 2,
+          "reason": "end_turn"
+        },
+        {
+          "say": "yeah it worked",
+          "kind": "confirm",
+          "reply": "Which model do you have?",
+          "calls": [],
+          "skipped": [
+            {
+              "name": "list_owned_products",
+              "input": {},
+              "ok": true
+            }
+          ],
+          "rounds": 2,
+          "reason": "end_turn"
+        },
+        {
+          "say": "actually now it leaks from the bottom as well",
+          "kind": "problem",
+          "reply": "I could not tell which machine that is. Which model do you have?",
+          "calls": [
+            {
+              "name": "identify_product",
+              "input": {
+                "description": "actually now it leaks from the bottom as well"
+              },
+              "ok": true
+            }
+          ],
+          "skipped": [],
+          "rounds": 2,
+          "reason": "end_turn"
+        }
+      ],
+      "checks": [
+        {
+          "turn": 1,
+          "name": "uses no tools",
+          "passed": true
+        },
+        {
+          "turn": 1,
+          "name": "replies",
+          "passed": true
+        },
+        {
+          "turn": 2,
+          "name": "calls search_troubleshooting for brewwell-brew-pro-200",
+          "passed": false
+        },
+        {
+          "turn": 3,
+          "name": "calls record_diagnostic_step (outcome, resolved true)",
+          "passed": false
+        },
+        {
+          "turn": 3,
+          "name": "runs no search or product lookup",
+          "passed": true
+        },
+        {
+          "turn": 3,
+          "name": "does not restart troubleshooting",
+          "passed": true
+        },
+        {
+          "turn": 4,
+          "name": "calls search_troubleshooting for brewwell-brew-pro-200",
+          "passed": false
+        },
+        {
+          "turn": 4,
+          "name": "does not ask which machine",
+          "passed": false
+        }
+      ]
+    },
+    {
+      "id": "second-named-model-then-answer-to-model",
+      "turns": [
+        {
+          "say": "my coffee machine is making a grinding noise",
+          "kind": "problem",
+          "reply": "Which model do you have?",
+          "calls": [
+            {
+              "name": "list_owned_products",
+              "input": {},
+              "ok": true
+            }
+          ],
+          "skipped": [],
+          "rounds": 2,
+          "reason": "end_turn"
+        },
+        {
+          "say": "it is the Brew Pro 300",
+          "kind": "answer",
+          "reply": "I couldn't find that in your documentation. What error code or light pattern do you see?",
+          "calls": [
+            {
+              "name": "identify_product",
+              "input": {
+                "description": "it is the Brew Pro 300"
+              },
+              "ok": true
+            },
+            {
+              "name": "search_troubleshooting",
+              "input": {
+                "query": "my coffee machine is making a grinding noise",
+                "product_id": "brewwell-brew-pro-300"
+              },
+              "ok": true
+            }
+          ],
+          "skipped": [],
+          "rounds": 3,
+          "reason": "end_turn"
+        }
+      ],
+      "checks": [
+        {
+          "turn": 1,
+          "name": "asks which machine",
+          "passed": true
+        },
+        {
+          "turn": 2,
+          "name": "calls search_troubleshooting for brewwell-brew-pro-300",
+          "passed": true
+        },
+        {
+          "turn": 2,
+          "name": "does not ask which machine",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "id": "second-several-unrelated-asks",
+      "turns": [
+        {
+          "say": "what time is it in Tokyo?",
+          "kind": "offtopic",
+          "reply": "Which model do you have?",
+          "calls": [],
+          "skipped": [
+            {
+              "name": "list_owned_products",
+              "input": {},
+              "ok": true
+            }
+          ],
+          "rounds": 2,
+          "reason": "end_turn"
+        },
+        {
+          "say": "my dripmate is leaking from the bottom",
+          "kind": "problem",
+          "reply": "I couldn't find that in your documentation. What error code or light pattern do you see?",
+          "calls": [
+            {
+              "name": "identify_product",
+              "input": {
+                "description": "my dripmate is leaking from the bottom"
+              },
+              "ok": true
+            },
+            {
+              "name": "search_troubleshooting",
+              "input": {
+                "query": "what time is it in Tokyo?",
+                "product_id": "brewwell-dripmate-12"
+              },
+              "ok": true
+            }
+          ],
+          "skipped": [],
+          "rounds": 3,
+          "reason": "end_turn"
+        },
+        {
+          "say": "can you play some music?",
+          "kind": "offtopic",
+          "reply": "I couldn't find that in your documentation. What error code or light pattern do you see?",
+          "calls": [],
+          "skipped": [
+            {
+              "name": "search_troubleshooting",
+              "input": {
+                "query": "can you play some music?",
+                "product_id": "brewwell-dripmate-12"
+              },
+              "ok": true
+            }
+          ],
+          "rounds": 2,
+          "reason": "end_turn"
+        },
+        {
+          "say": "is it going to rain later?",
+          "kind": "offtopic",
+          "reply": "I couldn't find that in your documentation. What error code or light pattern do you see?",
+          "calls": [
+            {
+              "name": "search_troubleshooting",
+              "input": {
+                "query": "is it going to rain later?",
+                "product_id": "brewwell-dripmate-12"
+              },
+              "ok": true
+            }
+          ],
+          "skipped": [],
+          "rounds": 2,
+          "reason": "end_turn"
+        }
+      ],
+      "checks": [
+        {
+          "turn": 1,
+          "name": "uses no tools",
+          "passed": true
+        },
+        {
+          "turn": 1,
+          "name": "does not ask which machine",
+          "passed": false
+        },
+        {
+          "turn": 1,
+          "name": "does not restart troubleshooting",
+          "passed": true
+        },
+        {
+          "turn": 1,
+          "name": "replies",
+          "passed": true
+        },
+        {
+          "turn": 2,
+          "name": "calls search_troubleshooting for brewwell-dripmate-12",
+          "passed": true
+        },
+        {
+          "turn": 3,
+          "name": "uses no tools",
+          "passed": true
+        },
+        {
+          "turn": 3,
+          "name": "does not ask which machine",
+          "passed": true
+        },
+        {
+          "turn": 3,
+          "name": "does not restart troubleshooting",
+          "passed": false
+        },
+        {
+          "turn": 3,
+          "name": "replies",
+          "passed": true
+        },
+        {
+          "turn": 4,
+          "name": "uses no tools",
+          "passed": false
+        },
+        {
+          "turn": 4,
+          "name": "does not ask which machine",
+          "passed": true
+        },
+        {
+          "turn": 4,
+          "name": "does not restart troubleshooting",
+          "passed": false
+        },
+        {
+          "turn": 4,
+          "name": "replies",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "id": "second-cannot-name-the-model",
+      "turns": [
+        {
+          "say": "my machine won't turn on",
+          "kind": "problem",
+          "reply": "Which model do you have?",
+          "calls": [
+            {
+              "name": "list_owned_products",
+              "input": {},
+              "ok": true
+            }
+          ],
+          "skipped": [],
+          "rounds": 2,
+          "reason": "end_turn"
+        },
+        {
+          "say": "I'm not sure which model it is",
+          "kind": "answer",
+          "reply": "I could not tell which machine that is. Which model do you have?",
+          "calls": [
+            {
+              "name": "identify_product",
+              "input": {
+                "description": "I'm not sure which model it is"
+              },
+              "ok": true
+            }
+          ],
+          "skipped": [],
+          "rounds": 2,
+          "reason": "end_turn"
+        },
+        {
+          "say": "no idea honestly",
+          "kind": "answer",
+          "reply": "I could not tell which machine that is. Which model do you have?",
+          "calls": [
+            {
+              "name": "identify_product",
+              "input": {
+                "description": "no idea honestly"
+              },
+              "ok": true
+            }
+          ],
+          "skipped": [],
+          "rounds": 2,
+          "reason": "end_turn"
+        }
+      ],
+      "checks": [
+        {
+          "turn": 1,
+          "name": "asks which machine",
+          "passed": true
+        },
+        {
+          "turn": 2,
+          "name": "does not repeat its previous reply",
+          "passed": false
+        },
+        {
+          "turn": 2,
+          "name": "replies",
+          "passed": true
+        },
+        {
+          "turn": 3,
+          "name": "does not repeat its previous 2 replies",
+          "passed": false
+        },
+        {
+          "turn": 3,
+          "name": "replies",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "id": "second-same-question-twice",
+      "turns": [
+        {
+          "say": "how do I descale it?",
+          "kind": "problem",
+          "reply": "I couldn't find that in your documentation. What error code or light pattern do you see?",
+          "calls": [
+            {
+              "name": "list_owned_products",
+              "input": {},
+              "ok": true
+            },
+            {
+              "name": "search_troubleshooting",
+              "input": {
+                "query": "how do I descale it?",
+                "product_id": "brewwell-brew-pro-200"
+              },
+              "ok": true
+            }
+          ],
+          "skipped": [],
+          "rounds": 3,
+          "reason": "end_turn"
+        },
+        {
+          "say": "how do I descale it?",
+          "kind": "problem",
+          "reply": "I couldn't find that in your documentation. What error code or light pattern do you see?",
+          "calls": [],
+          "skipped": [
+            {
+              "name": "search_troubleshooting",
+              "input": {
+                "query": "how do I descale it?",
+                "product_id": "brewwell-brew-pro-200"
+              },
+              "ok": true
+            }
+          ],
+          "rounds": 2,
+          "reason": "end_turn"
+        }
+      ],
+      "checks": [
+        {
+          "turn": 1,
+          "name": "calls search_troubleshooting for brewwell-brew-pro-200",
+          "passed": true
+        },
+        {
+          "turn": 2,
+          "name": "does not repeat its previous reply",
+          "passed": false
+        },
+        {
+          "turn": 2,
+          "name": "replies",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "id": "second-fixed-then-new-problem-keeps-history-apart",
+      "turns": [
+        {
+          "say": "my coffee machine won't brew, only drops come out",
+          "kind": "problem",
+          "reply": "Follow the descaling procedure in the user manual, page 7. That is from Brewwell Brew Pro 200 Troubleshooting Guide, page 1. Did that help?",
+          "calls": [
+            {
+              "name": "list_owned_products",
+              "input": {},
+              "ok": true
+            },
+            {
+              "name": "search_troubleshooting",
+              "input": {
+                "query": "my coffee machine won't brew, only drops come out",
+                "product_id": "brewwell-brew-pro-200"
+              },
+              "ok": true
+            }
+          ],
+          "skipped": [],
+          "rounds": 3,
+          "reason": "end_turn"
+        },
+        {
+          "say": "tried it, no luck",
+          "kind": "answer",
+          "reply": "I couldn't find that in your documentation. What error code or light pattern do you see?",
+          "calls": [
+            {
+              "name": "search_troubleshooting",
+              "input": {
+                "query": "tried it, no luck",
+                "product_id": "brewwell-brew-pro-200"
+              },
+              "ok": true
+            }
+          ],
+          "skipped": [],
+          "rounds": 2,
+          "reason": "end_turn"
+        },
+        {
+          "say": "ok that worked!",
+          "kind": "confirm",
+          "reply": "I couldn't find that in your documentation. What error code or light pattern do you see?",
+          "calls": [],
+          "skipped": [
+            {
+              "name": "search_troubleshooting",
+              "input": {
+                "query": "ok that worked!",
+                "product_id": "brewwell-brew-pro-200"
+              },
+              "ok": true
+            }
+          ],
+          "rounds": 2,
+          "reason": "end_turn"
+        }
+      ],
+      "checks": [
+        {
+          "turn": 1,
+          "name": "calls search_troubleshooting for brewwell-brew-pro-200",
+          "passed": true
+        },
+        {
+          "turn": 2,
+          "name": "calls record_diagnostic_step (outcome, resolved false)",
+          "passed": false
+        },
+        {
+          "turn": 2,
+          "name": "does not repeat its previous reply",
+          "passed": true
+        },
+        {
+          "turn": 2,
+          "name": "replies",
+          "passed": true
+        },
+        {
+          "turn": 3,
+          "name": "calls record_diagnostic_step (outcome, resolved true)",
+          "passed": false
+        },
+        {
+          "turn": 3,
+          "name": "runs no search or product lookup",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "id": "second-three-machines-of-talk",
+      "turns": [
+        {
+          "say": "my dripmate takes forever to brew",
+          "kind": "problem",
+          "reply": "I couldn't find that in your documentation. What error code or light pattern do you see?",
+          "calls": [
+            {
+              "name": "identify_product",
+              "input": {
+                "description": "my dripmate takes forever to brew"
+              },
+              "ok": true
+            },
+            {
+              "name": "search_troubleshooting",
+              "input": {
+                "query": "my dripmate takes forever to brew",
+                "product_id": "brewwell-dripmate-12"
+              },
+              "ok": true
+            }
+          ],
+          "skipped": [],
+          "rounds": 3,
+          "reason": "end_turn"
+        },
+        {
+          "say": "the espresso one is acting up too, the steam wand has no pressure",
+          "kind": "switch",
+          "reply": "I couldn't find that in your documentation. What error code or light pattern do you see?",
+          "calls": [
+            {
+              "name": "search_troubleshooting",
+              "input": {
+                "query": "the espresso one is acting up too, the steam wand has no pressure",
+                "product_id": "brewwell-dripmate-12"
+              },
+              "ok": true
+            }
+          ],
+          "skipped": [],
+          "rounds": 2,
+          "reason": "end_turn"
+        },
+        {
+          "say": "back to the dripmate, it is still slow",
+          "kind": "switch",
+          "reply": "If nothing lights up, check the outlet with another appliance. That is from Brewwell DripMate 12 Troubleshooting Guide, page 3. Did that help?",
+          "calls": [
+            {
+              "name": "identify_product",
+              "input": {
+                "description": "back to the dripmate, it is still slow"
+              },
+              "ok": true
+            },
+            {
+              "name": "search_troubleshooting",
+              "input": {
+                "query": "back to the dripmate, it is still slow",
+                "product_id": "brewwell-dripmate-12"
+              },
+              "ok": true
+            }
+          ],
+          "skipped": [],
+          "rounds": 3,
+          "reason": "end_turn"
+        },
+        {
+          "say": "how long is the espresso machine warranty?",
+          "kind": "problem",
+          "reply": "I'm sorry, your warranty ended on 2024-11-02. I can still open a support case if you like.",
+          "calls": [
+            {
+              "name": "check_warranty",
+              "input": {
+                "product_id": "brewwell-dripmate-12"
+              },
+              "ok": true
+            }
+          ],
+          "skipped": [],
+          "rounds": 2,
+          "reason": "end_turn"
+        }
+      ],
+      "checks": [
+        {
+          "turn": 1,
+          "name": "calls search_troubleshooting for brewwell-dripmate-12",
+          "passed": true
+        },
+        {
+          "turn": 2,
+          "name": "calls search_troubleshooting for brewwell-espresso-studio-es1",
+          "passed": false
+        },
+        {
+          "turn": 2,
+          "name": "does not ask which machine",
+          "passed": true
+        },
+        {
+          "turn": 3,
+          "name": "calls search_troubleshooting for brewwell-dripmate-12",
+          "passed": true
+        },
+        {
+          "turn": 3,
+          "name": "does not ask which machine",
+          "passed": true
+        },
+        {
+          "turn": 4,
+          "name": "gets the warranty for brewwell-espresso-studio-es1",
+          "passed": false
+        },
+        {
+          "turn": 4,
+          "name": "does not ask which machine",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "id": "second-ask-for-a-human",
+      "turns": [
+        {
+          "say": "my machine shows an E01 error",
+          "kind": "problem",
+          "reply": "I could not tell which machine that is. Which model do you have?",
+          "calls": [
+            {
+              "name": "identify_product",
+              "input": {
+                "description": "my machine shows an E01 error"
+              },
+              "ok": true
+            }
+          ],
+          "skipped": [],
+          "rounds": 2,
+          "reason": "end_turn"
+        },
+        {
+          "say": "this isn't helping, can I talk to a human?",
+          "kind": "problem",
+          "reply": "I could not tell which machine that is. Which model do you have?",
+          "calls": [
+            {
+              "name": "identify_product",
+              "input": {
+                "description": "this isn't helping, can I talk to a human?"
+              },
+              "ok": true
+            }
+          ],
+          "skipped": [],
+          "rounds": 2,
+          "reason": "end_turn"
+        }
+      ],
+      "checks": [
+        {
+          "turn": 1,
+          "name": "calls search_troubleshooting for brewwell-brew-pro-200",
+          "passed": false
+        },
+        {
+          "turn": 2,
+          "name": "calls create_support_case",
+          "passed": false
+        },
+        {
+          "turn": 2,
+          "name": "reply matches /RAI-\\d{4}-\\d{6}/",
+          "passed": false
+        }
+      ]
+    },
+    {
+      "id": "second-decline-with-different-words",
+      "turns": [
+        {
+          "say": "my coffee machine won't brew, only drops come out",
+          "kind": "problem",
+          "reply": "Follow the descaling procedure in the user manual, page 7. That is from Brewwell Brew Pro 200 Troubleshooting Guide, page 1. Did that help?",
+          "calls": [
+            {
+              "name": "list_owned_products",
+              "input": {},
+              "ok": true
+            },
+            {
+              "name": "search_troubleshooting",
+              "input": {
+                "query": "my coffee machine won't brew, only drops come out",
+                "product_id": "brewwell-brew-pro-200"
+              },
+              "ok": true
+            }
+          ],
+          "skipped": [],
+          "rounds": 3,
+          "reason": "end_turn"
+        },
+        {
+          "say": "no change",
+          "kind": "answer",
+          "reply": "I couldn't find that in your documentation. What error code or light pattern do you see?",
+          "calls": [
+            {
+              "name": "search_troubleshooting",
+              "input": {
+                "query": "no change",
+                "product_id": "brewwell-brew-pro-200"
+              },
+              "ok": true
+            }
+          ],
+          "skipped": [],
+          "rounds": 2,
+          "reason": "end_turn"
+        },
+        {
+          "say": "nothing again",
+          "kind": "answer",
+          "reply": "I couldn't find that in your documentation. What error code or light pattern do you see?",
+          "calls": [
+            {
+              "name": "search_troubleshooting",
+              "input": {
+                "query": "nothing again",
+                "product_id": "brewwell-brew-pro-200"
+              },
+              "ok": true
+            }
+          ],
+          "skipped": [],
+          "rounds": 2,
+          "reason": "end_turn"
+        },
+        {
+          "say": "not now, thanks",
+          "kind": "confirm",
+          "reply": "I couldn't find that in your documentation. What error code or light pattern do you see?",
+          "calls": [
+            {
+              "name": "search_troubleshooting",
+              "input": {
+                "query": "not now, thanks",
+                "product_id": "brewwell-brew-pro-200"
+              },
+              "ok": true
+            }
+          ],
+          "skipped": [],
+          "rounds": 2,
+          "reason": "end_turn"
+        }
+      ],
+      "checks": [
+        {
+          "turn": 1,
+          "name": "calls search_troubleshooting for brewwell-brew-pro-200",
+          "passed": true
+        },
+        {
+          "turn": 2,
+          "name": "replies",
+          "passed": true
+        },
+        {
+          "turn": 3,
+          "name": "reply matches /support|warranty|case/i",
+          "passed": false
+        },
+        {
+          "turn": 3,
+          "name": "never calls create_support_case",
+          "passed": true
+        },
+        {
+          "turn": 3,
+          "name": "reply does not match /RAI-\\d{4}-\\d{6}/",
+          "passed": true
+        },
+        {
+          "turn": 4,
+          "name": "never calls create_support_case",
+          "passed": true
+        },
+        {
+          "turn": 4,
+          "name": "reply does not match /RAI-\\d{4}-\\d{6}/",
+          "passed": true
+        },
+        {
+          "turn": 4,
+          "name": "runs no search or product lookup",
+          "passed": false
+        },
+        {
+          "turn": 4,
+          "name": "does not restart troubleshooting",
+          "passed": false
+        },
+        {
+          "turn": 4,
+          "name": "replies",
+          "passed": true
+        }
+      ]
+    }
+  ]
+}

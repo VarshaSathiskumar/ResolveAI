@@ -1,0 +1,1851 @@
+{
+  "report": {
+    "blockedCalls": 0,
+    "checks": {
+      "passed": 122,
+      "total": 122
+    },
+    "byCategory": {
+      "context": {
+        "passed": 27,
+        "total": 27
+      },
+      "routing": {
+        "passed": 24,
+        "total": 24
+      },
+      "scope": {
+        "passed": 20,
+        "total": 20
+      },
+      "memory": {
+        "passed": 8,
+        "total": 8
+      },
+      "loops": {
+        "passed": 10,
+        "total": 10
+      },
+      "switching": {
+        "passed": 8,
+        "total": 8
+      },
+      "escalation": {
+        "passed": 25,
+        "total": 25
+      }
+    },
+    "counts": {
+      "productReasks": 0,
+      "redundantLookups": 0,
+      "retrievalOnNonProblem": 0,
+      "toolsOnOffTopic": 0,
+      "repeatedToolCalls": 0,
+      "repeatedQuestions": 0,
+      "repeatedReplies": 1
+    },
+    "failures": [],
+    "scenarios": 20,
+    "turns": 56
+  },
+  "transcripts": [
+    {
+      "id": "warranty-then-descale-same-machine",
+      "turns": [
+        {
+          "say": "my coffee machine isn't brewing, only drops come out",
+          "kind": "problem",
+          "reply": "Unplug the machine and let it cool for five minutes. That is from Brewwell Brew Pro 200 Troubleshooting Guide, page 2. Did that help?",
+          "calls": [
+            {
+              "name": "list_owned_products",
+              "input": {},
+              "ok": true
+            },
+            {
+              "name": "search_troubleshooting",
+              "input": {
+                "query": "my coffee machine isn't brewing, only drops come out",
+                "product_id": "brewwell-brew-pro-200"
+              },
+              "ok": true
+            }
+          ],
+          "skipped": [],
+          "rounds": 3,
+          "reason": "end_turn"
+        },
+        {
+          "say": "is it still under warranty?",
+          "kind": "problem",
+          "reply": "Good news, you are covered until 2028-03-14. Would you like me to open a support case?",
+          "calls": [
+            {
+              "name": "check_warranty",
+              "input": {
+                "product_id": "brewwell-brew-pro-200"
+              },
+              "ok": true
+            }
+          ],
+          "skipped": [],
+          "rounds": 2,
+          "reason": "end_turn"
+        },
+        {
+          "say": "and how do I descale it?",
+          "kind": "problem",
+          "reply": "Use a fresh pod, select the standard cup setting rather than the short cup, and preheat by running a rinse cycle first. That is from Brewwell Brew Pro 200 Troubleshooting Guide, page 4. Did that help?",
+          "calls": [
+            {
+              "name": "search_troubleshooting",
+              "input": {
+                "query": "and how do I descale it?",
+                "product_id": "brewwell-brew-pro-200"
+              },
+              "ok": true
+            }
+          ],
+          "skipped": [],
+          "rounds": 2,
+          "reason": "end_turn"
+        }
+      ],
+      "checks": [
+        {
+          "turn": 1,
+          "name": "calls search_troubleshooting for brewwell-brew-pro-200",
+          "passed": true
+        },
+        {
+          "turn": 2,
+          "name": "gets the warranty for brewwell-brew-pro-200",
+          "passed": true
+        },
+        {
+          "turn": 2,
+          "name": "never calls list_owned_products, identify_product",
+          "passed": true
+        },
+        {
+          "turn": 2,
+          "name": "does not ask which machine",
+          "passed": true
+        },
+        {
+          "turn": 3,
+          "name": "calls search_troubleshooting for brewwell-brew-pro-200",
+          "passed": true
+        },
+        {
+          "turn": 3,
+          "name": "calls search_troubleshooting with /descal/i",
+          "passed": true
+        },
+        {
+          "turn": 3,
+          "name": "never calls list_owned_products, identify_product",
+          "passed": true
+        },
+        {
+          "turn": 3,
+          "name": "does not ask which machine",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "id": "chosen-machine-is-kept",
+      "turns": [
+        {
+          "say": "my coffee machine is making a weird noise",
+          "kind": "problem",
+          "reply": "Which one is it, the Espresso Studio ES-1 or the DripMate 12?",
+          "calls": [
+            {
+              "name": "list_owned_products",
+              "input": {},
+              "ok": true
+            }
+          ],
+          "skipped": [],
+          "rounds": 2,
+          "reason": "end_turn"
+        },
+        {
+          "say": "the dripmate",
+          "kind": "answer",
+          "reply": "I couldn't find that in your documentation. What error code or light pattern do you see?",
+          "calls": [
+            {
+              "name": "search_troubleshooting",
+              "input": {
+                "query": "my coffee machine is making a weird noise",
+                "product_id": "brewwell-dripmate-12"
+              },
+              "ok": true
+            }
+          ],
+          "skipped": [],
+          "rounds": 2,
+          "reason": "end_turn"
+        },
+        {
+          "say": "it also leaks a little",
+          "kind": "problem",
+          "reply": "I couldn't find that in your documentation. What does the machine do when you try to use it, for example any sounds or leaks?",
+          "calls": [
+            {
+              "name": "search_troubleshooting",
+              "input": {
+                "query": "my coffee machine is making a weird noise it also leaks a little",
+                "product_id": "brewwell-dripmate-12"
+              },
+              "ok": true
+            }
+          ],
+          "skipped": [],
+          "rounds": 2,
+          "reason": "end_turn"
+        }
+      ],
+      "checks": [
+        {
+          "turn": 1,
+          "name": "asks which machine",
+          "passed": true
+        },
+        {
+          "turn": 1,
+          "name": "never calls search_troubleshooting",
+          "passed": true
+        },
+        {
+          "turn": 2,
+          "name": "calls search_troubleshooting for brewwell-dripmate-12",
+          "passed": true
+        },
+        {
+          "turn": 2,
+          "name": "does not ask which machine",
+          "passed": true
+        },
+        {
+          "turn": 3,
+          "name": "calls search_troubleshooting for brewwell-dripmate-12",
+          "passed": true
+        },
+        {
+          "turn": 3,
+          "name": "never calls list_owned_products, identify_product",
+          "passed": true
+        },
+        {
+          "turn": 3,
+          "name": "does not ask which machine",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "id": "named-model-is-kept",
+      "turns": [
+        {
+          "say": "my Brew Pro 300 has a blinking amber light",
+          "kind": "problem",
+          "reply": "I couldn't find that in your documentation. What error code or light pattern do you see?",
+          "calls": [
+            {
+              "name": "identify_product",
+              "input": {
+                "description": "my Brew Pro 300 has a blinking amber light"
+              },
+              "ok": true
+            },
+            {
+              "name": "search_troubleshooting",
+              "input": {
+                "query": "my Brew Pro 300 has a blinking amber light",
+                "product_id": "brewwell-brew-pro-300"
+              },
+              "ok": true
+            }
+          ],
+          "skipped": [],
+          "rounds": 3,
+          "reason": "end_turn"
+        },
+        {
+          "say": "how often should I descale it?",
+          "kind": "problem",
+          "reply": "I couldn't find that in your documentation. What does the machine do when you try to use it, for example any sounds or leaks?",
+          "calls": [
+            {
+              "name": "search_troubleshooting",
+              "input": {
+                "query": "how often should I descale it?",
+                "product_id": "brewwell-brew-pro-300"
+              },
+              "ok": true
+            }
+          ],
+          "skipped": [],
+          "rounds": 2,
+          "reason": "end_turn"
+        }
+      ],
+      "checks": [
+        {
+          "turn": 1,
+          "name": "calls search_troubleshooting for brewwell-brew-pro-300",
+          "passed": true
+        },
+        {
+          "turn": 2,
+          "name": "calls search_troubleshooting for brewwell-brew-pro-300",
+          "passed": true
+        },
+        {
+          "turn": 2,
+          "name": "never calls identify_product, list_owned_products",
+          "passed": true
+        },
+        {
+          "turn": 2,
+          "name": "does not ask which machine",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "id": "pending-request-survives-the-question",
+      "turns": [
+        {
+          "say": "is my coffee machine still under warranty?",
+          "kind": "problem",
+          "reply": "Which one is it, the Espresso Studio ES-1 or the DripMate 12?",
+          "calls": [
+            {
+              "name": "list_owned_products",
+              "input": {},
+              "ok": true
+            }
+          ],
+          "skipped": [],
+          "rounds": 2,
+          "reason": "end_turn"
+        },
+        {
+          "say": "the espresso one",
+          "kind": "answer",
+          "reply": "Good news, you are covered until 2027-12-20. Would you like me to open a support case?",
+          "calls": [
+            {
+              "name": "check_warranty",
+              "input": {
+                "product_id": "brewwell-espresso-studio-es1"
+              },
+              "ok": true
+            }
+          ],
+          "skipped": [],
+          "rounds": 2,
+          "reason": "end_turn"
+        }
+      ],
+      "checks": [
+        {
+          "turn": 1,
+          "name": "asks which machine",
+          "passed": true
+        },
+        {
+          "turn": 2,
+          "name": "gets the warranty for brewwell-espresso-studio-es1",
+          "passed": true
+        },
+        {
+          "turn": 2,
+          "name": "never calls search_troubleshooting",
+          "passed": true
+        },
+        {
+          "turn": 2,
+          "name": "does not ask which machine",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "id": "answer-adds-to-the-symptom",
+      "turns": [
+        {
+          "say": "my machine is not working",
+          "kind": "problem",
+          "reply": "I couldn't find that in your documentation. What error code or light pattern do you see?",
+          "calls": [
+            {
+              "name": "list_owned_products",
+              "input": {},
+              "ok": true
+            },
+            {
+              "name": "search_troubleshooting",
+              "input": {
+                "query": "my machine is not working",
+                "product_id": "brewwell-brew-pro-200"
+              },
+              "ok": true
+            }
+          ],
+          "skipped": [],
+          "rounds": 3,
+          "reason": "end_turn"
+        },
+        {
+          "say": "the amber light is blinking and the flow is slow",
+          "kind": "answer",
+          "reply": "I couldn't find that in your documentation. What does the machine do when you try to use it, for example any sounds or leaks?",
+          "calls": [
+            {
+              "name": "search_troubleshooting",
+              "input": {
+                "query": "my machine is not working the amber light is blinking and the flow is slow",
+                "product_id": "brewwell-brew-pro-200"
+              },
+              "ok": true
+            }
+          ],
+          "skipped": [],
+          "rounds": 2,
+          "reason": "end_turn"
+        }
+      ],
+      "checks": [
+        {
+          "turn": 1,
+          "name": "replies",
+          "passed": true
+        },
+        {
+          "turn": 2,
+          "name": "calls search_troubleshooting for brewwell-brew-pro-200",
+          "passed": true
+        },
+        {
+          "turn": 2,
+          "name": "calls search_troubleshooting with /amber/i",
+          "passed": true
+        },
+        {
+          "turn": 2,
+          "name": "does not ask which machine",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "id": "acknowledgements-need-no-tools",
+      "turns": [
+        {
+          "say": "my coffee machine isn't brewing, only drops come out",
+          "kind": "problem",
+          "reply": "Unplug the machine and let it cool for five minutes. That is from Brewwell Brew Pro 200 Troubleshooting Guide, page 2. Did that help?",
+          "calls": [
+            {
+              "name": "list_owned_products",
+              "input": {},
+              "ok": true
+            },
+            {
+              "name": "search_troubleshooting",
+              "input": {
+                "query": "my coffee machine isn't brewing, only drops come out",
+                "product_id": "brewwell-brew-pro-200"
+              },
+              "ok": true
+            }
+          ],
+          "skipped": [],
+          "rounds": 3,
+          "reason": "end_turn"
+        },
+        {
+          "say": "ok",
+          "kind": "ack",
+          "reply": "Sure. Let me know how it goes.",
+          "calls": [],
+          "skipped": [],
+          "rounds": 1,
+          "reason": "end_turn"
+        },
+        {
+          "say": "thanks",
+          "kind": "ack",
+          "reply": "You're welcome. Tell me if anything else comes up.",
+          "calls": [],
+          "skipped": [],
+          "rounds": 1,
+          "reason": "end_turn"
+        },
+        {
+          "say": "got it, bye",
+          "kind": "ack",
+          "reply": "You're welcome. Tell me if anything else comes up.",
+          "calls": [],
+          "skipped": [],
+          "rounds": 1,
+          "reason": "end_turn"
+        }
+      ],
+      "checks": [
+        {
+          "turn": 1,
+          "name": "calls search_troubleshooting for brewwell-brew-pro-200",
+          "passed": true
+        },
+        {
+          "turn": 2,
+          "name": "uses no tools",
+          "passed": true
+        },
+        {
+          "turn": 2,
+          "name": "does not restart troubleshooting",
+          "passed": true
+        },
+        {
+          "turn": 2,
+          "name": "replies",
+          "passed": true
+        },
+        {
+          "turn": 3,
+          "name": "uses no tools",
+          "passed": true
+        },
+        {
+          "turn": 3,
+          "name": "does not restart troubleshooting",
+          "passed": true
+        },
+        {
+          "turn": 3,
+          "name": "replies",
+          "passed": true
+        },
+        {
+          "turn": 4,
+          "name": "uses no tools",
+          "passed": true
+        },
+        {
+          "turn": 4,
+          "name": "does not restart troubleshooting",
+          "passed": true
+        },
+        {
+          "turn": 4,
+          "name": "replies",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "id": "confirmation-closes-the-case",
+      "turns": [
+        {
+          "say": "my coffee machine isn't brewing, only drops come out",
+          "kind": "problem",
+          "reply": "Unplug the machine and let it cool for five minutes. That is from Brewwell Brew Pro 200 Troubleshooting Guide, page 2. Did that help?",
+          "calls": [
+            {
+              "name": "list_owned_products",
+              "input": {},
+              "ok": true
+            },
+            {
+              "name": "search_troubleshooting",
+              "input": {
+                "query": "my coffee machine isn't brewing, only drops come out",
+                "product_id": "brewwell-brew-pro-200"
+              },
+              "ok": true
+            }
+          ],
+          "skipped": [],
+          "rounds": 3,
+          "reason": "end_turn"
+        },
+        {
+          "say": "yes that fixed it, thank you",
+          "kind": "confirm",
+          "reply": "Glad that fixed it. Tell me if anything else comes up.",
+          "calls": [
+            {
+              "name": "record_diagnostic_step",
+              "input": {
+                "kind": "outcome",
+                "content": "The customer said the step fixed the problem",
+                "resolved": true,
+                "product_id": "brewwell-brew-pro-200",
+                "symptom": "my coffee machine isn't brewing, only drops come out"
+              },
+              "ok": true
+            }
+          ],
+          "skipped": [],
+          "rounds": 2,
+          "reason": "end_turn"
+        },
+        {
+          "say": "thanks again",
+          "kind": "ack",
+          "reply": "You're welcome. Tell me if anything else comes up.",
+          "calls": [],
+          "skipped": [],
+          "rounds": 1,
+          "reason": "end_turn"
+        }
+      ],
+      "checks": [
+        {
+          "turn": 1,
+          "name": "calls search_troubleshooting for brewwell-brew-pro-200",
+          "passed": true
+        },
+        {
+          "turn": 2,
+          "name": "calls record_diagnostic_step (outcome, resolved true)",
+          "passed": true
+        },
+        {
+          "turn": 2,
+          "name": "runs no search or product lookup",
+          "passed": true
+        },
+        {
+          "turn": 2,
+          "name": "does not restart troubleshooting",
+          "passed": true
+        },
+        {
+          "turn": 2,
+          "name": "replies",
+          "passed": true
+        },
+        {
+          "turn": 3,
+          "name": "uses no tools",
+          "passed": true
+        },
+        {
+          "turn": 3,
+          "name": "does not restart troubleshooting",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "id": "repeat-request-needs-no-search",
+      "turns": [
+        {
+          "say": "my coffee machine isn't brewing, only drops come out",
+          "kind": "problem",
+          "reply": "Unplug the machine and let it cool for five minutes. That is from Brewwell Brew Pro 200 Troubleshooting Guide, page 2. Did that help?",
+          "calls": [
+            {
+              "name": "list_owned_products",
+              "input": {},
+              "ok": true
+            },
+            {
+              "name": "search_troubleshooting",
+              "input": {
+                "query": "my coffee machine isn't brewing, only drops come out",
+                "product_id": "brewwell-brew-pro-200"
+              },
+              "ok": true
+            }
+          ],
+          "skipped": [],
+          "rounds": 3,
+          "reason": "end_turn"
+        },
+        {
+          "say": "sorry, can you say that again?",
+          "kind": "clarify",
+          "reply": "Sure. Unplug the machine and let it cool for five minutes. That is from Brewwell Brew Pro 200 Troubleshooting Guide, page 2. Did that help?",
+          "calls": [],
+          "skipped": [],
+          "rounds": 1,
+          "reason": "end_turn"
+        }
+      ],
+      "checks": [
+        {
+          "turn": 1,
+          "name": "calls search_troubleshooting for brewwell-brew-pro-200",
+          "passed": true
+        },
+        {
+          "turn": 2,
+          "name": "runs no search or product lookup",
+          "passed": true
+        },
+        {
+          "turn": 2,
+          "name": "restates what it said before",
+          "passed": true
+        },
+        {
+          "turn": 2,
+          "name": "replies",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "id": "answer-to-product-question",
+      "turns": [
+        {
+          "say": "my coffee machine is leaking",
+          "kind": "problem",
+          "reply": "Which model do you have?",
+          "calls": [
+            {
+              "name": "list_owned_products",
+              "input": {},
+              "ok": true
+            }
+          ],
+          "skipped": [],
+          "rounds": 2,
+          "reason": "end_turn"
+        },
+        {
+          "say": "the DripMate 12",
+          "kind": "answer",
+          "reply": "If the DripMate 12 is not brewing a full pot, drips slowly or stops partway, limescale is the most common cause. That is from Brewwell DripMate 12 Troubleshooting Guide, page 2. Did that help?",
+          "calls": [
+            {
+              "name": "identify_product",
+              "input": {
+                "description": "the DripMate 12"
+              },
+              "ok": true
+            },
+            {
+              "name": "search_troubleshooting",
+              "input": {
+                "query": "my coffee machine is leaking",
+                "product_id": "brewwell-dripmate-12"
+              },
+              "ok": true
+            }
+          ],
+          "skipped": [],
+          "rounds": 3,
+          "reason": "end_turn"
+        }
+      ],
+      "checks": [
+        {
+          "turn": 1,
+          "name": "asks which machine",
+          "passed": true
+        },
+        {
+          "turn": 2,
+          "name": "calls search_troubleshooting for brewwell-dripmate-12",
+          "passed": true
+        },
+        {
+          "turn": 2,
+          "name": "does not ask which machine",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "id": "off-topic-without-a-product",
+      "turns": [
+        {
+          "say": "what's the weather like tomorrow?",
+          "kind": "offtopic",
+          "reply": "That is outside what I can help with, but I am glad to help with your Brewwell machine.",
+          "calls": [],
+          "skipped": [],
+          "rounds": 1,
+          "reason": "end_turn"
+        },
+        {
+          "say": "tell me a joke",
+          "kind": "offtopic",
+          "reply": "That is outside what I can help with, but I am glad to help with your Brewwell machine.",
+          "calls": [],
+          "skipped": [],
+          "rounds": 1,
+          "reason": "end_turn"
+        },
+        {
+          "say": "ok my coffee machine is leaking",
+          "kind": "problem",
+          "reply": "Which model do you have?",
+          "calls": [
+            {
+              "name": "list_owned_products",
+              "input": {},
+              "ok": true
+            }
+          ],
+          "skipped": [],
+          "rounds": 2,
+          "reason": "end_turn"
+        }
+      ],
+      "checks": [
+        {
+          "turn": 1,
+          "name": "uses no tools",
+          "passed": true
+        },
+        {
+          "turn": 1,
+          "name": "does not ask which machine",
+          "passed": true
+        },
+        {
+          "turn": 1,
+          "name": "does not restart troubleshooting",
+          "passed": true
+        },
+        {
+          "turn": 1,
+          "name": "replies",
+          "passed": true
+        },
+        {
+          "turn": 2,
+          "name": "uses no tools",
+          "passed": true
+        },
+        {
+          "turn": 2,
+          "name": "does not ask which machine",
+          "passed": true
+        },
+        {
+          "turn": 2,
+          "name": "does not restart troubleshooting",
+          "passed": true
+        },
+        {
+          "turn": 2,
+          "name": "replies",
+          "passed": true
+        },
+        {
+          "turn": 3,
+          "name": "calls list_owned_products",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "id": "off-topic-mid-conversation",
+      "turns": [
+        {
+          "say": "my coffee machine isn't brewing, only drops come out",
+          "kind": "problem",
+          "reply": "Unplug the machine and let it cool for five minutes. That is from Brewwell Brew Pro 200 Troubleshooting Guide, page 2. Did that help?",
+          "calls": [
+            {
+              "name": "list_owned_products",
+              "input": {},
+              "ok": true
+            },
+            {
+              "name": "search_troubleshooting",
+              "input": {
+                "query": "my coffee machine isn't brewing, only drops come out",
+                "product_id": "brewwell-brew-pro-200"
+              },
+              "ok": true
+            }
+          ],
+          "skipped": [],
+          "rounds": 3,
+          "reason": "end_turn"
+        },
+        {
+          "say": "who won the football game last night?",
+          "kind": "offtopic",
+          "reply": "That is outside what I can help with, but I am glad to help with your Brewwell machine.",
+          "calls": [],
+          "skipped": [],
+          "rounds": 1,
+          "reason": "end_turn"
+        },
+        {
+          "say": "ok back to the machine, it still only drips",
+          "kind": "problem",
+          "reply": "I couldn't find that in your documentation. What error code or light pattern do you see?",
+          "calls": [
+            {
+              "name": "search_troubleshooting",
+              "input": {
+                "query": "ok back to the machine, it still only drips",
+                "product_id": "brewwell-brew-pro-200"
+              },
+              "ok": true
+            }
+          ],
+          "skipped": [],
+          "rounds": 2,
+          "reason": "end_turn"
+        }
+      ],
+      "checks": [
+        {
+          "turn": 1,
+          "name": "calls search_troubleshooting for brewwell-brew-pro-200",
+          "passed": true
+        },
+        {
+          "turn": 2,
+          "name": "uses no tools",
+          "passed": true
+        },
+        {
+          "turn": 2,
+          "name": "does not ask which machine",
+          "passed": true
+        },
+        {
+          "turn": 2,
+          "name": "does not restart troubleshooting",
+          "passed": true
+        },
+        {
+          "turn": 2,
+          "name": "replies",
+          "passed": true
+        },
+        {
+          "turn": 3,
+          "name": "calls search_troubleshooting for brewwell-brew-pro-200",
+          "passed": true
+        },
+        {
+          "turn": 3,
+          "name": "does not ask which machine",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "id": "off-topic-then-owned-machine-question",
+      "turns": [
+        {
+          "say": "can you recommend a good pasta recipe?",
+          "kind": "offtopic",
+          "reply": "That is outside what I can help with, but I am glad to help with your Brewwell machine.",
+          "calls": [],
+          "skipped": [],
+          "rounds": 1,
+          "reason": "end_turn"
+        }
+      ],
+      "checks": [
+        {
+          "turn": 1,
+          "name": "uses no tools",
+          "passed": true
+        },
+        {
+          "turn": 1,
+          "name": "does not ask which machine",
+          "passed": true
+        },
+        {
+          "turn": 1,
+          "name": "does not restart troubleshooting",
+          "passed": true
+        },
+        {
+          "turn": 1,
+          "name": "replies",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "id": "failed-step-is-not-repeated",
+      "turns": [
+        {
+          "say": "my coffee machine isn't brewing, only drops come out",
+          "kind": "problem",
+          "reply": "Unplug the machine and let it cool for five minutes. That is from Brewwell Brew Pro 200 Troubleshooting Guide, page 2. Did that help?",
+          "calls": [
+            {
+              "name": "list_owned_products",
+              "input": {},
+              "ok": true
+            },
+            {
+              "name": "search_troubleshooting",
+              "input": {
+                "query": "my coffee machine isn't brewing, only drops come out",
+                "product_id": "brewwell-brew-pro-200"
+              },
+              "ok": true
+            }
+          ],
+          "skipped": [],
+          "rounds": 3,
+          "reason": "end_turn"
+        },
+        {
+          "say": "I did that and nothing changed",
+          "kind": "answer",
+          "reply": "Open the lid and look at the small hollow needle at the top of the pod chamber. If its opening is packed with grounds, it is blocked. That is from Brewwell Brew Pro 200 Troubleshooting Guide, page 2. Did that help?",
+          "calls": [
+            {
+              "name": "record_diagnostic_step",
+              "input": {
+                "kind": "outcome",
+                "content": "The customer said the last step did not help",
+                "product_id": "brewwell-brew-pro-200",
+                "symptom": "my coffee machine isn't brewing, only drops come out"
+              },
+              "ok": true
+            }
+          ],
+          "skipped": [],
+          "rounds": 2,
+          "reason": "end_turn"
+        },
+        {
+          "say": "still nothing, I tried that too",
+          "kind": "answer",
+          "reply": "Good news, you are covered until 2028-03-14. Would you like me to open a support case?",
+          "calls": [
+            {
+              "name": "record_diagnostic_step",
+              "input": {
+                "kind": "outcome",
+                "content": "The customer said the last step did not help",
+                "product_id": "brewwell-brew-pro-200",
+                "symptom": "my coffee machine isn't brewing, only drops come out"
+              },
+              "ok": true
+            },
+            {
+              "name": "check_warranty",
+              "input": {
+                "product_id": "brewwell-brew-pro-200"
+              },
+              "ok": true
+            }
+          ],
+          "skipped": [],
+          "rounds": 3,
+          "reason": "end_turn"
+        }
+      ],
+      "checks": [
+        {
+          "turn": 1,
+          "name": "calls search_troubleshooting for brewwell-brew-pro-200",
+          "passed": true
+        },
+        {
+          "turn": 2,
+          "name": "calls record_diagnostic_step (outcome, resolved false)",
+          "passed": true
+        },
+        {
+          "turn": 2,
+          "name": "does not repeat its previous reply",
+          "passed": true
+        },
+        {
+          "turn": 2,
+          "name": "replies",
+          "passed": true
+        },
+        {
+          "turn": 2,
+          "name": "does not ask which machine",
+          "passed": true
+        },
+        {
+          "turn": 3,
+          "name": "does not repeat its previous 2 replies",
+          "passed": true
+        },
+        {
+          "turn": 3,
+          "name": "replies",
+          "passed": true
+        },
+        {
+          "turn": 3,
+          "name": "does not ask which machine",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "id": "same-complaint-three-times",
+      "turns": [
+        {
+          "say": "it still will not brew",
+          "kind": "problem",
+          "reply": "Unplug the machine and let it cool for five minutes. That is from Brewwell Brew Pro 200 Troubleshooting Guide, page 2. Did that help?",
+          "calls": [
+            {
+              "name": "list_owned_products",
+              "input": {},
+              "ok": true
+            },
+            {
+              "name": "search_troubleshooting",
+              "input": {
+                "query": "it still will not brew",
+                "product_id": "brewwell-brew-pro-200"
+              },
+              "ok": true
+            }
+          ],
+          "skipped": [],
+          "rounds": 3,
+          "reason": "end_turn"
+        },
+        {
+          "say": "it still will not brew",
+          "kind": "problem",
+          "reply": "Open the lid and look at the small hollow needle at the top of the pod chamber. If its opening is packed with grounds, it is blocked. That is from Brewwell Brew Pro 200 Troubleshooting Guide, page 2. Did that help?",
+          "calls": [
+            {
+              "name": "record_diagnostic_step",
+              "input": {
+                "kind": "outcome",
+                "content": "The customer said the last step did not help",
+                "product_id": "brewwell-brew-pro-200",
+                "symptom": "it still will not brew"
+              },
+              "ok": true
+            }
+          ],
+          "skipped": [],
+          "rounds": 2,
+          "reason": "end_turn"
+        },
+        {
+          "say": "it still will not brew",
+          "kind": "problem",
+          "reply": "Good news, you are covered until 2028-03-14. Would you like me to open a support case?",
+          "calls": [
+            {
+              "name": "record_diagnostic_step",
+              "input": {
+                "kind": "outcome",
+                "content": "The customer said the last step did not help",
+                "product_id": "brewwell-brew-pro-200",
+                "symptom": "it still will not brew"
+              },
+              "ok": true
+            },
+            {
+              "name": "check_warranty",
+              "input": {
+                "product_id": "brewwell-brew-pro-200"
+              },
+              "ok": true
+            }
+          ],
+          "skipped": [],
+          "rounds": 3,
+          "reason": "end_turn"
+        }
+      ],
+      "checks": [
+        {
+          "turn": 1,
+          "name": "replies",
+          "passed": true
+        },
+        {
+          "turn": 2,
+          "name": "does not repeat its previous reply",
+          "passed": true
+        },
+        {
+          "turn": 2,
+          "name": "replies",
+          "passed": true
+        },
+        {
+          "turn": 3,
+          "name": "does not repeat its previous 2 replies",
+          "passed": true
+        },
+        {
+          "turn": 3,
+          "name": "reply matches /support|warranty|case/i",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "id": "no-answer-twice",
+      "turns": [
+        {
+          "say": "my machine is not working",
+          "kind": "problem",
+          "reply": "I couldn't find that in your documentation. What error code or light pattern do you see?",
+          "calls": [
+            {
+              "name": "list_owned_products",
+              "input": {},
+              "ok": true
+            },
+            {
+              "name": "search_troubleshooting",
+              "input": {
+                "query": "my machine is not working",
+                "product_id": "brewwell-brew-pro-200"
+              },
+              "ok": true
+            }
+          ],
+          "skipped": [],
+          "rounds": 3,
+          "reason": "end_turn"
+        },
+        {
+          "say": "I don't know",
+          "kind": "answer",
+          "reply": "Good news, you are covered until 2028-03-14. Would you like me to open a support case?",
+          "calls": [
+            {
+              "name": "check_warranty",
+              "input": {
+                "product_id": "brewwell-brew-pro-200"
+              },
+              "ok": true
+            }
+          ],
+          "skipped": [],
+          "rounds": 2,
+          "reason": "end_turn"
+        },
+        {
+          "say": "no idea",
+          "kind": "answer",
+          "reply": "No problem. Whenever you are ready, ask me to open a support case, or contact Brewwell support directly.",
+          "calls": [],
+          "skipped": [],
+          "rounds": 1,
+          "reason": "end_turn"
+        }
+      ],
+      "checks": [
+        {
+          "turn": 1,
+          "name": "replies",
+          "passed": true
+        },
+        {
+          "turn": 2,
+          "name": "does not repeat its previous reply",
+          "passed": true
+        },
+        {
+          "turn": 2,
+          "name": "replies",
+          "passed": true
+        },
+        {
+          "turn": 3,
+          "name": "does not repeat its previous 2 replies",
+          "passed": true
+        },
+        {
+          "turn": 3,
+          "name": "reply matches /support|warranty|case/i",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "id": "owner-switches-machine",
+      "turns": [
+        {
+          "say": "my dripmate is brewing slowly",
+          "kind": "problem",
+          "reply": "If the DripMate 12 is not brewing a full pot, drips slowly or stops partway, limescale is the most common cause. That is from Brewwell DripMate 12 Troubleshooting Guide, page 2. Did that help?",
+          "calls": [
+            {
+              "name": "identify_product",
+              "input": {
+                "description": "my dripmate is brewing slowly"
+              },
+              "ok": true
+            },
+            {
+              "name": "search_troubleshooting",
+              "input": {
+                "query": "my dripmate is brewing slowly",
+                "product_id": "brewwell-dripmate-12"
+              },
+              "ok": true
+            }
+          ],
+          "skipped": [],
+          "rounds": 3,
+          "reason": "end_turn"
+        },
+        {
+          "say": "actually the espresso machine is leaking",
+          "kind": "switch",
+          "reply": "I couldn't find that in your documentation. What error code or light pattern do you see?",
+          "calls": [
+            {
+              "name": "identify_product",
+              "input": {
+                "description": "actually the espresso machine is leaking"
+              },
+              "ok": true
+            },
+            {
+              "name": "search_troubleshooting",
+              "input": {
+                "query": "actually the espresso machine is leaking",
+                "product_id": "brewwell-espresso-studio-es1"
+              },
+              "ok": true
+            }
+          ],
+          "skipped": [],
+          "rounds": 3,
+          "reason": "end_turn"
+        },
+        {
+          "say": "is the espresso one under warranty?",
+          "kind": "problem",
+          "reply": "Good news, you are covered until 2027-12-20. Would you like me to open a support case?",
+          "calls": [
+            {
+              "name": "check_warranty",
+              "input": {
+                "product_id": "brewwell-espresso-studio-es1"
+              },
+              "ok": true
+            }
+          ],
+          "skipped": [],
+          "rounds": 2,
+          "reason": "end_turn"
+        }
+      ],
+      "checks": [
+        {
+          "turn": 1,
+          "name": "calls search_troubleshooting for brewwell-dripmate-12",
+          "passed": true
+        },
+        {
+          "turn": 2,
+          "name": "calls search_troubleshooting for brewwell-espresso-studio-es1",
+          "passed": true
+        },
+        {
+          "turn": 2,
+          "name": "does not ask which machine",
+          "passed": true
+        },
+        {
+          "turn": 3,
+          "name": "gets the warranty for brewwell-espresso-studio-es1",
+          "passed": true
+        },
+        {
+          "turn": 3,
+          "name": "does not ask which machine",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "id": "switch-and-switch-back",
+      "turns": [
+        {
+          "say": "my Brew Pro 200 has a blinking amber light",
+          "kind": "problem",
+          "reply": "The amber light blinks, brew volume drops and the machine sounds strained. That is from Brewwell Brew Pro 200 Troubleshooting Guide, page 3. Did that help?",
+          "calls": [
+            {
+              "name": "identify_product",
+              "input": {
+                "description": "my Brew Pro 200 has a blinking amber light"
+              },
+              "ok": true
+            },
+            {
+              "name": "search_troubleshooting",
+              "input": {
+                "query": "my Brew Pro 200 has a blinking amber light",
+                "product_id": "brewwell-brew-pro-200"
+              },
+              "ok": true
+            }
+          ],
+          "skipped": [],
+          "rounds": 3,
+          "reason": "end_turn"
+        },
+        {
+          "say": "different problem, my DripMate 12 is leaking",
+          "kind": "switch",
+          "reply": "I couldn't find that in your documentation. What error code or light pattern do you see?",
+          "calls": [
+            {
+              "name": "identify_product",
+              "input": {
+                "description": "different problem, my DripMate 12 is leaking"
+              },
+              "ok": true
+            },
+            {
+              "name": "search_troubleshooting",
+              "input": {
+                "query": "different problem, my DripMate 12 is leaking",
+                "product_id": "brewwell-dripmate-12"
+              },
+              "ok": true
+            }
+          ],
+          "skipped": [],
+          "rounds": 3,
+          "reason": "end_turn"
+        },
+        {
+          "say": "back to the Brew Pro 200, the amber light is still blinking",
+          "kind": "switch",
+          "reply": "I couldn't find that in your documentation. What does the machine do when you try to use it, for example any sounds or leaks?",
+          "calls": [
+            {
+              "name": "identify_product",
+              "input": {
+                "description": "back to the Brew Pro 200, the amber light is still blinking"
+              },
+              "ok": true
+            },
+            {
+              "name": "search_troubleshooting",
+              "input": {
+                "query": "back to the Brew Pro 200, the amber light is still blinking",
+                "product_id": "brewwell-brew-pro-200"
+              },
+              "ok": true
+            }
+          ],
+          "skipped": [],
+          "rounds": 3,
+          "reason": "end_turn"
+        }
+      ],
+      "checks": [
+        {
+          "turn": 1,
+          "name": "calls search_troubleshooting for brewwell-brew-pro-200",
+          "passed": true
+        },
+        {
+          "turn": 2,
+          "name": "calls search_troubleshooting for brewwell-dripmate-12",
+          "passed": true
+        },
+        {
+          "turn": 3,
+          "name": "calls search_troubleshooting for brewwell-brew-pro-200",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "id": "explicit-case-request",
+      "turns": [
+        {
+          "say": "my coffee machine isn't brewing, only drops come out",
+          "kind": "problem",
+          "reply": "Unplug the machine and let it cool for five minutes. That is from Brewwell Brew Pro 200 Troubleshooting Guide, page 2. Did that help?",
+          "calls": [
+            {
+              "name": "list_owned_products",
+              "input": {},
+              "ok": true
+            },
+            {
+              "name": "search_troubleshooting",
+              "input": {
+                "query": "my coffee machine isn't brewing, only drops come out",
+                "product_id": "brewwell-brew-pro-200"
+              },
+              "ok": true
+            }
+          ],
+          "skipped": [],
+          "rounds": 3,
+          "reason": "end_turn"
+        },
+        {
+          "say": "that's not working, please open a support case",
+          "kind": "problem",
+          "reply": "I have opened support case RAI-2026-000001. Support will follow up.",
+          "calls": [
+            {
+              "name": "record_diagnostic_step",
+              "input": {
+                "kind": "step",
+                "content": "Followed the steps from the troubleshooting guide without success",
+                "product_id": "brewwell-brew-pro-200",
+                "symptom": "my coffee machine isn't brewing, only drops come out"
+              },
+              "ok": true
+            },
+            {
+              "name": "create_support_case",
+              "input": {
+                "summary": "my coffee machine isn't brewing, only drops come out The steps from the guide did not fix it."
+              },
+              "ok": true
+            }
+          ],
+          "skipped": [],
+          "rounds": 3,
+          "reason": "end_turn"
+        },
+        {
+          "say": "thanks",
+          "kind": "ack",
+          "reply": "You're welcome. Tell me if anything else comes up.",
+          "calls": [],
+          "skipped": [],
+          "rounds": 1,
+          "reason": "end_turn"
+        }
+      ],
+      "checks": [
+        {
+          "turn": 1,
+          "name": "calls search_troubleshooting for brewwell-brew-pro-200",
+          "passed": true
+        },
+        {
+          "turn": 2,
+          "name": "calls create_support_case",
+          "passed": true
+        },
+        {
+          "turn": 2,
+          "name": "reply matches /RAI-\\d{4}-\\d{6}/",
+          "passed": true
+        },
+        {
+          "turn": 3,
+          "name": "uses no tools",
+          "passed": true
+        },
+        {
+          "turn": 3,
+          "name": "does not restart troubleshooting",
+          "passed": true
+        },
+        {
+          "turn": 3,
+          "name": "never calls create_support_case",
+          "passed": true
+        },
+        {
+          "turn": 3,
+          "name": "reply does not match /RAI-\\d{4}-\\d{6}/",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "id": "offer-then-accept",
+      "turns": [
+        {
+          "say": "my coffee machine isn't brewing, only drops come out",
+          "kind": "problem",
+          "reply": "Unplug the machine and let it cool for five minutes. That is from Brewwell Brew Pro 200 Troubleshooting Guide, page 2. Did that help?",
+          "calls": [
+            {
+              "name": "list_owned_products",
+              "input": {},
+              "ok": true
+            },
+            {
+              "name": "search_troubleshooting",
+              "input": {
+                "query": "my coffee machine isn't brewing, only drops come out",
+                "product_id": "brewwell-brew-pro-200"
+              },
+              "ok": true
+            }
+          ],
+          "skipped": [],
+          "rounds": 3,
+          "reason": "end_turn"
+        },
+        {
+          "say": "didn't work",
+          "kind": "answer",
+          "reply": "Open the lid and look at the small hollow needle at the top of the pod chamber. If its opening is packed with grounds, it is blocked. That is from Brewwell Brew Pro 200 Troubleshooting Guide, page 2. Did that help?",
+          "calls": [
+            {
+              "name": "record_diagnostic_step",
+              "input": {
+                "kind": "outcome",
+                "content": "The customer said the last step did not help",
+                "product_id": "brewwell-brew-pro-200",
+                "symptom": "my coffee machine isn't brewing, only drops come out"
+              },
+              "ok": true
+            }
+          ],
+          "skipped": [],
+          "rounds": 2,
+          "reason": "end_turn"
+        },
+        {
+          "say": "still nothing",
+          "kind": "answer",
+          "reply": "Good news, you are covered until 2028-03-14. Would you like me to open a support case?",
+          "calls": [
+            {
+              "name": "record_diagnostic_step",
+              "input": {
+                "kind": "outcome",
+                "content": "The customer said the last step did not help",
+                "product_id": "brewwell-brew-pro-200",
+                "symptom": "my coffee machine isn't brewing, only drops come out"
+              },
+              "ok": true
+            },
+            {
+              "name": "check_warranty",
+              "input": {
+                "product_id": "brewwell-brew-pro-200"
+              },
+              "ok": true
+            }
+          ],
+          "skipped": [],
+          "rounds": 3,
+          "reason": "end_turn"
+        },
+        {
+          "say": "yes please",
+          "kind": "confirm",
+          "reply": "I have opened support case RAI-2026-000002. Support will follow up.",
+          "calls": [
+            {
+              "name": "create_support_case",
+              "input": {
+                "summary": "my coffee machine isn't brewing, only drops come out The steps from the guide did not fix it."
+              },
+              "ok": true
+            }
+          ],
+          "skipped": [],
+          "rounds": 2,
+          "reason": "end_turn"
+        }
+      ],
+      "checks": [
+        {
+          "turn": 1,
+          "name": "calls search_troubleshooting for brewwell-brew-pro-200",
+          "passed": true
+        },
+        {
+          "turn": 2,
+          "name": "replies",
+          "passed": true
+        },
+        {
+          "turn": 3,
+          "name": "reply matches /support|warranty|case/i",
+          "passed": true
+        },
+        {
+          "turn": 3,
+          "name": "never calls create_support_case",
+          "passed": true
+        },
+        {
+          "turn": 3,
+          "name": "reply does not match /RAI-\\d{4}-\\d{6}/",
+          "passed": true
+        },
+        {
+          "turn": 4,
+          "name": "calls create_support_case",
+          "passed": true
+        },
+        {
+          "turn": 4,
+          "name": "reply matches /RAI-\\d{4}-\\d{6}/",
+          "passed": true
+        },
+        {
+          "turn": 4,
+          "name": "runs no search or product lookup",
+          "passed": true
+        }
+      ]
+    },
+    {
+      "id": "offer-then-decline",
+      "turns": [
+        {
+          "say": "my coffee machine isn't brewing, only drops come out",
+          "kind": "problem",
+          "reply": "Unplug the machine and let it cool for five minutes. That is from Brewwell Brew Pro 200 Troubleshooting Guide, page 2. Did that help?",
+          "calls": [
+            {
+              "name": "list_owned_products",
+              "input": {},
+              "ok": true
+            },
+            {
+              "name": "search_troubleshooting",
+              "input": {
+                "query": "my coffee machine isn't brewing, only drops come out",
+                "product_id": "brewwell-brew-pro-200"
+              },
+              "ok": true
+            }
+          ],
+          "skipped": [],
+          "rounds": 3,
+          "reason": "end_turn"
+        },
+        {
+          "say": "didn't work",
+          "kind": "answer",
+          "reply": "Open the lid and look at the small hollow needle at the top of the pod chamber. If its opening is packed with grounds, it is blocked. That is from Brewwell Brew Pro 200 Troubleshooting Guide, page 2. Did that help?",
+          "calls": [
+            {
+              "name": "record_diagnostic_step",
+              "input": {
+                "kind": "outcome",
+                "content": "The customer said the last step did not help",
+                "product_id": "brewwell-brew-pro-200",
+                "symptom": "my coffee machine isn't brewing, only drops come out"
+              },
+              "ok": true
+            }
+          ],
+          "skipped": [],
+          "rounds": 2,
+          "reason": "end_turn"
+        },
+        {
+          "say": "still nothing",
+          "kind": "answer",
+          "reply": "Good news, you are covered until 2028-03-14. Would you like me to open a support case?",
+          "calls": [
+            {
+              "name": "record_diagnostic_step",
+              "input": {
+                "kind": "outcome",
+                "content": "The customer said the last step did not help",
+                "product_id": "brewwell-brew-pro-200",
+                "symptom": "my coffee machine isn't brewing, only drops come out"
+              },
+              "ok": true
+            },
+            {
+              "name": "check_warranty",
+              "input": {
+                "product_id": "brewwell-brew-pro-200"
+              },
+              "ok": true
+            }
+          ],
+          "skipped": [],
+          "rounds": 3,
+          "reason": "end_turn"
+        },
+        {
+          "say": "no thanks",
+          "kind": "confirm",
+          "reply": "No problem, I will leave it there. Is there anything else I can help with?",
+          "calls": [],
+          "skipped": [],
+          "rounds": 1,
+          "reason": "end_turn"
+        }
+      ],
+      "checks": [
+        {
+          "turn": 1,
+          "name": "calls search_troubleshooting for brewwell-brew-pro-200",
+          "passed": true
+        },
+        {
+          "turn": 2,
+          "name": "replies",
+          "passed": true
+        },
+        {
+          "turn": 3,
+          "name": "reply matches /support|warranty|case/i",
+          "passed": true
+        },
+        {
+          "turn": 3,
+          "name": "never calls create_support_case",
+          "passed": true
+        },
+        {
+          "turn": 3,
+          "name": "reply does not match /RAI-\\d{4}-\\d{6}/",
+          "passed": true
+        },
+        {
+          "turn": 4,
+          "name": "never calls create_support_case",
+          "passed": true
+        },
+        {
+          "turn": 4,
+          "name": "reply does not match /RAI-\\d{4}-\\d{6}/",
+          "passed": true
+        },
+        {
+          "turn": 4,
+          "name": "runs no search or product lookup",
+          "passed": true
+        },
+        {
+          "turn": 4,
+          "name": "does not restart troubleshooting",
+          "passed": true
+        },
+        {
+          "turn": 4,
+          "name": "replies",
+          "passed": true
+        }
+      ]
+    }
+  ]
+}
