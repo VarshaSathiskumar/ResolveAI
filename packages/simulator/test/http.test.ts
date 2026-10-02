@@ -103,7 +103,7 @@ describe('sessions', () => {
   it('lists the personas and reports health', async () => {
     const sim = await startSim(scriptedLlm([sayThenStop('hi')]));
     const personas = await api(sim, '/api/personas');
-    expect(personas.json.personas.map((p: { id: string }) => p.id)).toEqual(['alex']);
+    expect(personas.json.personas.map((p: { id: string }) => p.id)).toEqual(['alex', 'raj']);
     expect(await api(sim, '/api/health')).toMatchObject({ status: 200, json: { ok: true, sessions: 0, model: 'claude-sonnet-5-5' } });
   });
 

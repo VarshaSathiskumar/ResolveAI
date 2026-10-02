@@ -12,7 +12,7 @@ beforeAll(async () => {
 afterAll(() => stack.close());
 
 /** One customer line against the mock agent and the real tools. */
-async function ask(persona: 'alex', text: string) {
+async function ask(persona: 'alex' | 'raj', text: string) {
   const mcp = await stack.connect(persona);
   const trace = collect();
   const result = await runTurn({ conversation: createConversation(await mcp.tools()), userText: text, llm: createMockLlm({ delayMs: 0 }), mcp, config: AGENT, emit: trace.emit });
@@ -20,7 +20,7 @@ async function ask(persona: 'alex', text: string) {
 }
 
 /** Several customer lines in one conversation, with the tools and reply of each. */
-async function chat(persona: 'alex', lines: string[]) {
+async function chat(persona: 'alex' | 'raj', lines: string[]) {
   const mcp = await stack.connect(persona);
   const conversation = createConversation(await mcp.tools());
   const turns: { tools: string[]; queries: unknown[]; text: string }[] = [];
@@ -31,6 +31,50 @@ async function chat(persona: 'alex', lines: string[]) {
   }
   return turns;
 }
+
+describe('mock agent with Raj (two machines, one out of warranty)', () => {
+  it('asks which machine he means instead of guessing', async () => {
+    const { result, tools } = await ask('raj', "the milk from my coffee machine is not frothing");
+    expect(tools).toEqual(['list_owned_products']);
+    expect(result.text).toMatch(/Which one is it/);
+    expect(result.text).toMatch(/Brew Pro 300/);
+    expect(result.text).toMatch(/Espresso Studio ES-1/);
+  });
+
+  it('carries on with the machine he picks', async () => {
+    const turns = await chat('raj', ["the milk from my coffee machine is not frothing", 'the brew pro 300']);
+    expect(turns[1]!.tools).toEqual(['search_troubleshooting']);
+    expect(turns[1]!.text).toMatch(/That is from .*Brew Pro 300/);
+  });
+
+  it('tells him the warranty on the Brew Pro 300 has expired', async () => {
+    const turns = await chat('raj', ['is my machine still under warranty?', 'the brew pro 300']);
+    expect(turns[1]!.tools).toEqual(['check_warranty']);
+    expect(turns[1]!.text).toMatch(/warranty ended on 2025-06-20/);
+  });
+
+  it('files a case on the expired machine and warns that a repair is not covered', async () => {
+    const mcp = await stack.connect('raj');
+    const conversation = createConversation(await mcp.tools());
+    const turns: ReturnType<typeof collect>[] = [];
+    const texts: string[] = [];
+    for (const text of ["the milk from my coffee machine is not frothing", 'the brew pro 300', "didn't work", 'nope', 'yes please']) {
+      const trace = collect();
+      const result = await runTurn({ conversation, userText: text, llm: createMockLlm({ delayMs: 0 }), mcp, config: AGENT, emit: trace.emit });
+      turns.push(trace);
+      texts.push(result.text);
+    }
+    const ticket = turns.flatMap((trace) => trace.of('tool_result')).find((event) => event.name === 'create_support_case');
+    expect(ticket?.summary.badges).toContain('expired');
+    expect(texts.at(-1)).toMatch(/warranty has expired, so a repair would not be covered/);
+  });
+
+  it('keeps his machines and cases apart from Alex', async () => {
+    const alex = await ask('alex', 'is my machine still under warranty?');
+    expect(alex.tools).toEqual(['list_owned_products', 'check_warranty']);
+    expect(alex.result.text).toMatch(/covered until 2028-03-14/);
+  });
+});
 
 describe('mock agent (offline demo mode)', () => {
   it('records the step that did not help, so the support case lists what was tried', async () => {

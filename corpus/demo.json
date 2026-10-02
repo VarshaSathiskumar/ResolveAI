@@ -1,8 +1,11 @@
 {
   "users": [
-    { "id": "demo-alex", "name": "Alex", "note": "One registered machine, so 'my coffee machine' resolves without a question" }
+    { "id": "demo-alex", "name": "Alex", "note": "One registered machine, so 'my coffee machine' resolves without a question" },
+    { "id": "demo-raj", "name": "Raj", "note": "Two registered machines, one with an expired warranty, so 'my coffee machine' needs a question" }
   ],
   "owned_products": [
-    { "user_id": "demo-alex", "product_id": "brewwell-brew-pro-200", "serial": "BP200-A1127", "purchase_date": "2026-03-14", "retailer": "Hearth and Home" }
+    { "user_id": "demo-alex", "product_id": "brewwell-brew-pro-200", "serial": "BP200-A1127", "purchase_date": "2026-03-14", "retailer": "Hearth and Home" },
+    { "user_id": "demo-raj", "product_id": "brewwell-brew-pro-300", "serial": "BP300-R0412", "purchase_date": "2023-06-20", "retailer": "Hearth and Home" },
+    { "user_id": "demo-raj", "product_id": "brewwell-espresso-studio-es1", "serial": "ES1-R2208", "purchase_date": "2026-08-15", "retailer": "Bean and Brew" }
   ]
 }

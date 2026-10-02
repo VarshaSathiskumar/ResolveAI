@@ -39,11 +39,12 @@ export const DEFAULT_WEB_ORIGINS = [`http://localhost:${PORTS.web}`, `http://${L
 // Demo accounts ---------------------------------------------------------------------------------------------------
 
 /** Demo-only tokens: they exist only on this machine and unlock only the fictional demo accounts in corpus/demo.json. */
-export const DEMO_TOKENS = { alex: 'demo-token-alex' } as const;
+export const DEMO_TOKENS = { alex: 'demo-token-alex', raj: 'demo-token-raj' } as const;
 
 /** The demo users from corpus/demo.json. The MCP token for each comes from configuration, never from the browser. */
 export const PERSONAS: { id: string; name: string; note: string }[] = [
   { id: 'alex', name: 'Alex', note: 'Owns one machine: "my coffee machine" needs no question.' },
+  { id: 'raj', name: 'Raj', note: 'Owns two machines, one out of warranty: "my coffee machine" needs a question.' },
 ];
 
 // Helpers for reading the environment -----------------------------------------------------------------------------
