@@ -20,7 +20,7 @@ export interface TestDeps {
 }
 
 /** An in-memory index of the real corpus. Uses the hash embedder unless one is given. */
-/** Fixed so warranty results do not drift: Alex's Brew Pro 200 is in warranty, Sam's DripMate 12 has expired. */
+/** Fixed so warranty results do not drift: Alex's Brew Pro 200 is in warranty. */
 export const TEST_NOW = new Date('2026-10-01T12:00:00Z');
 
 export async function makeDeps(

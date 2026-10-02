@@ -2,12 +2,12 @@ import { describe, expect, it } from 'vitest';
 import { authenticate, principalFromAuthInfo, toAuthInfo } from '../src/auth.js';
 import { loadConfig } from '../src/config.js';
 
-const config = { bearerToken: 'service', userTokens: { 'token-a': 'demo-alex', 'token-b': 'demo-sam' } };
+const config = { bearerToken: 'service', userTokens: { 'token-a': 'demo-alex', 'token-b': 'demo-other' } };
 
 describe('authenticate', () => {
   it('maps a user token to its user', () => {
     expect(authenticate('Bearer token-a', config)).toEqual({ userId: 'demo-alex' });
-    expect(authenticate('bearer token-b', config)).toEqual({ userId: 'demo-sam' });
+    expect(authenticate('bearer token-b', config)).toEqual({ userId: 'demo-other' });
   });
 
   it('accepts the service token with no user', () => {
@@ -36,8 +36,8 @@ describe('auth info', () => {
 
 describe('loadConfig tokens', () => {
   it('parses MCP_USER_TOKENS', () => {
-    const parsed = loadConfig({ MCP_USER_TOKENS: 'a:demo-alex, b:demo-sam' });
-    expect(parsed.userTokens).toEqual({ a: 'demo-alex', b: 'demo-sam' });
+    const parsed = loadConfig({ MCP_USER_TOKENS: 'a:demo-alex, b:demo-other' });
+    expect(parsed.userTokens).toEqual({ a: 'demo-alex', b: 'demo-other' });
     expect(parsed.bearerToken).toBeUndefined();
   });
 

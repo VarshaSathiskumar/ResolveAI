@@ -18,16 +18,16 @@ describe('case store', () => {
 
   it("hides one user's case from another", () => {
     const created = deps.cases.open({ userId: 'demo-alex' });
-    expect(deps.cases.get(created.id, 'demo-sam')).toBeUndefined();
+    expect(deps.cases.get(created.id, 'demo-other')).toBeUndefined();
     expect(deps.cases.get(999_999, 'demo-alex')).toBeUndefined();
   });
 
   it('finds the latest open case, skipping resolved ones', () => {
-    const first = deps.cases.open({ userId: 'demo-jo' });
-    const second = deps.cases.open({ userId: 'demo-jo' });
-    expect(deps.cases.latestOpen('demo-jo')?.id).toBe(second.id);
+    const first = deps.cases.open({ userId: 'demo-other-2' });
+    const second = deps.cases.open({ userId: 'demo-other-2' });
+    expect(deps.cases.latestOpen('demo-other-2')?.id).toBe(second.id);
     deps.cases.update(second.id, { status: 'resolved' });
-    expect(deps.cases.latestOpen('demo-jo')?.id).toBe(first.id);
+    expect(deps.cases.latestOpen('demo-other-2')?.id).toBe(first.id);
     expect(deps.cases.latestOpen('nobody')).toBeUndefined();
   });
 

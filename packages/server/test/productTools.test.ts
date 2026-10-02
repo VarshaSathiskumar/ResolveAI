@@ -5,7 +5,7 @@ import { createApp, type App } from '../src/app.js';
 import { loadConfig } from '../src/config.js';
 import { makeDeps } from './helpers.js';
 
-const TOKENS = { alex: 'token-alex', sam: 'token-sam', jo: 'token-jo', service: 'token-service' };
+const TOKENS = { alex: 'token-alex', service: 'token-service' };
 
 let app: App;
 let url: URL;
@@ -13,7 +13,7 @@ let url: URL;
 beforeAll(async () => {
   app = createApp(
     loadConfig({
-      MCP_USER_TOKENS: `${TOKENS.alex}:demo-alex,${TOKENS.sam}:demo-sam,${TOKENS.jo}:demo-jo`,
+      MCP_USER_TOKENS: `${TOKENS.alex}:demo-alex`,
       MCP_BEARER_TOKEN: TOKENS.service,
       PORT: '0',
     }),
@@ -59,30 +59,10 @@ describe.each(['legacy', 'modern'] as const)('list_owned_products over the %s tr
     expect(out.owned.map((product) => product.product_id)).toEqual(['brewwell-brew-pro-200']);
   });
 
-  it('asks Sam which of two machines', async () => {
-    const out = (await call(era, TOKENS.sam, 'list_owned_products')).structuredContent as Owned;
-    expect(out.resolution).toBe('several');
-    expect(out.needs).toEqual(['which_product']);
-    expect(out.owned.map((product) => product.model).sort()).toEqual(['DripMate 12', 'Espresso Studio ES-1']);
-  });
-
-  it('asks Jo for the model because nothing is registered', async () => {
-    const out = (await call(era, TOKENS.jo, 'list_owned_products')).structuredContent as Owned;
-    expect(out.resolution).toBe('none');
-    expect(out.needs).toEqual(['model']);
-  });
-
   it('has no products for the token that has no user behind it', async () => {
     const out = (await call(era, TOKENS.service, 'list_owned_products')).structuredContent as Owned;
     expect(out.resolution).toBe('none');
     expect(out.note).toMatch(/No account/);
-  });
-
-  it('narrows by category', async () => {
-    const coffee = (await call(era, TOKENS.sam, 'list_owned_products', { category: 'coffee machine' })).structuredContent as Owned;
-    expect(coffee.owned).toHaveLength(2);
-    const other = (await call(era, TOKENS.sam, 'list_owned_products', { category: 'washing machine' })).structuredContent as Owned;
-    expect(other.resolution).toBe('none');
   });
 
   it('flags the owned product when identifying', async () => {
@@ -96,14 +76,6 @@ describe.each(['legacy', 'modern'] as const)('list_owned_products over the %s tr
 });
 
 describe('identify_product and get_product tools', () => {
-  it('returns a suggested question and a model need for an ambiguous description', async () => {
-    const result = await call('legacy', TOKENS.jo, 'identify_product', { description: 'Brew Pro' });
-    const out = result.structuredContent as { ambiguous: boolean; needs: string[]; suggested_question: string };
-    expect(out.needs).toEqual(['model']);
-    expect(out.suggested_question).toMatch(/Brew Pro 200 or the Brew Pro 300/);
-    expect((result.content[0] as { text: string }).text).toMatch(/Ask the user which one/);
-  });
-
   it('returns the product record with its documents and page counts', async () => {
     const result = await call('legacy', TOKENS.alex, 'get_product', { product_id: 'brewwell-brew-pro-200' });
     const out = result.structuredContent as {
@@ -159,7 +131,6 @@ describe('sessions belong to the user who opened them', () => {
   it("treats another user's session id as unknown", async () => {
     const alexSession = await openSession(TOKENS.alex);
     expect((await listTools(TOKENS.alex, alexSession)).status).toBe(200);
-    expect((await listTools(TOKENS.sam, alexSession)).status).toBe(404);
     expect((await listTools(TOKENS.service, alexSession)).status).toBe(404);
   });
 

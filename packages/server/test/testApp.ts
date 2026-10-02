@@ -4,7 +4,7 @@ import { createApp, type App } from '../src/app.js';
 import { loadConfig } from '../src/config.js';
 import { makeDeps, type TestDeps } from './helpers.js';
 
-export const TOKENS = { alex: 'token-alex', sam: 'token-sam', jo: 'token-jo', service: 'token-service' };
+export const TOKENS = { alex: 'token-alex', service: 'token-service' };
 
 export type Era = 'legacy' | 'modern';
 
@@ -17,12 +17,12 @@ export interface TestApp {
   close(): Promise<void>;
 }
 
-/** Starts the real server over HTTP with the three demo users and one anonymous token. */
+/** Starts the real server over HTTP with the demo user and one anonymous token. */
 export async function startTestApp(): Promise<TestApp> {
   const deps = await makeDeps();
   const app: App = createApp(
     loadConfig({
-      MCP_USER_TOKENS: `${TOKENS.alex}:demo-alex,${TOKENS.sam}:demo-sam,${TOKENS.jo}:demo-jo`,
+      MCP_USER_TOKENS: `${TOKENS.alex}:demo-alex`,
       MCP_BEARER_TOKEN: TOKENS.service,
       PORT: '0',
     }),
