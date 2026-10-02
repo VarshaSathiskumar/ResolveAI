@@ -104,6 +104,19 @@ describe('reading a customer line in context', () => {
   });
 });
 
+describe('the closing question', () => {
+  const declined: Message[] = [...offered, customer('no'), assistant('No problem, I will leave it there. Is there anything else I can help with?')];
+
+  it.each([['no', 'acknowledge'], ['nope', 'acknowledge'], ['yes', 'acknowledge']] as const)('"%s" to "anything else?" is %s, not a failed step', (text, expected) => {
+    expect(classify(declined, text)).toBe(expected);
+    expect(progressOf(deriveState([...declined, customer(text)])).failed).toBe(progressOf(deriveState(declined)).failed);
+  });
+
+  it('still reads a new problem after it as a request', () => {
+    expect(classify(declined, 'it keeps clicking and then stops')).toBe('request');
+  });
+});
+
 describe('what the conversation has established', () => {
   it('knows the one machine a customer owns, and does not know which of two', () => {
     expect(deriveState([customer(PROBLEM), ...ownsOne()]).product).toEqual({ id: BP200 });
@@ -160,6 +173,7 @@ describe('what the conversation has established', () => {
     expect(deriveState(advised).pending?.kind).toBe('outcome');
     expect(deriveState(offered).pending?.kind).toBe('escalate');
     expect(deriveState([customer('hi'), assistant('What error code do you see?')]).pending?.kind).toBe('detail');
+    expect(deriveState([customer('hi'), assistant('Is there anything else I can help with?')]).pending?.kind).toBe('closing');
   });
 
   it('notices when the assistant repeats itself', () => {

@@ -33,6 +33,13 @@ async function chat(persona: 'alex', lines: string[]) {
 }
 
 describe('mock agent (offline demo mode)', () => {
+  it('a no to "anything else?" after a declined support case closes politely, without re-offering the case', async () => {
+    const turns = await chat('alex', ["my coffee machine isn't brewing, only drops come out", "didn't work", "that did not help either", 'no', 'no']);
+    const last = turns.at(-1)!;
+    expect(last.tools).toEqual([]);
+    expect(last.text).not.toMatch(/support case|sorry|covered/i);
+  });
+
   it('Alex has one machine: resolves it without asking and answers from the manual with the source', async () => {
     const { result, tools, trace } = await ask('alex', "my coffee machine isn't brewing, only drops come out");
     expect(tools).toEqual(['list_owned_products', 'search_troubleshooting']);

@@ -24,7 +24,7 @@ export type Intent =
   | 'safety';
 
 /** What an assistant question was asking for, so a short answer can be read in its light. */
-export type QuestionKind = 'outcome' | 'escalate' | 'product' | 'detail';
+export type QuestionKind = 'outcome' | 'escalate' | 'product' | 'detail' | 'closing';
 
 export interface Pending {
   question: string;
@@ -183,7 +183,8 @@ export function classifyMessage(raw: string, state: ConversationState): Intent {
       if (OFFER_YES.test(text) && !FAILED.test(text)) return 'affirm';
       if (NO.test(text)) return 'deny';
     }
-    const reportsOutcome = pending?.kind !== 'escalate' && (pending?.kind === 'outcome' || progress.advised || progress.steps.length > 0);
+    if (pending?.kind === 'closing' && (NO.test(text) || YES.test(text))) return 'acknowledge';
+    const reportsOutcome = pending?.kind !== 'escalate' && pending?.kind !== 'closing' && (pending?.kind === 'outcome' || progress.advised || progress.steps.length > 0);
     if (reportsOutcome) {
       if (FAILED.test(text) || (pending?.kind === 'outcome' && NO.test(text))) return 'deny';
       if (FIXED.test(text) || (pending?.kind === 'outcome' && YES.test(text))) return 'affirm';
@@ -203,6 +204,8 @@ export function classifyMessage(raw: string, state: ConversationState): Intent {
 // Reading the assistant -----------------------------------------------------------------------------------------
 
 export function questionKind(question: string): QuestionKind {
+  // "Is there anything else I can help with?" asks nothing about a step, so a no to it is not a failed attempt.
+  if (/\banything else\b/i.test(question)) return 'closing';
   if (/\b(which|is it the)\b/i.test(question) && /\b(one|model|machine|product|or the)\b/i.test(question)) return 'product';
   if (/\b(support|case|ticket)\b/i.test(question) && /\b(open|create|file|raise|want|like)\b/i.test(question)) return 'escalate';
   if (/\b(did|does|is|has|was)\b.*\b(help|work|fix|fixed|working|brewing|better|resolved)\b/i.test(question)) return 'outcome';

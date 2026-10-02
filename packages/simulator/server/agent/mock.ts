@@ -138,6 +138,7 @@ function decide(messages: Message[]): LlmResponse {
         return say('Please unplug it only if that is safe, stop using it, and contact support. I would not troubleshoot this one.');
       case 'acknowledge':
         if (state.lastReply === '') return say('Hello, how can I help with your Brewwell machine?');
+        if (state.answering?.kind === 'closing') return say(/^(yes|yeah|yep|yup|sure|please)\b/i.test(state.lastText.trim()) ? 'Sure, what would you like help with?' : 'Alright. Have a good day.');
         return say(state.answering?.kind === 'outcome' ? 'Sure. Let me know how it goes.' : "You're welcome. Tell me if anything else comes up.");
       case 'off_topic':
         return say('That is outside what I can help with, but I am glad to help with your Brewwell machine.');
