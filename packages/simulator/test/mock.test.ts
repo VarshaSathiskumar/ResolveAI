@@ -23,11 +23,11 @@ async function ask(persona: 'alex' | 'raj', text: string) {
 async function chat(persona: 'alex' | 'raj', lines: string[]) {
   const mcp = await stack.connect(persona);
   const conversation = createConversation(await mcp.tools());
-  const turns: { tools: string[]; queries: unknown[]; text: string }[] = [];
+  const turns: { tools: string[]; queries: unknown[]; text: string; streamed: string }[] = [];
   for (const text of lines) {
     const trace = collect();
     const result = await runTurn({ conversation, userText: text, llm: createMockLlm({ delayMs: 0 }), mcp, config: AGENT, emit: trace.emit });
-    turns.push({ tools: trace.of('tool_call').map((event) => event.name), queries: trace.of('tool_call').map((event) => (event.input as { query?: unknown }).query), text: result.text });
+    turns.push({ tools: trace.of('tool_call').map((event) => event.name), queries: trace.of('tool_call').map((event) => (event.input as { query?: unknown }).query), text: result.text, streamed: trace.of('text_delta').map((event) => event.text).join('') });
   }
   return turns;
 }
@@ -51,6 +51,25 @@ describe('mock agent with Raj (two machines, one out of warranty)', () => {
     const turns = await chat('raj', ['is my machine still under warranty?', 'the brew pro 300']);
     expect(turns[1]!.tools).toEqual(['check_warranty']);
     expect(turns[1]!.text).toMatch(/warranty ended on 2025-06-20/);
+  });
+
+  it('checks the warranty of both machines when he says both', async () => {
+    const turns = await chat('raj', ['is my machine still under warranty?', 'both']);
+    expect(turns[1]!.tools).toEqual(['check_warranty', 'check_warranty']);
+    expect(turns[1]!.text).toMatch(/Brew Pro 300: warranty ended on 2025-06-20/);
+    expect(turns[1]!.text).toMatch(/Espresso Studio ES-1: covered until 2028-08-15/);
+  });
+
+  it('reads "check for both the models" as the same answer, not as off topic', async () => {
+    const turns = await chat('raj', ['is my machine still under warranty?', 'check for both the models']);
+    expect(turns[1]!.tools).toEqual(['check_warranty', 'check_warranty']);
+    expect(turns[1]!.text).not.toMatch(/outside what I can help with/);
+  });
+
+  it('takes the machines one at a time for a problem', async () => {
+    const turns = await chat('raj', ['the milk from my coffee machine is not frothing', 'both']);
+    expect(turns[1]!.tools).toEqual(['search_troubleshooting']);
+    expect(turns[1]!.streamed).toMatch(/one at a time, starting with the/);
   });
 
   it('names the machine when asked which device it is for', async () => {

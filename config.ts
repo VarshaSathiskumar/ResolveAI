@@ -358,6 +358,8 @@ export const PATTERN_FAILED =
 export const PATTERN_CLARIFY = /\b(repeat|say (that|it) again|come again|pardon|what do you mean|what was that|didn'?t (catch|hear|get|understand)|can you (explain|clarify|rephrase)|what does that mean)\b/;
 /** "Which device is this for?": a question about the machine the conversation is about. */
 export const PATTERN_WHICH_PRODUCT = /\b(which|what) (device|machine|model|product)\b/;
+/** An answer to "which machine?" that names all of them. */
+export const PATTERN_BOTH = /\b(both|each one|all of them|all (the )?(machines|models|of these))\b/;
 export const PATTERN_NEXT = /\b(next step|what (next|now|else)|anything else (i can|to) try|another (way|step|option)|something else|what should i do (now|next))\b/;
 export const PATTERN_DONT_KNOW = /\b(don'?t know|do not know|no idea|not sure|can'?t tell|unsure|dunno)\b/;
 // What a home-product conversation is about. A line with none of this, and no one to answer, is not about the product.

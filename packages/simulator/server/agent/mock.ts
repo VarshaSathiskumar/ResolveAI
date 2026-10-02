@@ -1,6 +1,6 @@
 import { dataOf, deriveState, overlap, progressOf, readableOf, signature, wantsEscalation, type ConversationState } from './context.js';
 import type { Block, LlmClient, LlmRequest, LlmResponse, Message } from './llm.js';
-import { ESCALATE_AFTER, MOCK_DETAIL_QUESTIONS, MOCK_GENERIC_WORDS, MOCK_INPUT_TOKENS, MOCK_MODEL, MOCK_MODEL_MENTION, MOCK_NOT_FOUND, REPEAT_OVERLAP } from '../../../../config.js';
+import { ESCALATE_AFTER, MOCK_DETAIL_QUESTIONS, MOCK_GENERIC_WORDS, MOCK_INPUT_TOKENS, MOCK_MODEL, MOCK_MODEL_MENTION, MOCK_NOT_FOUND, PATTERN_BOTH, REPEAT_OVERLAP } from '../../../../config.js';
 
 /**
  * A rule-based stand-in for Claude, for trying the simulator without an API credential (SIM_LLM=mock). It makes real
@@ -71,6 +71,11 @@ function repliesIn(messages: Message[]): string[] {
   });
 }
 
+const withLead = (response: LlmResponse, lead: string): LlmResponse => ({ ...response, content: [{ type: 'text', text: lead }, ...response.content] });
+
+const warrantySummary = (warranty: { status: string; endDate?: string } | undefined): string =>
+  warranty?.status === 'in_warranty' ? `covered until ${warranty.endDate}.` : warranty?.status === 'expired' ? `warranty ended on ${warranty.endDate}.` : 'I could not confirm the warranty.';
+
 const warrantyLine = (warranty: NonNullable<ConversationState['warranty']>): string =>
   warranty.status === 'in_warranty'
     ? `Good news, you are covered until ${warranty.endDate}. Would you like me to open a support case?`
@@ -106,6 +111,12 @@ function decide(messages: Message[]): LlmResponse {
   const nothingFound = (): LlmResponse => {
     const next = MOCK_DETAIL_QUESTIONS.find((question) => !state.asked.some((asked) => overlap(asked, question) >= REPEAT_OVERLAP));
     return next && state.unknownAnswers === 0 ? say(`${MOCK_NOT_FOUND} ${next}`) : offerSupport(MOCK_NOT_FOUND);
+  };
+
+  /** The customer owns several machines and said "both": check each warranty in turn, then report them together. */
+  const checkNextWarranty = (): LlmResponse => {
+    const next = state.owned.find((owned) => !state.warranties[owned.id]);
+    return next ? call(id, 'check_warranty', { product_id: next.id }) : say(`Here is where each machine stands. ${state.owned.map((owned) => `${owned.model}: ${warrantySummary(state.warranties[owned.id])}`).join(' ')}`);
   };
 
   /** Writes to this conversation's case, or starts a new one: an open case left by an earlier conversation is not continued. */
@@ -180,6 +191,11 @@ function decide(messages: Message[]): LlmResponse {
     }
     // They are answering "which machine?": use the answer, never ask again.
     if (state.answering?.kind === 'product') {
+      if (state.owned.length > 1 && PATTERN_BOTH.test(state.lastText)) {
+        if (/warranty|covered/i.test(state.problem.join(' '))) return checkNextWarranty();
+        const first = state.owned[0]!;
+        return withLead(nextStep(first.id), `Let's take them one at a time, starting with the ${first.model}.`);
+      }
       const picked = pickOwned(state, state.lastText);
       return picked ? nextStep(picked) : call(id, 'identify_product', { description: state.lastText });
     }
@@ -229,6 +245,7 @@ function decide(messages: Message[]): LlmResponse {
       return say(`I have opened support case ${String(data.ticket_ref)}.${warranty} Support will follow up.`);
     }
     case 'check_warranty': {
+      if (state.owned.length > 1 && PATTERN_BOTH.test(state.lastText)) return checkNextWarranty();
       const until = data.end_date ? String(data.end_date) : undefined;
       if (data.status === 'in_warranty' || data.status === 'expired') return say(warrantyLine({ productId: String(data.product_id), status: String(data.status), endDate: until }));
       return say('I could not confirm your warranty. When did you buy it?');

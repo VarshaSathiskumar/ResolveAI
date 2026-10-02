@@ -1,5 +1,5 @@
 import type { Block, Message } from './llm.js';
-import { ACK_WORDS, ESCALATE_AFTER, LOOKUP_TOOLS, NEUTRAL_PRODUCT_KEY, OVERLAP_STOP_WORDS, PATTERN_ABOUT_THE_HELP, PATTERN_ASKS, PATTERN_CLARIFY, PATTERN_DOMAIN, PATTERN_DONT_KNOW, PATTERN_ERROR_CODE, PATTERN_ESCALATE, PATTERN_FAILED, PATTERN_FIXED, PATTERN_NEXT, PATTERN_NO, PATTERN_OFFER_YES, PATTERN_REFERS_BACK, PATTERN_SAFETY, PATTERN_WHICH_PRODUCT, PATTERN_WILL_ACT, PATTERN_YES, READ_ONLY_TOOLS, REPEAT_OVERLAP, SKIPPED_PREFIX } from '../../../../config.js';
+import { ACK_WORDS, ESCALATE_AFTER, LOOKUP_TOOLS, NEUTRAL_PRODUCT_KEY, OVERLAP_STOP_WORDS, PATTERN_ABOUT_THE_HELP, PATTERN_ASKS, PATTERN_BOTH, PATTERN_CLARIFY, PATTERN_DOMAIN, PATTERN_DONT_KNOW, PATTERN_ERROR_CODE, PATTERN_ESCALATE, PATTERN_FAILED, PATTERN_FIXED, PATTERN_NEXT, PATTERN_NO, PATTERN_OFFER_YES, PATTERN_REFERS_BACK, PATTERN_SAFETY, PATTERN_WHICH_PRODUCT, PATTERN_WILL_ACT, PATTERN_YES, READ_ONLY_TOOLS, REPEAT_OVERLAP, SKIPPED_PREFIX } from '../../../../config.js';
 
 /**
  * What the conversation has established so far, worked out from the message history alone. The history is the single
@@ -60,6 +60,8 @@ export interface ConversationState {
   caseId?: number;
   ticket?: string;
   warranty?: { productId: string; status: string; endDate?: string };
+  /** Every warranty checked so far, by product. */
+  warranties: Record<string, { status: string; endDate?: string }>;
   resolved: boolean;
   /** The customer's words about the current problem: the request, then what they added when asked. */
   problem: string[];
@@ -95,6 +97,7 @@ export function emptyState(): ConversationState {
   return {
     models: {},
     owned: [],
+    warranties: {},
     resolved: false,
     problem: [],
     progress: {},
@@ -160,6 +163,7 @@ export function classifyMessage(raw: string, state: ConversationState): Intent {
   if (talking && state.product && PATTERN_WHICH_PRODUCT.test(text)) return 'which_product';
   if (talking && PATTERN_CLARIFY.test(text)) return 'clarify';
   if (talking && PATTERN_NEXT.test(text)) return 'continue';
+  if (pending?.kind === 'product' && state.owned.length > 1 && PATTERN_BOTH.test(text)) return 'answer';
   if (!aboutProduct(text, state) && !(pending && words.length <= 3)) return 'off_topic';
   // Only a question that asks for a detail takes an answer; after a yes or no question, anything else is a new request.
   const takesAnswer = pending?.kind === 'product' || (pending?.kind === 'detail' && !PATTERN_ASKS.test(text));
@@ -275,10 +279,16 @@ function observeResult(state: ConversationState, block: Block, calls: Map<string
       if (data.confidence === 'high') progressOf(state).advised = true;
       break;
     }
-    case 'check_warranty':
-      setProduct(state, data.product_id ?? input.product_id, data.model);
-      state.warranty = { productId: String(data.product_id ?? input.product_id), status: String(data.status ?? 'unknown'), ...(typeof data.end_date === 'string' ? { endDate: data.end_date } : {}) };
+    case 'check_warranty': {
+      const checked = String(data.product_id ?? input.product_id);
+      // Checking every machine they own does not settle on any one of them.
+      if (state.owned.length > 1 && PATTERN_BOTH.test(state.lastText)) {
+        if (typeof data.model === 'string' && data.model) state.models[checked] = data.model;
+      } else setProduct(state, data.product_id ?? input.product_id, data.model);
+      state.warranty = { productId: checked, status: String(data.status ?? 'unknown'), ...(typeof data.end_date === 'string' ? { endDate: data.end_date } : {}) };
+      state.warranties[checked] = { status: state.warranty.status, ...(state.warranty.endDate ? { endDate: state.warranty.endDate } : {}) };
       break;
+    }
     case 'get_product':
       setProduct(state, input.product_id, data.model);
       break;
