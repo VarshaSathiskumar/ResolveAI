@@ -1,6 +1,6 @@
-import { askedBy, dataOf, deriveState, overlap, progressOf, readableOf, signature, wantsEscalation, type ConversationState } from './context.js';
+import { askedBy, dataOf, deriveState, nextMatch, overlap, progressOf, readableOf, signature, wantsEscalation, type ConversationState } from './context.js';
 import type { Block, LlmClient, LlmRequest, LlmResponse, Message } from './llm.js';
-import { ESCALATE_AFTER, MOCK_DETAIL_QUESTIONS, MOCK_GENERIC_WORDS, MOCK_INPUT_TOKENS, MOCK_MODEL, MOCK_MODEL_MENTION, MAX_FOLLOW_UPS, MOCK_NOT_FOUND, OPTIONS_LEAD, PATTERN_BOTH, PICK_OVERLAP, REPEAT_OVERLAP, SETTLED_COVERAGE, TITLE_STOP_WORDS } from '../../../../config.js';
+import { ESCALATE_AFTER, MOCK_DETAIL_QUESTIONS, MOCK_GENERIC_WORDS, MOCK_INPUT_TOKENS, MOCK_MODEL, MOCK_MODEL_MENTION, MAX_FOLLOW_UPS, MOCK_NOT_FOUND, OPTIONS_LEAD, PATTERN_BOTH, PICK_OVERLAP, REPEAT_OVERLAP, SETTLED_COVERAGE, TITLE_STOP_WORDS, VAGUE_WORDS } from '../../../../config.js';
 
 /**
  * A rule-based stand-in for Claude, for trying the simulator without an API credential (SIM_LLM=mock). It makes real
@@ -27,8 +27,7 @@ function usage(text: string) {
 const tokens = (text: string): string[] => (text.toLowerCase().replace(/-/g, '').match(/[a-z0-9]+/g) ?? []).filter((token) => !MOCK_GENERIC_WORDS.has(token));
 
 /** Which of the machines the customer owns they mean ("the first one", "the espresso one", "DripMate"), if it is clear. */
-function pickOwned(state: ConversationState, answer: string): string | undefined {
-  const owned = state.owned;
+function pickOwned(state: ConversationState, answer: string, owned: { id: string; model: string }[] = state.owned): string | undefined {
   if (owned.length === 0) return undefined;
   const lower = answer.toLowerCase();
   if (/\b(first|1st)\b/.test(lower)) return owned[0]!.id;
@@ -79,6 +78,32 @@ function repliesIn(messages: Message[]): string[] {
   });
 }
 
+/** "smartphone" is said as "phone": the kind of product as a customer would say it. */
+const kindOf = (category: string): string => category.replace(/^smart(?=[a-z])/, '');
+
+/** Which of the products that can have the problem the answer names: "the first", "the second", "the last one", or a word of its kind or model ("phone", "Air"). */
+function pickMatch(matches: { id: string; model: string; category: string }[], answer: string): string | undefined {
+  const lower = answer.toLowerCase();
+  if (/\b(first|1st)\b/.test(lower)) return matches[0]?.id;
+  if (/\b(second|2nd)\b/.test(lower)) return matches[1]?.id;
+  if (/\b(third|3rd|last)\b/.test(lower)) return matches.at(-1)?.id;
+  const spoken = (lower.match(/[a-z0-9]+/g) ?? []).filter((word) => word.length >= 3 && !['the', 'one', 'my', 'its', 'that', 'this'].includes(word));
+  const scored = matches.map((match) => {
+    const own = new Set((`${match.model} ${match.category} ${kindOf(match.category)}`.toLowerCase().match(/[a-z0-9]+/g) ?? []));
+    return { id: match.id, score: spoken.filter((word) => own.has(word)).length };
+  }).sort((a, b) => b.score - a.score);
+  return scored[0] && scored[0].score > 0 && scored[0].score > (scored[1]?.score ?? 0) ? scored[0].id : undefined;
+}
+
+/** The owned products whose kind the customer named ("my coffee machine", "the laptop"): the ones with the most of their kind's words in the line. */
+function namedByKind(owned: { id: string; model: string; category?: string }[], text: string): { id: string; model: string; category?: string }[] {
+  const spoken = (text.toLowerCase().match(/[a-z0-9]+/g) ?? []).filter((word) => word.length >= 3);
+  const score = (category: string) => (category.toLowerCase().match(/[a-z0-9]+/g) ?? []).filter((part) => spoken.some((word) => word === part || (word.length >= 4 && (part.includes(word) || word.includes(part))))).length;
+  const scored = owned.map((product) => ({ product, score: score(product.category ?? '') }));
+  const best = Math.max(0, ...scored.map((entry) => entry.score));
+  return best === 0 ? [] : scored.filter((entry) => entry.score === best).map((entry) => entry.product);
+}
+
 const withLead = (response: LlmResponse, lead: string): LlmResponse => ({ ...response, content: [{ type: 'text', text: lead }, ...response.content] });
 
 const warrantySummary = (warranty: { status: string; endDate?: string } | undefined): string =>
@@ -110,7 +135,10 @@ function decide(messages: Message[]): LlmResponse {
   };
 
   /** Steps have run out: the warranty, then an offer of a support case. */
-  const offerSupport = (lead: string): LlmResponse => {
+  const offerSupport = (rawLead: string): LlmResponse => {
+    // Working through several products: the customer can also move on to the next one.
+    const following = nextMatch(state);
+    const lead = following ? `${rawLead} Or say next product and I will look at your ${kindOf(following.category)} (${following.model}).` : rawLead;
     if (state.warranty && state.warranty.productId === productId) return say(`${lead} ${warrantyLine(state.warranty)}`);
     return productId ? call(id, 'check_warranty', { product_id: productId }, lead) : say(`${lead} Would you like me to open a support case?`);
   };
@@ -225,6 +253,11 @@ function decide(messages: Message[]): LlmResponse {
         return say(state.answering?.kind === 'outcome' ? 'Sure. Let me know how it goes.' : "You're welcome. Tell me if anything else comes up.");
       case 'off_topic':
         return say('That is outside what I can help with, but I am glad to help with your device.');
+      case 'next_product': {
+        const following = nextMatch(state);
+        if (!following) return say('That was the last one. Is there anything else I can help with?');
+        return withLead(nextStep(following.id), `Moving on to your ${kindOf(following.category)} (${following.model}).`);
+      }
       case 'which_product':
         return say(`This is for your ${state.models[productId ?? ''] ?? 'machine'}.`);
       case 'clarify':
@@ -252,6 +285,15 @@ function decide(messages: Message[]): LlmResponse {
     }
     // They are answering "which machine?": use the answer, never ask again.
     if (state.answering?.kind === 'product') {
+      // Several of their products can have the problem: all of them one by one, or the one they name.
+      if (state.matches.length > 1 && state.matches.some((match) => state.answering?.question.includes(kindOf(match.category)))) {
+        if (PATTERN_BOTH.test(state.lastText)) {
+          const first = state.matches[0]!;
+          return withLead(nextStep(first.id), `Let's take them one at a time, starting with your ${kindOf(first.category)} (${first.model}).`);
+        }
+        const chosen = pickMatch(state.matches, state.lastText);
+        if (chosen) return nextStep(chosen);
+      }
       if (state.owned.length > 1 && PATTERN_BOTH.test(state.lastText)) {
         if (/warranty|covered/i.test(state.problem.join(' '))) return checkNextWarranty();
         const first = state.owned[0]!;
@@ -277,10 +319,36 @@ function decide(messages: Message[]): LlmResponse {
 
   switch (name) {
     case 'list_owned_products': {
-      const owned = (data.owned as { model: string; product_id: string }[] | undefined) ?? [];
+      const owned = (data.owned as { model: string; product_id: string; category?: string }[] | undefined) ?? [];
       if (data.resolution === 'one') return nextStep(owned[0]!.product_id);
-      if (data.resolution === 'several') return say(`Which one is it, the ${owned.map((product) => product.model).join(' or the ')}?`);
+      if (data.resolution === 'several') {
+        // They named a kind of product ("my coffee machine"): that settles it if they own one of that kind.
+        const named = namedByKind(owned.map((product) => ({ id: product.product_id, model: product.model, category: product.category })), state.lastText);
+        if (named.length === 1) return nextStep(named[0]!.id);
+        // No kind named and several kinds owned: which of them can have this problem is in their guides.
+        const kinds = new Set(owned.map((product) => product.category));
+        if (named.length === 0 && kinds.size > 1 && !wantsEscalation(state.lastText) && !/warranty|covered/i.test(state.problem.join(' '))) {
+          return call(id, 'find_products_by_symptom', { symptom: state.problem.join(' ') || state.lastText });
+        }
+        const shown = named.length > 1 ? named : owned.map((product) => ({ model: product.model, category: product.category }));
+        // Different kinds of product are told apart by kind ("your phone"), several of one kind by model.
+        const byKind = new Set(shown.map((product) => product.category)).size === shown.length;
+        return say(
+          byKind
+            ? `Which one is it, ${shown.map((product) => `your ${kindOf(product.category ?? '')} (${product.model})`).join(', ')}?`
+            : `Which one is it, the ${shown.map((product) => product.model).join(' or the ')}?`,
+        );
+      }
       return say('Which model do you have?');
+    }
+    case 'find_products_by_symptom': {
+      const found = state.matches;
+      if (found.length === 0) return say(`${MOCK_NOT_FOUND} None of your products' guides mention it. Which product is it about?`);
+      if (found.length === 1) return nextStep(found[0]!.id);
+      const term = state.matchTerms[0];
+      const said = term && new RegExp(`\\b(is|are|it's|its|so|too|very|really)\\s+${term}\\b`, 'i').test(state.problem.join(' ') || state.lastText);
+      const names = found.map((match) => `your ${kindOf(match.category)} (${match.model})`);
+      return say(`${said ? `Which one is ${term}` : 'Which one has that problem'}, ${names.length > 1 ? `${names.slice(0, -1).join(', ')} or ${names.at(-1)}` : names[0]}?`);
     }
     case 'identify_product': {
       if (data.ambiguous === true) return say(String(data.suggested_question ?? 'Which model do you have?'));
@@ -293,6 +361,9 @@ function decide(messages: Message[]): LlmResponse {
       const needs = (data.needs as string[] | undefined) ?? [];
       if (needs.includes('product_id')) return say('I need to know which machine this is first. Which model do you have?');
       if (!state.guided) return data.confidence === 'high' ? advise() : nothingFound();
+      // Something specific the documentation never mentions ("camera"): say so, rather than asking questions the guide cannot use.
+      const unmentioned = ((data.unknown_terms as string[] | undefined) ?? []).find((term) => !VAGUE_WORDS.has(term.toLowerCase()));
+      if (data.confidence === 'low' && unmentioned) return offerSupport(`I couldn't find "${unmentioned}" in your documentation.`);
       // The guide asks narrowing questions: a page is only the answer once the customer's words fit it. Otherwise ask, and search again.
       if (data.confidence !== 'low' && settled()) return advise();
       const hasSteps = candidates().length > 0;

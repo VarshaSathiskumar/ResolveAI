@@ -1,0 +1,36 @@
+{
+  "id": "shelter-travel-umbrella",
+  "brand": "Shelter",
+  "model": "Travel Umbrella",
+  "aliases": [
+    "Shelter umbrella",
+    "Travel Umbrella",
+    "umbrella",
+    "my umbrella"
+  ],
+  "category": "umbrella",
+  "specs": {
+    "type": "umbrella",
+    "canopy_cm": 98,
+    "ribs": 8,
+    "material": "fibreglass"
+  },
+  "known_issues": [
+    "does not open",
+    "bent rib",
+    "stuck runner"
+  ],
+  "warranty": {
+    "term_months": 12,
+    "coverage": [
+      "frame",
+      "opening mechanism",
+      "handle"
+    ],
+    "exclusions": [
+      "wind damage beyond 60 km/h",
+      "torn canopy",
+      "cosmetic wear"
+    ]
+  }
+}

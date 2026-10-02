@@ -1,0 +1,36 @@
+{
+  "id": "softloom-bath-towel",
+  "brand": "Softloom",
+  "model": "Bath Towel 70x140",
+  "aliases": [
+    "Softloom towel",
+    "Bath Towel",
+    "towel",
+    "my towel"
+  ],
+  "category": "bath towel",
+  "specs": {
+    "type": "bath towel",
+    "size_cm": "70x140",
+    "material": "combed cotton",
+    "weight_gsm": 550
+  },
+  "known_issues": [
+    "not absorbent",
+    "lint",
+    "fading"
+  ],
+  "warranty": {
+    "term_months": 6,
+    "coverage": [
+      "seams coming apart",
+      "loops pulling out",
+      "manufacturing defects"
+    ],
+    "exclusions": [
+      "bleach damage",
+      "scorch marks",
+      "cosmetic wear"
+    ]
+  }
+}

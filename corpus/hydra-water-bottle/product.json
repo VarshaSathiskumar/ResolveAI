@@ -1,0 +1,36 @@
+{
+  "id": "hydra-water-bottle",
+  "brand": "Hydra",
+  "model": "Steel Bottle 750",
+  "aliases": [
+    "Hydra bottle",
+    "Steel Bottle",
+    "water bottle",
+    "my bottle"
+  ],
+  "category": "water bottle",
+  "specs": {
+    "type": "water bottle",
+    "capacity_ml": 750,
+    "material": "stainless steel",
+    "insulated": true
+  },
+  "known_issues": [
+    "lid leaks",
+    "odour",
+    "dents"
+  ],
+  "warranty": {
+    "term_months": 24,
+    "coverage": [
+      "lid seal",
+      "vacuum insulation",
+      "cap thread"
+    ],
+    "exclusions": [
+      "dents from drops",
+      "paint chips",
+      "dishwasher damage to the finish"
+    ]
+  }
+}

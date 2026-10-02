@@ -23,7 +23,7 @@ describe('MCP connection', () => {
   });
 
   it('calls a tool as the persona and returns text, structured output and a time', async () => {
-    const result = await alex.callTool('list_owned_products', {});
+    const result = await alex.callTool('list_owned_products', { category: 'coffee machine' });
     expect(result.ok).toBe(true);
     expect(result.text).toMatch(/One registered product/);
     expect((result.structured as { resolution: string }).resolution).toBe('one');

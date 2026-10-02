@@ -232,6 +232,8 @@ export const AUTH_USER_PREFIX = 'user:';
 export const TICKET_CARD_URI = 'ui://resolveai/ticket-card.html';
 
 // Case tools (packages/server/src/tools/caseAccess.ts)
+/** Share of a symptom's words that one guide page must contain for the product to match it. */
+export const MATCH_SHARE = 0.6;
 export const NO_ACCOUNT =
   'Cases belong to a signed-in user and this connection has no account linked, so case tools are unavailable.';
 
@@ -345,11 +347,13 @@ export const OPTIONS_LEAD = 'Which of these sounds like yours:';
 export const SETTLED_COVERAGE = 0.5;
 /** An answer names one of the offered pages when this share of its words is found in that page and not equally in another. */
 export const PICK_OVERLAP = 0.6;
+/** Words a customer uses to say something is wrong without naming anything: not finding them in the docs says nothing about coverage. */
+export const VAGUE_WORDS = new Set(['weird', 'odd', 'strange', 'funny', 'off', 'wrong', 'bad', 'acting', 'glitchy', 'buggy', 'issue', 'issues', 'problem', 'problems', 'particular', 'same', 'whatever', 'something', 'anything', 'nothing']);
 export const TITLE_STOP_WORDS = new Set(['does', 'do', 'not', 'or', 'and', 'because', 'with', 'while', 'in', 'the', 'a', 'an', 'of', 'is', 'to', 'for', 'it']);
 /** Calls that only read: the same call twice returns the same answer, so the second adds nothing. */
-export const READ_ONLY_TOOLS = new Set(['search_troubleshooting', 'identify_product', 'list_owned_products', 'get_product', 'check_warranty', 'get_document_section']);
+export const READ_ONLY_TOOLS = new Set(['search_troubleshooting', 'identify_product', 'list_owned_products', 'get_product', 'check_warranty', 'get_document_section', 'find_products_by_symptom']);
 /** Lookups a message that carries no problem must not start. */
-export const LOOKUP_TOOLS = new Set(['search_troubleshooting', 'identify_product', 'list_owned_products']);
+export const LOOKUP_TOOLS = new Set(['search_troubleshooting', 'identify_product', 'list_owned_products', 'find_products_by_symptom']);
 export const SKIPPED_PREFIX = '[skipped] ';
 export const NEUTRAL_PRODUCT_KEY = '';
 export const PATTERN_SAFETY = /\b(smoke|smoking|fire|burning|sparks?|sparking|electric shock|shocked|electrocut\w*|melting|melted)\b/;
@@ -369,7 +373,9 @@ export const PATTERN_CLARIFY = /\b(repeat|say (that|it) again|come again|pardon|
 /** "Which device is this for?": a question about the machine the conversation is about. */
 export const PATTERN_WHICH_PRODUCT = /\b(which|what) (device|machine|model|product)\b/;
 /** An answer to "which machine?" that names all of them. */
-export const PATTERN_BOTH = /\b(both|each one|all of them|all (the )?(machines|models|of these))\b/;
+export const PATTERN_BOTH = /\b(both|each one|every one|all (3|three|four|five|of them|of these)|all (the )?(machines|models|products|ones|of these))\b/;
+/** "Move to the next product": go on to the next of the products that can have the problem. */
+export const PATTERN_NEXT_PRODUCT = /\b(next|another|other|following) (product|one|item|device|thing)\b|\bmove (on )?to (the )?next\b|\bnext (please|one)\b/;
 export const PATTERN_NEXT = /\b(next step|what (next|now|else)|anything else (i can|to) try|another (way|step|option)|something else|what should i do (now|next))\b/;
 export const PATTERN_DONT_KNOW = /\b(don'?t know|do not know|no idea|not sure|can'?t tell|unsure|dunno)\b/;
 // What a home-product conversation is about. A line with none of this, and no one to answer, is not about the product.

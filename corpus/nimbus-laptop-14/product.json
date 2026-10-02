@@ -1,0 +1,40 @@
+{
+  "id": "nimbus-laptop-14",
+  "brand": "Nimbus",
+  "model": "Air 14",
+  "aliases": [
+    "Nimbus Air",
+    "Air 14",
+    "Nimbus laptop",
+    "my laptop"
+  ],
+  "category": "laptop",
+  "specs": {
+    "type": "laptop",
+    "display": "14 inch",
+    "memory_gb": 16,
+    "storage_gb": 512,
+    "battery_wh": 60
+  },
+  "known_issues": [
+    "slow performance from full storage",
+    "battery drain from background apps",
+    "fan noise under load"
+  ],
+  "warranty": {
+    "term_months": 12,
+    "coverage": [
+      "battery below 80 percent capacity",
+      "keyboard",
+      "display",
+      "charging port",
+      "fan"
+    ],
+    "exclusions": [
+      "liquid damage",
+      "cracked screens from drops",
+      "cosmetic damage",
+      "unauthorised repairs"
+    ]
+  }
+}

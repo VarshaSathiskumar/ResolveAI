@@ -1,0 +1,36 @@
+{
+  "id": "stackwell-storage-box",
+  "brand": "Stackwell",
+  "model": "Clear Box 30L",
+  "aliases": [
+    "Stackwell box",
+    "Clear Box",
+    "storage box",
+    "my storage box"
+  ],
+  "category": "storage box",
+  "specs": {
+    "type": "storage box",
+    "capacity_litres": 30,
+    "material": "polypropylene",
+    "stackable": true
+  },
+  "known_issues": [
+    "lid does not latch",
+    "cracked corner",
+    "cloudy plastic"
+  ],
+  "warranty": {
+    "term_months": 60,
+    "coverage": [
+      "cracks from normal use",
+      "lid clips",
+      "handles"
+    ],
+    "exclusions": [
+      "overloading beyond 20 kg",
+      "use as a seat",
+      "cosmetic scratches"
+    ]
+  }
+}

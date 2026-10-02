@@ -1,0 +1,20 @@
+# Stackwell Clear Box 30L Limited Warranty
+
+<!-- page: 1 -->
+## Warranty term
+
+The Clear Box 30L is covered by a 60 month limited warranty from the date of purchase. Keep your receipt as proof of purchase.
+
+## What is covered
+
+Defects in materials and workmanship of the cracks from normal use, lid clips, handles under normal household use.
+
+## What is not covered
+
+- Overloading beyond 20 kg.
+- Use as a seat.
+- Cosmetic scratches.
+
+## Making a claim
+
+Contact support with your model, purchase date and a description of the problem, including the steps already tried. Support will open a case and arrange a repair or replacement for covered faults.

@@ -1,0 +1,33 @@
+{
+  "id": "cutlerix-cutlery-set",
+  "brand": "Cutlerix",
+  "model": "24-piece Cutlery Set",
+  "aliases": [
+    "Cutlerix",
+    "Cutlery Set",
+    "cutlery set",
+    "my cutlery"
+  ],
+  "category": "cutlery set",
+  "specs": {
+    "type": "cutlery set",
+    "pieces": 24,
+    "material": "18/10 stainless steel"
+  },
+  "known_issues": [
+    "rust spots",
+    "bent tines",
+    "water marks"
+  ],
+  "warranty": {
+    "term_months": 60,
+    "coverage": [
+      "manufacturing defects in the steel"
+    ],
+    "exclusions": [
+      "rust from salt or bleach left on the steel",
+      "bent tines from misuse",
+      "dishwasher detergent damage"
+    ]
+  }
+}

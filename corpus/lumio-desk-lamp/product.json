@@ -1,0 +1,36 @@
+{
+  "id": "lumio-desk-lamp",
+  "brand": "Lumio",
+  "model": "Desk Lamp D2",
+  "aliases": [
+    "Lumio lamp",
+    "Desk Lamp D2",
+    "desk lamp",
+    "my lamp"
+  ],
+  "category": "desk lamp",
+  "specs": {
+    "type": "desk lamp",
+    "power_w": 9,
+    "colour_temp_k": "2700-6500",
+    "dimmable": true
+  },
+  "known_issues": [
+    "flicker",
+    "touch dial unresponsive",
+    "does not turn on"
+  ],
+  "warranty": {
+    "term_months": 24,
+    "coverage": [
+      "LED module",
+      "touch dial",
+      "power adapter"
+    ],
+    "exclusions": [
+      "bulbs damaged by moisture",
+      "cosmetic damage",
+      "third-party adapters"
+    ]
+  }
+}

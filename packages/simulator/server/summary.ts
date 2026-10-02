@@ -47,6 +47,10 @@ export function summarizeToolResult(name: string, ok: boolean, structured: Obj |
       const owned = list(s.owned).map((entry) => String(entry.model));
       return { headline: `${String(s.resolution)}: ${owned.join(', ') || 'no registered products'}`, badges: strings(s.needs).map((need) => `needs: ${need}`), citations: [] };
     }
+    case 'find_products_by_symptom': {
+      const found = list(s.matches).map((entry) => String(entry.category));
+      return { headline: `${found.length} of ${String(s.checked)} products: ${found.join(', ') || 'none'}`, badges: strings(s.needs).map((need) => `needs: ${need}`), citations: [] };
+    }
     case 'identify_product': {
       const candidates = list(s.candidates).map((entry) => `${String(entry.model)} (${String(entry.confidence)})`);
       return {

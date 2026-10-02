@@ -1,5 +1,5 @@
 import type { Block, Message } from './llm.js';
-import { ACK_WORDS, ESCALATE_AFTER, LOOKUP_TOOLS, MAX_FOLLOW_UPS, OPTIONS_LEAD, NEUTRAL_PRODUCT_KEY, OVERLAP_STOP_WORDS, PATTERN_ABOUT_THE_HELP, PATTERN_ASKS, PATTERN_BOTH, PATTERN_CLARIFY, PATTERN_DOMAIN, PATTERN_DONT_KNOW, PATTERN_ERROR_CODE, PATTERN_ESCALATE, PATTERN_FAILED, PATTERN_FIXED, PATTERN_NEXT, PATTERN_NO, PATTERN_OFFER_YES, PATTERN_REFERS_BACK, PATTERN_SAFETY, PATTERN_WHICH_PRODUCT, PATTERN_WILL_ACT, PATTERN_YES, READ_ONLY_TOOLS, REPEAT_OVERLAP, SKIPPED_PREFIX } from '../../../../config.js';
+import { ACK_WORDS, ESCALATE_AFTER, LOOKUP_TOOLS, MAX_FOLLOW_UPS, OPTIONS_LEAD, NEUTRAL_PRODUCT_KEY, OVERLAP_STOP_WORDS, PATTERN_ABOUT_THE_HELP, PATTERN_ASKS, PATTERN_BOTH, PATTERN_CLARIFY, PATTERN_DOMAIN, PATTERN_DONT_KNOW, PATTERN_ERROR_CODE, PATTERN_ESCALATE, PATTERN_FAILED, PATTERN_FIXED, PATTERN_NEXT, PATTERN_NEXT_PRODUCT, PATTERN_NO, PATTERN_OFFER_YES, PATTERN_REFERS_BACK, PATTERN_SAFETY, PATTERN_WHICH_PRODUCT, PATTERN_WILL_ACT, PATTERN_YES, READ_ONLY_TOOLS, REPEAT_OVERLAP, SKIPPED_PREFIX } from '../../../../config.js';
 
 /**
  * What the conversation has established so far, worked out from the message history alone. The history is the single
@@ -23,6 +23,8 @@ export type Intent =
   | 'which_product'
   /** A request for what comes next ("what is the next step", "anything else I can try"). */
   | 'continue'
+  /** A request to move on to the next of the products that can have the problem ("move to the next product"). */
+  | 'next_product'
   | 'off_topic'
   | 'safety';
 
@@ -56,7 +58,11 @@ export interface ConversationState {
   /** Model names by product id, from every tool result that named one. */
   models: Record<string, string>;
   /** The customer's registered machines, when there are several and none is chosen yet. */
-  owned: { id: string; model: string }[];
+  owned: { id: string; model: string; category?: string }[];
+  /** The products whose guides mention the problem, in the order to work through them. Empty until find_products_by_symptom has run. */
+  matches: { id: string; model: string; category: string }[];
+  /** The words of the problem the matches were found for ("slow"). */
+  matchTerms: string[];
   caseId?: number;
   ticket?: string;
   warranty?: { productId: string; status: string; endDate?: string };
@@ -101,6 +107,8 @@ export function emptyState(): ConversationState {
   return {
     models: {},
     owned: [],
+    matches: [],
+    matchTerms: [],
     warranties: {},
     resolved: false,
     problem: [],
@@ -166,10 +174,11 @@ export function classifyMessage(raw: string, state: ConversationState): Intent {
     // A bare yes or no with nothing asked is no request.
     if ((PATTERN_YES.test(text) || PATTERN_NO.test(text)) && !pending) return 'acknowledge';
   }
+  if (talking && state.matches.length > 1 && PATTERN_NEXT_PRODUCT.test(text)) return 'next_product';
   if (talking && state.product && PATTERN_WHICH_PRODUCT.test(text)) return 'which_product';
   if (talking && PATTERN_CLARIFY.test(text)) return 'clarify';
   if (talking && PATTERN_NEXT.test(text)) return 'continue';
-  if (pending?.kind === 'product' && state.owned.length > 1 && PATTERN_BOTH.test(text)) return 'answer';
+  if (pending?.kind === 'product' && (state.owned.length > 1 || state.matches.length > 1) && PATTERN_BOTH.test(text)) return 'answer';
   if (!aboutProduct(text, state) && !(pending && words.length <= 3)) return 'off_topic';
   // Only a question that asks for a detail takes an answer; after a yes or no question, anything else is a new request.
   const takesAnswer = pending?.kind === 'product' || (pending?.kind === 'detail' && !PATTERN_ASKS.test(text));
@@ -238,7 +247,7 @@ function setProduct(state: ConversationState, id: unknown, model?: unknown): voi
   if (typeof id !== 'string' || id === '') return;
   if (typeof model === 'string' && model) state.models[id] = model;
   // A different machine means what the customer just said is the problem now, not what they said about the last one.
-  if (state.product && state.product.id !== id && state.lastText) state.problem = [state.lastText];
+  if (state.product && state.product.id !== id && state.lastText && state.lastIntent !== 'next_product') state.problem = [state.lastText];
   state.product = { id };
 }
 
@@ -268,10 +277,16 @@ function observeResult(state: ConversationState, block: Block, calls: Map<string
 
   switch (name) {
     case 'list_owned_products': {
-      const owned = asList(data.owned).map((entry) => ({ id: String(entry.product_id), model: String(entry.model) }));
+      const owned = asList(data.owned).map((entry) => ({ id: String(entry.product_id), model: String(entry.model), category: String(entry.category ?? '') }));
       for (const entry of owned) state.models[entry.id] = entry.model;
       if (data.resolution === 'one' && owned[0]) setProduct(state, owned[0].id);
       if (data.resolution === 'several') state.owned = owned;
+      break;
+    }
+    case 'find_products_by_symptom': {
+      state.matches = asList(data.matches).map((entry) => ({ id: String(entry.product_id), model: String(entry.model), category: String(entry.category ?? '') }));
+      state.matchTerms = Array.isArray(data.symptom_terms) ? data.symptom_terms.map(String) : [];
+      for (const entry of state.matches) state.models[entry.id] = entry.model;
       break;
     }
     case 'identify_product': {
@@ -446,6 +461,8 @@ function describeMessage(state: ConversationState, intent: Intent): string | und
       return 'a request for what comes next. Give the next step from the results you already have, one that you have not given yet; search again only if none is left, and offer a support case if there are no more steps.';
     case 'clarify':
       return 'a question about what you just said. Answer from the conversation; search again only if the answer is not there.';
+    case 'next_product':
+      return 'a request to move on to the next product that can have the problem. Search that product with the same problem, without asking which product again.';
     case 'which_product':
       return 'a question about which machine this is for. Answer with the machine model from this note, without searching.';
     case 'answer':
@@ -467,6 +484,12 @@ export function renderNote(state: ConversationState, intent: Intent): string {
   const lines: string[] = [];
   if (state.product) lines.push(`Machine: ${modelOf(state, state.product.id)} (product_id ${state.product.id}). Use it in tools. Do not ask which machine again unless the customer names another.`);
   else if (state.owned.length > 1) lines.push(`The customer has ${state.owned.map((entry) => entry.model).join(' and ')} registered. Ask which one only if they have not said.`);
+  if (state.matches.length > 1) {
+    const current = state.matches.findIndex((entry) => entry.id === state.product?.id);
+    lines.push(
+      `Products that can have this problem, in order: ${state.matches.map((entry, index) => `${index + 1}. ${entry.category} (${entry.model})${index === current ? ' [current]' : ''}`).join(', ')}. If the customer says all of them, take them one at a time in this order; move to the next only when they ask, and remember where you are.`,
+    );
+  }
   if (state.caseId !== undefined) lines.push(`Case: ${state.caseId}.`);
   if (state.ticket) lines.push(`Support case ${state.ticket} is already filed. Do not create another.`);
   if (state.problem.length > 0 && intent !== 'request') lines.push(`Problem so far: ${state.problem.join(' ')}`);
@@ -490,4 +513,10 @@ export function analyzeMessage(messages: Message[], text: string): { intent: Int
   const state = deriveState(messages);
   const intent = observeCustomer(state, text);
   return { intent, note: renderNote(state, intent), state };
+}
+
+/** The product after the current one, among those that can have the problem (the first, if none of them is current yet). */
+export function nextMatch(state: ConversationState): ConversationState['matches'][number] | undefined {
+  const index = state.matches.findIndex((entry) => entry.id === state.product?.id);
+  return state.matches[index + 1];
 }

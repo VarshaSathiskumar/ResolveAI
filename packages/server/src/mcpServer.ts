@@ -5,6 +5,7 @@ import type { ServerDeps } from './deps.js';
 import { registerDocumentResource } from './resources/documents.js';
 import { registerCheckWarrantyTool } from './tools/checkWarranty.js';
 import { registerCreateSupportCaseTool } from './tools/createSupportCase.js';
+import { registerFindProductsBySymptomTool } from './tools/findProductsBySymptom.js';
 import { registerGetCaseStateTool } from './tools/getCaseState.js';
 import { registerGetDocumentSectionTool } from './tools/getDocumentSection.js';
 import { registerGetProductTool } from './tools/getProduct.js';
@@ -21,6 +22,7 @@ import { TICKET_CARD_URI } from '../../../config.js';
 export function createMcpServer(deps: ServerDeps, principal: Principal = {}): McpServer {
   const server = new McpServer({ name: 'resolveai', version: '0.0.0' });
   registerListOwnedProductsTool(server, deps, principal);
+  registerFindProductsBySymptomTool(server, deps, principal);
   registerIdentifyProductTool(server, deps, principal);
   registerGetProductTool(server, deps);
   registerSearchTroubleshootingTool(server, deps);

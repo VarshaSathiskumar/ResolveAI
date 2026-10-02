@@ -1,0 +1,37 @@
+{
+  "id": "trailpack-daypack",
+  "brand": "TrailPack",
+  "model": "Daypack 22L",
+  "aliases": [
+    "TrailPack",
+    "Daypack",
+    "backpack",
+    "my backpack"
+  ],
+  "category": "backpack",
+  "specs": {
+    "type": "backpack",
+    "capacity_litres": 22,
+    "material": "recycled nylon",
+    "laptop_sleeve_inch": 15
+  },
+  "known_issues": [
+    "stuck zip",
+    "strap tear",
+    "water getting in"
+  ],
+  "warranty": {
+    "term_months": 36,
+    "coverage": [
+      "zips",
+      "straps",
+      "seams",
+      "buckles"
+    ],
+    "exclusions": [
+      "overloading beyond 10 kg",
+      "cuts and burns",
+      "cosmetic wear"
+    ]
+  }
+}

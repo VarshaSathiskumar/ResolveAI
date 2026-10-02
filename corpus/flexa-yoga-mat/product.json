@@ -1,0 +1,35 @@
+{
+  "id": "flexa-yoga-mat",
+  "brand": "Flexa",
+  "model": "Yoga Mat 6mm",
+  "aliases": [
+    "Flexa mat",
+    "Yoga Mat",
+    "yoga mat",
+    "my mat"
+  ],
+  "category": "yoga mat",
+  "specs": {
+    "type": "yoga mat",
+    "thickness_mm": 6,
+    "material": "natural rubber",
+    "length_cm": 183
+  },
+  "known_issues": [
+    "surface slips",
+    "peeling top layer",
+    "rubber smell"
+  ],
+  "warranty": {
+    "term_months": 12,
+    "coverage": [
+      "peeling top layer",
+      "tearing from normal use"
+    ],
+    "exclusions": [
+      "cuts from nails or sharp objects",
+      "sun damage",
+      "cosmetic wear"
+    ]
+  }
+}

@@ -50,7 +50,7 @@ describe('a turn with no tools', () => {
 
 describe('a turn with tools', () => {
   it('runs the tool as the persona and sends the result back with the exact flags in a [data] block', async () => {
-    const llm = scriptedLlm([callTools(toolUse('t1', 'list_owned_products', {})), sayThenStop('I see your Brew Pro 200.')]);
+    const llm = scriptedLlm([callTools(toolUse('t1', 'list_owned_products', { category: 'coffee machine' })), sayThenStop('I see your Brew Pro 200.')]);
     const { trace, conversation, result } = run(llm, 'my coffee machine is not brewing');
     expect(await result).toMatchObject({ reason: 'end_turn', text: 'I see your Brew Pro 200.', rounds: 2 });
 
@@ -110,7 +110,7 @@ describe('a turn with tools', () => {
 
   it('turns a tool that throws (a dropped connection, a timeout) into an error result', async () => {
     const mcp: McpConnection = { ...alex, callTool: async () => { throw new Error('connection reset'); } };
-    const llm = scriptedLlm([callTools(toolUse('t1', 'list_owned_products', {})), sayThenStop('I could not check that.')]);
+    const llm = scriptedLlm([callTools(toolUse('t1', 'list_owned_products', { category: 'coffee machine' })), sayThenStop('I could not check that.')]);
     const { trace, result } = run(llm, 'my coffee machine is not brewing', { mcp });
     expect(await result).toMatchObject({ reason: 'end_turn' });
     expect(trace.of('tool_result')[0]).toMatchObject({ ok: false });
@@ -140,7 +140,7 @@ describe('a turn with tools', () => {
 describe('MCP App results', () => {
   it('announces the ui:// resource when a tool linked to one succeeds', async () => {
     const withUi: McpTool[] = tools.map((tool) => (tool.name === 'list_owned_products' ? { ...tool, uiResourceUri: 'ui://ticket/card.html' } : tool));
-    const llm = scriptedLlm([callTools(toolUse('t1', 'list_owned_products', {})), sayThenStop('ok')]);
+    const llm = scriptedLlm([callTools(toolUse('t1', 'list_owned_products', { category: 'coffee machine' })), sayThenStop('ok')]);
     const { trace, result } = run(llm, 'my coffee machine is not brewing', { conversation: createConversation(withUi) });
     await result;
     expect(trace.of('ui_resource')).toEqual([
@@ -150,7 +150,7 @@ describe('MCP App results', () => {
         toolUseId: 't1',
         uri: 'ui://ticket/card.html',
         toolName: 'list_owned_products',
-        input: {},
+        input: { category: 'coffee machine' },
         result: { text: expect.stringMatching(/One registered product/), structuredContent: expect.objectContaining({ resolution: 'one' }) },
       },
     ]);
@@ -267,7 +267,7 @@ describe('append-only history and a stable prefix', () => {
   it('never changes earlier messages once later turns are added, thinking blocks included', async () => {
     const thinking = { type: 'thinking', thinking: '', signature: 'sig-abc' };
     const llm = scriptedLlm([
-      reply([thinking, toolUse('t1', 'list_owned_products', {})], 'tool_use'),
+      reply([thinking, toolUse('t1', 'list_owned_products', { category: 'coffee machine' })], 'tool_use'),
       reply([thinking, textBlock('You have one machine.')]),
       sayThenStop('Sure.'),
       callTools(toolUse('t2', 'get_product', { product_id: 'brewwell-brew-pro-200' })),
@@ -280,7 +280,7 @@ describe('append-only history and a stable prefix', () => {
     await run(llm, 'third', { conversation }).result;
     expect(JSON.stringify(conversation.messages).startsWith(afterFirst.slice(0, -1))).toBe(true);
     // The assistant blocks went back exactly as received, thinking block and all.
-    expect(conversation.messages[1]).toEqual({ role: 'assistant', content: [thinking, toolUse('t1', 'list_owned_products', {})] });
+    expect(conversation.messages[1]).toEqual({ role: 'assistant', content: [thinking, toolUse('t1', 'list_owned_products', { category: 'coffee machine' })] });
     // And every request the model saw began with what it had seen before.
     for (let index = 1; index < llm.history.length; index++) {
       const previous = JSON.stringify(llm.history[index - 1]).slice(0, -1);
@@ -289,7 +289,7 @@ describe('append-only history and a stable prefix', () => {
   });
 
   it('sends the same system prompt and tool list on every call of every turn', async () => {
-    const llm = scriptedLlm([callTools(toolUse('t1', 'list_owned_products', {})), sayThenStop('a'), sayThenStop('b')]);
+    const llm = scriptedLlm([callTools(toolUse('t1', 'list_owned_products', { category: 'coffee machine' })), sayThenStop('a'), sayThenStop('b')]);
     const conversation = createConversation(tools);
     await run(llm, 'one', { conversation }).result;
     await run(llm, 'two', { conversation }).result;

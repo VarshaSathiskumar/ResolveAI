@@ -52,11 +52,18 @@ interface Owned {
 }
 
 describe.each(['legacy', 'modern'] as const)('list_owned_products over the %s transport', (era) => {
-  it('resolves to the one machine Alex owns, with nothing to ask', async () => {
-    const out = (await call(era, TOKENS.alex, 'list_owned_products')).structuredContent as Owned;
+  it('resolves to the one coffee machine Alex owns, with nothing to ask', async () => {
+    const out = (await call(era, TOKENS.alex, 'list_owned_products', { category: 'coffee machine' })).structuredContent as Owned;
     expect(out.resolution).toBe('one');
     expect(out.needs).toEqual([]);
     expect(out.owned.map((product) => product.product_id)).toEqual(['brewwell-brew-pro-200']);
+  });
+
+  it('lists all eleven products Alex owns when no kind is given', async () => {
+    const out = (await call(era, TOKENS.alex, 'list_owned_products')).structuredContent as Owned;
+    expect(out.resolution).toBe('several');
+    expect(out.needs).toEqual(['which_product']);
+    expect(out.owned).toHaveLength(11);
   });
 
   it('has no products for the token that has no user behind it', async () => {
