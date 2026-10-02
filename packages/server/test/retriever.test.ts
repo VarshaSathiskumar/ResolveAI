@@ -75,7 +75,7 @@ describe('sufficiency signals', () => {
   it('is low and lists unknown terms for something the product does not have', async () => {
     const result = await deps.retriever.search({ query: 'wifi will not connect to the phone app', productId: PRO200 });
     expect(result.confidence).toBe('low');
-    expect(result.unknownTerms).toEqual(expect.arrayContaining(['wifi', 'phone']));
+    expect(result.unknownTerms).toEqual(expect.arrayContaining(['wifi']));
     expect(result.suggestedRefinement).toMatch(/never mentions/);
   });
 

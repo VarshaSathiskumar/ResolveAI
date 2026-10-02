@@ -4,7 +4,7 @@ import { createApp, type App } from '../src/app.js';
 import { loadConfig } from '../../../config.js';
 import { makeDeps, type TestDeps } from './helpers.js';
 
-export const TOKENS = { alex: 'token-alex', raj: 'token-raj', service: 'token-service' };
+export const TOKENS = { alex: 'token-alex', raj: 'token-raj', nate: 'token-nate', service: 'token-service' };
 
 export type Era = 'legacy' | 'modern';
 
@@ -22,7 +22,7 @@ export async function startTestApp(options: { ticketCardHtml?: string } = {}): P
   const deps = await makeDeps(undefined, undefined, undefined, options);
   const app: App = createApp(
     loadConfig({
-      MCP_USER_TOKENS: `${TOKENS.alex}:demo-alex,${TOKENS.raj}:demo-raj`,
+      MCP_USER_TOKENS: `${TOKENS.alex}:demo-alex,${TOKENS.raj}:demo-raj,${TOKENS.nate}:demo-nate`,
       MCP_BEARER_TOKEN: TOKENS.service,
       PORT: '0',
     }),

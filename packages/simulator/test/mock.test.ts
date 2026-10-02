@@ -12,7 +12,7 @@ beforeAll(async () => {
 afterAll(() => stack.close());
 
 /** One customer line against the mock agent and the real tools. */
-async function ask(persona: 'alex' | 'raj', text: string) {
+async function ask(persona: 'alex' | 'raj' | 'nate', text: string) {
   const mcp = await stack.connect(persona);
   const trace = collect();
   const result = await runTurn({ conversation: createConversation(await mcp.tools()), userText: text, llm: createMockLlm({ delayMs: 0 }), mcp, config: AGENT, emit: trace.emit });
@@ -20,7 +20,7 @@ async function ask(persona: 'alex' | 'raj', text: string) {
 }
 
 /** Several customer lines in one conversation, with the tools and reply of each. */
-async function chat(persona: 'alex' | 'raj', lines: string[]) {
+async function chat(persona: 'alex' | 'raj' | 'nate', lines: string[]) {
   const mcp = await stack.connect(persona);
   const conversation = createConversation(await mcp.tools());
   const turns: { tools: string[]; queries: unknown[]; text: string; streamed: string }[] = [];
@@ -31,6 +31,13 @@ async function chat(persona: 'alex' | 'raj', lines: string[]) {
   }
   return turns;
 }
+
+describe('mock agent with Nate (a Pixel 9 and vague complaints)', () => {
+  it('knows his phone is covered', async () => {
+    const turns = await chat('nate', ['is my phone still under warranty?']);
+    expect(turns[0]!.text).toMatch(/covered until 2027-09-05/);
+  });
+});
 
 describe('mock agent with Raj (two machines, one out of warranty)', () => {
   it('asks which machine he means instead of guessing', async () => {

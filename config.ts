@@ -39,12 +39,13 @@ export const DEFAULT_WEB_ORIGINS = [`http://localhost:${PORTS.web}`, `http://${L
 // Demo accounts ---------------------------------------------------------------------------------------------------
 
 /** Demo-only tokens: they exist only on this machine and unlock only the fictional demo accounts in corpus/demo.json. */
-export const DEMO_TOKENS = { alex: 'demo-token-alex', raj: 'demo-token-raj' } as const;
+export const DEMO_TOKENS = { alex: 'demo-token-alex', raj: 'demo-token-raj', nate: 'demo-token-nate' } as const;
 
 /** The demo users from corpus/demo.json. The MCP token for each comes from configuration, never from the browser. */
 export const PERSONAS: { id: string; name: string; note: string }[] = [
   { id: 'alex', name: 'Alex', note: 'Owns one machine: "my coffee machine" needs no question.' },
   { id: 'raj', name: 'Raj', note: 'Owns two machines, one out of warranty: "my coffee machine" needs a question.' },
+  { id: 'nate', name: 'Nate', note: 'Owns a Google Pixel 9 phone.' },
 ];
 
 // Helpers for reading the environment -----------------------------------------------------------------------------
@@ -241,7 +242,7 @@ export const IDENTIFY_AMBIGUITY_MARGIN = 0.15;
 export const IDENTIFY_FUZZY_CEILING = 0.6;
 export const IDENTIFY_HIGH = 0.85;
 export const IDENTIFY_MEDIUM = 0.4;
-export const IDENTIFY_GENERIC_WORDS = new Set(['coffee', 'machine', 'maker', 'the', 'a', 'an', 'my', 'one', 'with', 'and', 'of', 'i', 'have', 'got']);
+export const IDENTIFY_GENERIC_WORDS = new Set(['coffee', 'machine', 'maker', 'the', 'a', 'an', 'my', 'one', 'with', 'and', 'of', 'i', 'have', 'got', 'phone']);
 
 // Embeddings (packages/server/src/ingest/embed.ts)
 export const EMBEDDING_MODEL = 'Xenova/all-MiniLM-L6-v2';
@@ -327,8 +328,8 @@ export const MOCK_MODEL = 'mock-agent';
 export const MOCK_NOT_FOUND = "I couldn't find that in your documentation.";
 // Each is put once, in this order, so a second "not found" asks something new instead of the same thing again.
 export const MOCK_DETAIL_QUESTIONS = ['What error code or light pattern do you see?', 'What does the machine do when you try to use it, for example any sounds or leaks?'];
-export const MOCK_MODEL_MENTION = /\be-?0\d\b|brew ?pro|dripmate|\bes-?1\b|espresso/i;
-export const MOCK_GENERIC_WORDS = new Set(['machine', 'coffee', 'brewwell', 'maker', 'the', 'one', 'my', 'is', 'it']);
+export const MOCK_MODEL_MENTION = /\be-?0\d\b|brew ?pro|dripmate|\bes-?1\b|espresso|pixel/i;
+export const MOCK_GENERIC_WORDS = new Set(['machine', 'coffee', 'brewwell', 'maker', 'phone', 'the', 'one', 'my', 'is', 'it']);
 
 // Agent loop (packages/simulator/server/agent/loop.ts)
 export const TRACE_TEXT_LIMIT = 600;
@@ -364,7 +365,7 @@ export const PATTERN_NEXT = /\b(next step|what (next|now|else)|anything else (i 
 export const PATTERN_DONT_KNOW = /\b(don'?t know|do not know|no idea|not sure|can'?t tell|unsure|dunno)\b/;
 // What a home-product conversation is about. A line with none of this, and no one to answer, is not about the product.
 export const PATTERN_DOMAIN =
-  /\b(machine|maker|coffee|espresso|brew\w*|drip\w*|pods?|capsules?|cups?|carafe|pot|water|tank|reservoir|filter|descal\w*|scale|clean\w*|leak\w*|error|codes?|lights?|leds?|blink\w*|flash\w*|buttons?|display|screen|steam|pump|noise|noisy|loud|grind\w*|milk|froth\w*|temperature|hot|cold|warm|lukewarm|weak|bitter|taste|smell|burnt|warranty|cover\w*|repair\w*|replac\w*|broken|fix\w*|work\w*|manual|guide|model|serial|product|appliance|device|unit|reset|brewwell|wi-?fi|apps?|connect\w*|bluetooth|alexa|firmware)\b/;
+  /\b(machine|maker|coffee|espresso|brew\w*|drip\w*|pods?|capsules?|cups?|carafe|pot|water|tank|reservoir|filter|descal\w*|scale|clean\w*|leak\w*|error|codes?|lights?|leds?|blink\w*|flash\w*|buttons?|display|screen|steam|pump|noise|noisy|loud|grind\w*|milk|froth\w*|temperature|hot|cold|warm|lukewarm|weak|bitter|taste|smell|burnt|warranty|cover\w*|repair\w*|replac\w*|broken|fix\w*|work\w*|manual|guide|model|serial|product|appliance|device|unit|reset|brewwell|wi-?fi|apps?|connect\w*|bluetooth|alexa|firmware|phones?|pixel|google|batter\w*|charg\w*|cables?|usb\w*|ports?|wireless|signal|sims?|esim|network|mobile|data|updat\w*|android|camera|slow\w*|lag\w*|laggy|freez\w*|froze\w*|crash\w*|overheat\w*|touch\w*|dropp?\w*|crack\w*|restart\w*|reboot\w*|power\w*|apps?|storage|speed|heat|hot)\b/;
 export const PATTERN_ERROR_CODE = /\be-?\d{1,3}\b/;
 // A line that asks something of its own, rather than giving the detail that was asked for.
 export const PATTERN_ASKS = /\?\s*$|^(what|where|when|why|how|who|which|is|are|do|does|can|could|will|would|should)\b/;

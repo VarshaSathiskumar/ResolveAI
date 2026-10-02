@@ -196,7 +196,7 @@ npm run demo         # uses Claude if ANTHROPIC_API_KEY is set, otherwise the mo
 
 To use Claude, export a key first: `export ANTHROPIC_API_KEY=sk-ant-...`
 
-**4. Open** http://localhost:5173 and pick a demo user. Alex owns one Brew Pro 200: try "my coffee machine isn't brewing, only drops come out". Raj owns a Brew Pro 300 (warranty expired) and an Espresso Studio ES-1: try "the milk from my coffee machine is not frothing" and the agent asks which machine you mean.
+**4. Open** http://localhost:5173 and pick a demo user. Alex owns one Brew Pro 200: try "my coffee machine isn't brewing, only drops come out". Raj owns a Brew Pro 300 (warranty expired) and an Espresso Studio ES-1: try "the milk from my coffee machine is not frothing" and the agent asks which machine you mean. Nate owns a Google Pixel 9: try "my phone wont charge".
 
 | Port | Service |
 | --- | --- |
@@ -236,4 +236,4 @@ npm run eval:multiturn -w @resolveai/simulator    # multi-turn scenario eval of 
 
 ## Sample data
 
-`corpus/` holds synthetic Brewwell coffee machine manuals, troubleshooting guides and warranty terms for four models (Brew Pro 200, Brew Pro 300, DripMate 12, Espresso Studio ES-1), plus `demo.json` with two demo users: Alex, who owns one machine, and Raj, who owns two (one out of warranty).
+`corpus/` holds synthetic Brewwell coffee machine manuals, troubleshooting guides and warranty terms for four coffee machines (Brew Pro 200, Brew Pro 300, DripMate 12, Espresso Studio ES-1), plus fictional Google Pixel 9 documentation written for the demo (not Google's own), and `demo.json` with three demo users: Alex, who owns one machine, Raj, who owns two (one out of warranty), and Nate, who owns a Pixel 9.

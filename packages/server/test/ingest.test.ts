@@ -33,8 +33,8 @@ function ftsProducts(query: string): string[] {
 
 describe('ingestCorpus', () => {
   it('loads every product with manual, troubleshooting and warranty documents', () => {
-    expect(stats.products).toBe(4);
-    expect(stats.documents).toBe(12);
+    expect(stats.products).toBe(5);
+    expect(stats.documents).toBe(15);
     expect(stats.chunks).toBeGreaterThan(40);
     const docs = db.prepare('SELECT product_id, COUNT(*) AS n FROM documents GROUP BY product_id').all() as { n: number }[];
     expect(docs.every((row) => row.n === 3)).toBe(true);
@@ -58,6 +58,7 @@ describe('ingestCorpus', () => {
     const owned = db.prepare('SELECT user_id, COUNT(*) AS n FROM owned_products GROUP BY user_id ORDER BY user_id').all();
     expect(owned).toEqual([
       { user_id: 'demo-alex', n: 1 },
+      { user_id: 'demo-nate', n: 1 },
       { user_id: 'demo-raj', n: 2 },
     ]);
     const terms = db.prepare('SELECT product_id, term_months FROM warranties ORDER BY product_id').all();

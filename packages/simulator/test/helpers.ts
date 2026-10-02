@@ -63,7 +63,7 @@ export const collect = () => {
 
 export interface Stack {
   app: TestApp;
-  connect(persona: 'alex' | 'raj' | 'service'): Promise<McpConnection>;
+  connect(persona: 'alex' | 'raj' | 'nate' | 'service'): Promise<McpConnection>;
   close(): Promise<void>;
 }
 

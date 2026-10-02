@@ -1,0 +1,14 @@
+{
+  "id": "google-pixel-9",
+  "brand": "Google",
+  "model": "Pixel 9",
+  "aliases": ["Pixel", "Pixel 9", "Google Pixel", "Google Pixel 9", "Pixel phone", "Google phone"],
+  "category": "smartphone",
+  "specs": { "type": "smartphone", "display": "6.3 inch OLED", "battery_mah": 4700, "wired_charging_w": 27, "wireless_charging": "Qi", "ports": "USB-C", "sim": "nano-SIM and eSIM" },
+  "known_issues": ["charging paused by heat protection", "battery drain from background apps", "mobile data drops after a network change"],
+  "warranty": {
+    "term_months": 12,
+    "coverage": ["battery capacity below 80 percent", "charging port", "display", "speakers and microphones", "buttons"],
+    "exclusions": ["cracked or scratched screens from drops", "water or liquid damage", "cosmetic damage", "unauthorised repairs", "damage from non-certified chargers"]
+  }
+}
