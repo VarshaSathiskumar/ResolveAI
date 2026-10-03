@@ -3,7 +3,12 @@ import type { Citation, PersonaInfo } from '../../../shared/events';
 import type { AppState } from '../state';
 import { shortCitation } from '../format';
 
-const SUGGESTIONS = ["My coffee machine isn't brewing", 'The pump is noisy and no water comes out', 'Is my machine still under warranty?'];
+/** Three things to try for each demo user, matching what that user's registered products make interesting. */
+const SUGGESTIONS: Record<string, string[]> = {
+  alex: ["My coffee machine isn't brewing", 'My laptop is too slow', 'Is my phone still under warranty?'],
+  raj: ["My coffee machine isn't brewing", 'The pump is noisy and no water comes out', 'Is my machine still under warranty?'],
+  nate: ['My phone is acting up', 'The battery drains too fast', 'It gets hot when I charge it'],
+};
 
 interface Props {
   persona: PersonaInfo | undefined;
@@ -43,7 +48,7 @@ export function Conversation({ persona, state, ready, onSend, onCancel, onOpenCi
             <p className="empty__lead">{persona ? `You are speaking as ${persona.name}.` : 'Choose who is calling.'}</p>
             <p className="muted">Try one of these, or say anything.</p>
             <div className="suggestions">
-              {SUGGESTIONS.map((suggestion) => (
+              {(SUGGESTIONS[persona?.id ?? ''] ?? []).map((suggestion) => (
                 <button key={suggestion} type="button" className="suggestion" disabled={!ready} onClick={() => onSend(suggestion)}>
                   {suggestion}
                 </button>

@@ -289,7 +289,7 @@ export const STOPWORDS = new Set(
   (
     'a an and are as at be been but by can could did do does for from get got had has have how i if in into is isnt it its ' +
     'just me my no not of on or our please so that the their them then there these they this to up was we were what when ' +
-    'where which while who why will with would you your wont dont doesnt cant im ive help need want long many much often think thinks maybe seems seem really very bit kind sort thing something' +
+    'where which while who why will with would you your wont dont doesnt cant im ive help need want long many much often think thinks maybe seems seem really very too bit kind sort thing something' +
     // Generic to every document in the corpus, so they say nothing about whether the right page was found.
     ' coffee machine maker'
   ).split(' '),

@@ -28,6 +28,12 @@ describe('find_products_by_symptom', () => {
     expect(out.needs).toEqual(['which_product']);
   });
 
+  it('ignores intensifiers, so "too slow" finds the same products as "it is slow"', async () => {
+    const out = (await find(TOKENS.alex, 'too slow')).structuredContent as Found;
+    expect(out.symptom_terms).toEqual(['slow']);
+    expect(out.matches.map((match) => match.category)).toEqual(['smartphone', 'coffee machine', 'laptop']);
+  });
+
   it('names the guide section that mentions the symptom', async () => {
     const out = (await find(TOKENS.alex, 'it is slow')).structuredContent as Found;
     expect(out.matches.find((match) => match.category === 'laptop')?.section).toBe('Laptop is slow');
